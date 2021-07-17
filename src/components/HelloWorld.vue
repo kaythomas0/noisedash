@@ -7,12 +7,12 @@
 
 <script>
 export default {
-  data() {
+  data () {
     return {
-      msg: "Hello World!",
-    };
-  },
-};
+      msg: 'Hello World!'
+    }
+  }
+}
 </script>
     <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
