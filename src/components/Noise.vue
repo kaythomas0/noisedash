@@ -17,35 +17,62 @@
       </v-col>
 
       <v-col cols="12">
-        <v-btn
-          :disabled="isDisabled"
-          @click="handleStart"
-        >
-          Start
-        </v-btn>
+        <h2 class="headline font-weight-bold mb-5">
+          Playback
+        </h2>
+
+        <v-row justify="center">
+          <v-btn
+            :disabled="startDisabled"
+            class="mx-3"
+            @click="handleStart"
+          >
+            Start
+          </v-btn>
+
+          <v-btn
+            class="mx-3"
+            @click="stopTransport"
+          >
+            Stop
+          </v-btn>
+
+          <v-text-field
+            v-model="timeRemaining"
+            class="mx-3"
+            :value="timeRemaining"
+            label="Time Remaining"
+            filled
+            readonly
+          />
+        </v-row>
       </v-col>
 
       <v-col cols="12">
-        <v-btn
-          @click="handleStop"
-        >
-          Stop
-        </v-btn>
-      </v-col>
+        <h2 class="headline font-weight-bold mb-5">
+          Noise Settings
+        </h2>
 
-      <v-col cols="12">
-        <v-text-field
-          v-model="noiseDuration"
-          label="Seconds"
-        />
-      </v-col>
+        <v-row justify="center">
+          <v-text-field
+            v-model="noiseVolume"
+            label="Volume"
+            class="mx-3"
+          />
 
-      <v-col cols="12">
-        <v-select
-          v-model="noiseColor"
-          :items="noiseColorOptions"
-          label="Noise Color"
-        />
+          <v-text-field
+            v-model="noiseDuration"
+            label="Seconds"
+            class="mx-3"
+          />
+
+          <v-select
+            v-model="noiseColor"
+            :items="noiseColorOptions"
+            label="Noise Color"
+            class="mx-3"
+          />
+        </v-row>
       </v-col>
     </v-row>
   </v-container>
@@ -58,25 +85,39 @@
     name: "Noise",
 
     data: () => ({
-      isDisabled: false,
+      startDisabled: false,
       noiseDuration: 4,
+      timeRemaining: 0,
       noiseColorOptions: ["pink", "white", "brown"],
-      noiseColor: "pink"
+      noiseColor: "pink",
+      noiseVolume: -10
     }),
     created() {
+      this.noise = new Noise()
     },
     methods: {
       handleStart() {
-        this.isDisabled = true
+        this.startDisabled = true
         Transport.cancel()
-        this.noise = new Noise({volume: -10, type: this.noiseColor}).toDestination()
+        this.noise = new Noise({volume: this.noiseVolume, type: this.noiseColor}).toDestination()
         this.noise.sync().start(0).stop(this.noiseDuration)
         Transport.start()
         Transport.loopEnd = this.noiseDuration
+        this.transportInterval = setInterval(() => this.stopTransport(), this.noiseDuration * 1000 + 100)
+
+        this.timeRemaining = this.noiseDuration
+        this.timeRemainingInterval = setInterval(() => this.timer(), 1000)
       },
-      handleStop() {
+      stopTransport() {
+        clearInterval(this.transportInterval)
         Transport.stop()
-        this.isDisabled = false
+        this.startDisabled = false
+
+        clearInterval(this.timeRemainingInterval)
+        this.timeRemaining = 0
+      },
+      timer() {
+        this.timeRemaining -= 1
       }
     },
   }
