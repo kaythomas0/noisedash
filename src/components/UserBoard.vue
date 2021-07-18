@@ -7,12 +7,12 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
-      msg: 'The commoners'
-    }
-  }
-}
+      msg: "The commoners",
+    };
+  },
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

@@ -7,12 +7,12 @@
 
 <script>
 export default {
-  data () {
+  data() {
     return {
-      msg: 'The superheros'
-    }
-  }
-}
+      msg: "The superheros",
+    };
+  },
+};
 </script>
 <style scoped>
 h1,
