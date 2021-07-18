@@ -39,18 +39,21 @@
 
     <v-main>
       <HelloWorld />
+      <Noise />
     </v-main>
   </v-app>
 </template>
 
 <script>
 import HelloWorld from './components/HelloWorld';
+import Noise from './components/Noise';
 
 export default {
   name: 'App',
 
   components: {
     HelloWorld,
+    Noise,
   },
 
   data: () => ({

@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "tone": "^14.7.77",
     "vue": "^2.6.11",
     "vuetify": "^2.4.0"
   },
