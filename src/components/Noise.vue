@@ -35,8 +35,16 @@
 
       <v-col cols="12">
         <v-text-field
-          v-model="seconds"
+          v-model="noiseDuration"
           label="Seconds"
+        />
+      </v-col>
+
+      <v-col cols="12">
+        <v-select
+          v-model="noiseColor"
+          :items="noiseColorOptions"
+          label="Noise Color"
         />
       </v-col>
     </v-row>
@@ -47,11 +55,13 @@
   import { Noise, Transport } from "tone";
 
   export default {
-    name: 'Noise',
+    name: "Noise",
 
     data: () => ({
       isDisabled: false,
-      seconds: 4
+      noiseDuration: 4,
+      noiseColorOptions: ["pink", "white", "brown"],
+      noiseColor: "pink"
     }),
     created() {
     },
@@ -59,10 +69,10 @@
       handleStart() {
         this.isDisabled = true
         Transport.cancel()
-        this.noise = new Noise({volume: -10, type: "brown"}).toDestination()
-        this.noise.sync().start(0).stop(this.seconds)
+        this.noise = new Noise({volume: -10, type: this.noiseColor}).toDestination()
+        this.noise.sync().start(0).stop(this.noiseDuration)
         Transport.start()
-        Transport.loopEnd = this.seconds
+        Transport.loopEnd = this.noiseDuration
       },
       handleStop() {
         Transport.stop()
