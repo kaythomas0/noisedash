@@ -5,7 +5,8 @@ export default {
 
   data: () => ({
     startDisabled: false,
-    noiseDuration: 4,
+    isTimerEnabled: false,
+    noiseDuration: 60,
     timeRemaining: 0,
     noiseColorOptions: ["pink", "white", "brown"],
     noiseColor: "pink",
@@ -13,32 +14,39 @@ export default {
     isFilterEnabled: false,
     frequencyCutoff: 20000,
     filterTypeOptions: ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "notch", "allpass", "peaking"],
-    filterType: "lowpass"
+    filterType: "lowpass",
+    rules: {
+      number: value => !isNaN(parseInt(value, 10)) || 'Invalid number',
+      negative: value => (!isNaN(parseInt(value, 10)) && value <= 0) || "Can't be greater than 0"
+    }
   }),
   created() {
     this.noise = new Noise()
+    this.filter = new Filter()
   },
   methods: {
     playNoise() {
       this.startDisabled = true
       Transport.cancel()
 
-      this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
-
       if (this.isFilterEnabled) {
+        this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
         this.noise = new Noise({volume: this.noiseVolume, type: this.noiseColor}).connect(this.filter)
       } else {
         this.noise = new Noise({volume: this.noiseVolume, type: this.noiseColor}).toDestination()
       }
-      this.noise.sync().start(0).stop(this.noiseDuration)
+
+      if (this.isTimerEnabled) {
+        this.noise.sync().start(0).stop(this.noiseDuration)
+        Transport.loopEnd = this.noiseDuration
+        this.timeRemaining = this.noiseDuration
+        this.transportInterval = setInterval(() => this.stopTransport(), this.noiseDuration * 1000 + 100)
+        this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
+      } else {
+        this.noise.sync().start(0)
+      }
 
       Transport.start()
-      Transport.loopEnd = this.noiseDuration
-
-      this.transportInterval = setInterval(() => this.stopTransport(), this.noiseDuration * 1000 + 100)
-
-      this.timeRemaining = this.noiseDuration
-      this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
     },
     stopTransport() {
       clearInterval(this.transportInterval)
@@ -50,6 +58,12 @@ export default {
     },
     startTimer() {
       this.timeRemaining -= 1
+    },
+    updateVolume() {
+      this.noise.volume.value = this.noiseVolume
+    },
+    updateNoiseColor() {
+      this.noise.type = this.noiseColor
     }
   },
 }

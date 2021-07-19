@@ -37,6 +37,20 @@
             Stop
           </v-btn>
 
+          <v-checkbox
+            v-model="isTimerEnabled"
+            :disabled="startDisabled"
+            label="Enable Timer"
+            class="mx-3"
+          />
+
+          <v-text-field
+            v-model="noiseDuration"
+            label="Seconds"
+            class="mx-3"
+            :disabled="startDisabled || !isTimerEnabled"
+          />
+
           <v-text-field
             v-model="timeRemaining"
             class="mx-3"
@@ -44,6 +58,7 @@
             label="Time Remaining"
             filled
             readonly
+            :disabled="!isTimerEnabled"
           />
         </v-row>
       </v-col>
@@ -54,18 +69,15 @@
         </h2>
 
         <v-row justify="center">
-          <v-text-field
+          <v-slider
             v-model="noiseVolume"
             label="Volume"
+            thumb-label="always"
+            :thumb-size="40"
+            max="0"
+            min="-30"
             class="mx-3"
-            :disabled="startDisabled"
-          />
-
-          <v-text-field
-            v-model="noiseDuration"
-            label="Seconds"
-            class="mx-3"
-            :disabled="startDisabled"
+            @change="updateVolume"
           />
 
           <v-select
@@ -73,7 +85,7 @@
             :items="noiseColorOptions"
             label="Noise Color"
             class="mx-3"
-            :disabled="startDisabled"
+            @change="updateNoiseColor"
           />
         </v-row>
       </v-col>
@@ -86,13 +98,13 @@
         <v-row justify="center">
           <v-checkbox
             v-model="isFilterEnabled"
-            :disabled="startDisabled"
             label="Enabled"
             class="mb-5"
+            :disabled="startDisabled"
           />
         </v-row>
       </v-col>
-      
+
       <v-col cols="12">
         <v-row justify="center">
           <v-select
@@ -100,9 +112,9 @@
             :items="filterTypeOptions"
             label="Filter Type"
             class="mx-3"
-            :disabled="!isFilterEnabled ||startDisabled"
+            :disabled="!isFilterEnabled || startDisabled"
           />
-          
+
           <v-slider
             v-model="frequencyCutoff"
             label="Frequency Cutoff (Hz)"
