@@ -24,14 +24,14 @@
         <v-row justify="center">
           <v-btn
             :disabled="startDisabled"
-            class="mx-3"
-            @click="handleStart"
+            class="mx-3 mb-5"
+            @click="playNoise"
           >
             Start
           </v-btn>
 
           <v-btn
-            class="mx-3"
+            class="mx-3 mb-5"
             @click="stopTransport"
           >
             Stop
@@ -58,12 +58,14 @@
             v-model="noiseVolume"
             label="Volume"
             class="mx-3"
+            :disabled="startDisabled"
           />
 
           <v-text-field
             v-model="noiseDuration"
             label="Seconds"
             class="mx-3"
+            :disabled="startDisabled"
           />
 
           <v-select
@@ -71,7 +73,54 @@
             :items="noiseColorOptions"
             label="Noise Color"
             class="mx-3"
+            :disabled="startDisabled"
           />
+        </v-row>
+      </v-col>
+
+      <v-col cols="12">
+        <h2 class="headline font-weight-bold mb-5">
+          Filter
+        </h2>
+
+        <v-row justify="center">
+          <v-checkbox
+            v-model="isFilterEnabled"
+            :disabled="startDisabled"
+            label="Enabled"
+            class="mb-5"
+          />
+        </v-row>
+      </v-col>
+      
+      <v-col cols="12">
+        <v-row justify="center">
+          <v-select
+            v-model="filterType"
+            :items="filterTypeOptions"
+            label="Filter Type"
+            class="mx-3"
+            :disabled="!isFilterEnabled ||startDisabled"
+          />
+          
+          <v-slider
+            v-model="frequencyCutoff"
+            label="Frequency Cutoff (Hz)"
+            thumb-label="always"
+            :thumb-size="40"
+            :disabled="!isFilterEnabled || startDisabled"
+            max="20000"
+            min="0"
+            class="mx-3"
+          >
+            <template v-slot:append>
+              <v-text-field
+                v-model="frequencyCutoff"
+                class="mt-0 pt-0"
+                type="number"
+              />
+            </template>
+          </v-slider>
         </v-row>
       </v-col>
     </v-row>
