@@ -1,22 +1,28 @@
 <template>
   <v-app>
+    <AppBar />
     <v-main>
-      <AppBar />
-      <Noise />
+      <v-container fluid>
+        <router-link to="/">
+          Home
+        </router-link> |
+        <router-link to="/login">
+          Login
+        </router-link>
+        <router-view />
+      </v-container>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import Noise from './components/Noise'
-import AppBar from './components/AppBar'
+import AppBar from '@/components/AppBar'
 
 export default {
   name: 'App',
 
   components: {
     AppBar,
-    Noise,
   },
 
   data: () => ({
