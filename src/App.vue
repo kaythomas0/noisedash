@@ -1,16 +1,8 @@
 <template>
   <v-app>
-    <AppBar />
+   <AppBar />
     <v-main>
-      <v-container fluid>
-        <router-link to="/">
-          Home
-        </router-link> |
-        <router-link to="/login">
-          Login
-        </router-link>
-        <router-view />
-      </v-container>
+      <router-view/>
     </v-main>
   </v-app>
 </template>
@@ -22,11 +14,11 @@ export default {
   name: 'App',
 
   components: {
-    AppBar,
+    AppBar
   },
 
   data: () => ({
     //
-  }),
+  })
 }
 </script>

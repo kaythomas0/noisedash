@@ -1,39 +1,39 @@
-import { Filter, Noise, Transport } from "tone";
+import { Filter, Noise, Transport } from 'tone'
 
 export default {
-  name: "Noise",
+  name: 'Noise',
 
   data: () => ({
     startDisabled: false,
     isTimerEnabled: false,
     noiseDuration: 60,
     timeRemaining: 0,
-    noiseColorOptions: ["pink", "white", "brown"],
-    noiseColor: "pink",
+    noiseColorOptions: ['pink', 'white', 'brown'],
+    noiseColor: 'pink',
     noiseVolume: -10,
     isFilterEnabled: false,
     frequencyCutoff: 20000,
-    filterTypeOptions: ["lowpass", "highpass", "bandpass", "lowshelf", "highshelf", "notch", "allpass", "peaking"],
-    filterType: "lowpass",
+    filterTypeOptions: ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'notch', 'allpass', 'peaking'],
+    filterType: 'lowpass',
     rules: {
       number: value => !isNaN(parseInt(value, 10)) || 'Invalid number',
       negative: value => (!isNaN(parseInt(value, 10)) && value <= 0) || "Can't be greater than 0"
     }
   }),
-  created() {
+  created () {
     this.noise = new Noise()
     this.filter = new Filter()
   },
   methods: {
-    playNoise() {
+    playNoise () {
       this.startDisabled = true
       Transport.cancel()
 
       if (this.isFilterEnabled) {
         this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
-        this.noise = new Noise({volume: this.noiseVolume, type: this.noiseColor}).connect(this.filter)
+        this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).connect(this.filter)
       } else {
-        this.noise = new Noise({volume: this.noiseVolume, type: this.noiseColor}).toDestination()
+        this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).toDestination()
       }
 
       if (this.isTimerEnabled) {
@@ -48,7 +48,7 @@ export default {
 
       Transport.start()
     },
-    stopTransport() {
+    stopTransport () {
       clearInterval(this.transportInterval)
       Transport.stop()
       this.startDisabled = false
@@ -56,14 +56,14 @@ export default {
       clearInterval(this.timeRemainingInterval)
       this.timeRemaining = 0
     },
-    startTimer() {
+    startTimer () {
       this.timeRemaining -= 1
     },
-    updateVolume() {
+    updateVolume () {
       this.noise.volume.value = this.noiseVolume
     },
-    updateNoiseColor() {
+    updateNoiseColor () {
       this.noise.type = this.noiseColor
     }
-  },
+  }
 }

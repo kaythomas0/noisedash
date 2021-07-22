@@ -38,4 +38,3 @@ app.use('/myaccount', myaccountRouter);
 app.use('/users', usersRouter);
 
 module.exports = app;
-
