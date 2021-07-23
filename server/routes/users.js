@@ -4,11 +4,8 @@ const db = require('../db');
 
 const router = express.Router();
 
-router.get('/new', function(req, res, next) {
-  res.render('signup');
-});
-
 router.post('/', function(req, res, next) {
+  console.log("REQ: ", req.body)
   const salt = crypto.randomBytes(16);
   crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', function(err, hashedPassword) {
     if (err) { return next(err); }
@@ -28,7 +25,6 @@ router.post('/', function(req, res, next) {
       };
       req.login(user, function(err) {
         if (err) { return next(err); }
-        res.redirect('/');
       });
     });
   });

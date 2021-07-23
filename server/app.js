@@ -1,15 +1,17 @@
 const express = require('express');
+const session = require('express-session')
+const cors = require('cors')
 const passport = require('passport');
 const path = require('path');
 const cookieParser = require('cookie-parser');
-const db = require('./db');
 const ensureLoggedIn = require('connect-ensure-login').ensureLoggedIn;
-const crypto = require('crypto');
+const bodyParser = require("body-parser")
 
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 const myaccountRouter = require('./routes/myaccount');
 const usersRouter = require('./routes/users');
+const db = require('./db');
 
 const app = express();
 
@@ -20,7 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(require('express-session')({ secret: 'keyboard cat', resave: false, saveUninitialized: false }));
+app.use(session({ secret: "cats", resave: false, saveUninitialized: false }));
 app.use(function(req, res, next) {
   const msgs = req.session.messages || [];
   res.locals.messages = msgs;
@@ -28,8 +30,10 @@ app.use(function(req, res, next) {
   req.session.messages = [];
   next();
 });
+app.use(bodyParser.json());
 app.use(passport.initialize());
 app.use(passport.authenticate('session'));
+app.use(cors())
 
 // Define routes
 app.use('/', indexRouter);

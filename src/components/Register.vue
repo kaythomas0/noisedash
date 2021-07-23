@@ -6,7 +6,7 @@
         class="mb-4"
       >
         <h1 class="display-2 font-weight-bold mb-3">
-          Login
+          Register
         </h1>
       </v-col>
 
@@ -15,8 +15,20 @@
         md="4"
       >
         <v-text-field
+          v-model="name"
+          :rules="[rules.required]"
+          label="Name"
+          required
+        />
+      </v-col>
+
+      <v-col
+        cols="12"
+        md="4"
+      >
+        <v-text-field
           v-model="username"
-          :rules="usernameRules"
+          :rules="[rules.required]"
           label="Username"
           required
         />
@@ -29,7 +41,7 @@
         <v-text-field
           v-model="password"
           type="password"
-          :rules="passwordRules"
+          :rules="[rules.required]"
           label="Password"
           required
         />
@@ -37,9 +49,9 @@
 
       <v-btn
         class="mx-3 mb-5"
-        @click="login"
+        @click="register"
       >
-        Login
+        Register
       </v-btn>
     </v-container>
   </v-form>
@@ -49,18 +61,17 @@
 export default {
   data: () => ({
     valid: false,
+    name: '',
     username: '',
     password: '',
-    usernameRules: [
-      v => !!v || 'Username is required'
-    ],
-    passwordRules: [
-      v => !!v || 'Password is required'
-    ]
+    rules: {
+      required: v => !!v || 'Required'
+    }
   }),
   methods: {
-    login () {
-      this.$http.post('https://localhost:3000/login/password', {
+    register () {
+      this.$http.post('https://localhost:3000/users', {
+        name: this.name,
         username: this.username,
         password: this.password
       })

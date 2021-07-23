@@ -4,14 +4,17 @@
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
+    "server": "node server/bin/www",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "connect-ensure-login": "^0.1.1",
     "cookie-parser": "^1.4.5",
     "core-js": "^3.6.5",
+    "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-session": "^1.17.2",
     "passport": "^0.4.1",

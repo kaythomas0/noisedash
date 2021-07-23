@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Local dev certs
+certs/*
+
+# SQLite DB
+db.sqlite3

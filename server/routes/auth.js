@@ -3,20 +3,16 @@ const passport = require('passport');
 
 const router = express.Router();
 
-/* GET users listing. */
-router.get('/login', function(req, res, next) {
-  res.render('login');
+router.post('/login/password', passport.authenticate('local'), function(req, res, next) {
+  if(req.user) {
+    res.json(req.user);
+  } else {
+    res.statusCode = 403;
+  }
 });
-
-router.post('/login/password', passport.authenticate('local', {
-  successRedirect: '/',
-  failureRedirect: '/login',
-  failureMessage: true
-}));
 
 router.get('/logout', function(req, res, next) {
   req.logout();
-  res.redirect('/');
 });
 
 module.exports = router;
