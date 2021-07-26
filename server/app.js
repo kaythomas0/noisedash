@@ -1,5 +1,6 @@
 const express = require('express')
 const session = require('express-session')
+const FileStore = require('session-file-store')(session);
 const cors = require('cors')
 const passport = require('passport')
 const path = require('path')
@@ -12,14 +13,24 @@ const usersRouter = require('./routes/users')
 
 const app = express()
 
+const corsOptions = {
+  origin: 'http://localhost:8080',
+  credentials: true
+}
+
+app.use(cors(corsOptions))
+
+const fileStoreOptions = {
+  path: './sessions'
+};
+
 require('./boot/db')()
 require('./boot/auth')()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(express.static(path.join(__dirname, 'public')))
-app.use(session({ secret: 'cats', resave: false, saveUninitialized: false }))
+app.use(session({ store: new FileStore(fileStoreOptions), secret: 'cats', resave: true, saveUninitialized: true }))
 app.use(function (req, res, next) {
   const msgs = req.session.messages || []
   res.locals.messages = msgs
@@ -27,10 +38,9 @@ app.use(function (req, res, next) {
   req.session.messages = []
   next()
 })
-app.use(express.json())
 app.use(passport.initialize())
 app.use(passport.authenticate('session'))
-app.use(cors())
+//app.use(passport.session());
 
 // Define routes
 app.use('/', indexRouter)

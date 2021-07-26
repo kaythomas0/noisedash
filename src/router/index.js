@@ -1,6 +1,12 @@
 import Vue from 'vue'
+import Axios from 'axios'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
+
+const instance = Axios.create({
+  baseURL: 'https://localhost:3000',
+  withCredentials: true
+})
 
 Vue.use(VueRouter)
 
@@ -32,6 +38,25 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.name === 'Home') {
+    instance.get('/auth')
+      .then(response => {
+        if (response.status === 200) {
+          next()
+        } else {
+          next('/login')
+        }
+      })
+      .catch(function (error) {
+        console.error(error.response)
+        next('/login')
+      })
+  } else {
+    next()
+  }
 })
 
 export default router
