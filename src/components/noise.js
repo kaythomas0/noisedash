@@ -26,6 +26,7 @@ export default {
   },
   methods: {
     playNoise () {
+      console.log('frequencyCutoff: ', this.frequencyCutoff)
       this.startDisabled = true
       Transport.cancel()
 
@@ -55,6 +56,9 @@ export default {
 
       clearInterval(this.timeRemainingInterval)
       this.timeRemaining = 0
+
+      this.noise = new Noise()
+      this.filter = new Filter()
     },
     startTimer () {
       this.timeRemaining -= 1
@@ -64,6 +68,16 @@ export default {
     },
     updateNoiseColor () {
       this.noise.type = this.noiseColor
+    },
+    updateFilter () {
+      console.log('change')
+      if (this.isFilterEnabled) {
+        this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
+        this.noise.connect(this.filter)
+      } else {
+        this.noise.disconnect(this.filter)
+        this.noise.toDestination()
+      }
     }
   }
 }

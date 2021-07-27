@@ -100,7 +100,7 @@
             v-model="isFilterEnabled"
             label="Enabled"
             class="mb-5"
-            :disabled="startDisabled"
+            @change="updateFilter"
           />
         </v-row>
       </v-col>
@@ -112,7 +112,6 @@
             :items="filterTypeOptions"
             label="Filter Type"
             class="mx-3"
-            :disabled="!isFilterEnabled || startDisabled"
           />
 
           <v-slider
@@ -120,7 +119,6 @@
             label="Frequency Cutoff (Hz)"
             thumb-label="always"
             :thumb-size="40"
-            :disabled="!isFilterEnabled || startDisabled"
             max="20000"
             min="0"
             class="mx-3"
