@@ -1,4 +1,4 @@
-import { Filter, Noise, Transport } from 'tone'
+import { Filter, Noise, Transport, getDestination } from 'tone'
 
 export default {
   name: 'Noise',
@@ -26,7 +26,6 @@ export default {
   },
   methods: {
     playNoise () {
-      console.log('frequencyCutoff: ', this.frequencyCutoff)
       this.startDisabled = true
       Transport.cancel()
 
@@ -56,9 +55,6 @@ export default {
 
       clearInterval(this.timeRemainingInterval)
       this.timeRemaining = 0
-
-      this.noise = new Noise()
-      this.filter = new Filter()
     },
     startTimer () {
       this.timeRemaining -= 1
@@ -69,15 +65,21 @@ export default {
     updateNoiseColor () {
       this.noise.type = this.noiseColor
     },
-    updateFilter () {
-      console.log('change')
+    updateFilterEnabled () {
       if (this.isFilterEnabled) {
         this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
+        this.noise.disconnect(getDestination())
         this.noise.connect(this.filter)
       } else {
-        this.noise.disconnect(this.filter)
+        this.noise.disconnect()
         this.noise.toDestination()
       }
+    },
+    updateFilterType () {
+      this.filter.type = this.filterType
+    },
+    updateFrequencyCutoff () {
+      this.filter.set({ frequency: this.frequencyCutoff })
     }
   }
 }

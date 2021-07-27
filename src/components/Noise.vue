@@ -100,7 +100,7 @@
             v-model="isFilterEnabled"
             label="Enabled"
             class="mb-5"
-            @change="updateFilter"
+            @change="updateFilterEnabled"
           />
         </v-row>
       </v-col>
@@ -112,6 +112,7 @@
             :items="filterTypeOptions"
             label="Filter Type"
             class="mx-3"
+            @change="updateFilterType"
           />
 
           <v-slider
@@ -122,6 +123,7 @@
             max="20000"
             min="0"
             class="mx-3"
+            @change="updateFrequencyCutoff"
           >
             <template v-slot:append>
               <v-text-field
