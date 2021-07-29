@@ -100,7 +100,7 @@
             v-model="isFilterEnabled"
             label="Enabled"
             class="mb-5"
-            @change="updateFilterEnabled"
+            @change="updateAudioChain"
           />
         </v-row>
       </v-col>
@@ -124,15 +124,54 @@
             min="0"
             class="mx-3"
             @change="updateFrequencyCutoff"
-          >
-            <template v-slot:append>
-              <v-text-field
-                v-model="frequencyCutoff"
-                class="mt-0 pt-0"
-                type="number"
-              />
-            </template>
-          </v-slider>
+          />
+        </v-row>
+      </v-col>
+
+      <v-col cols="12">
+        <h2 class="headline font-weight-bold mb-5">
+          Tremolo
+        </h2>
+
+        <v-row justify="center">
+          <v-checkbox
+            v-model="isTremoloEnabled"
+            label="Enabled"
+            class="mb-5"
+            @change="updateAudioChain"
+          />
+        </v-row>
+      </v-col>
+
+      <v-col cols="12">
+        <v-row justify="center">
+          <v-slider
+            v-model="tremoloFrequency"
+            label="Frequency (0-1 Hz)"
+            thumb-label="always"
+            :thumb-size="40"
+            max="1"
+            min="0"
+            step="0.1"
+            ticks
+            tick-size="4"
+            class="mx-3"
+            @change="updateTremoloFrequency"
+          />
+
+          <v-slider
+            v-model="tremoloDepth"
+            label="Depth (0-1 Hz)"
+            thumb-label="always"
+            :thumb-size="40"
+            max="1"
+            min="0"
+            step="0.1"
+            ticks
+            tick-size="4"
+            class="mx-3"
+            @change="updateTremoloDepth"
+          />
         </v-row>
       </v-col>
     </v-row>

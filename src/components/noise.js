@@ -1,4 +1,4 @@
-import { Filter, Noise, Transport, getDestination } from 'tone'
+import { Filter, Noise, Transport, Tremolo } from 'tone'
 
 export default {
   name: 'Noise',
@@ -18,22 +18,34 @@ export default {
     rules: {
       number: value => !isNaN(parseInt(value, 10)) || 'Invalid number',
       negative: value => (!isNaN(parseInt(value, 10)) && value <= 0) || "Can't be greater than 0"
-    }
+    },
+    isTremoloEnabled: false,
+    tremoloFrequency: 0.5,
+    tremoloDepth: 0.5
   }),
   created () {
     this.noise = new Noise()
     this.filter = new Filter()
+    this.tremolo = new Tremolo()
   },
   methods: {
     playNoise () {
       this.startDisabled = true
       Transport.cancel()
 
-      if (this.isFilterEnabled) {
+      // TODO: This conditional logic can be improved
+      if (!this.isFilterEnabled && !this.isTremoloEnabled) {
+        this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).toDestination()
+      } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).connect(this.tremolo)
+      } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
         this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
         this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).connect(this.filter)
       } else {
-        this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).toDestination()
+        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Filter(this.frequencyCutoff, this.filterType).connect(this.tremolo)
+        this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).connect(this.filter)
       }
 
       if (this.isTimerEnabled) {
@@ -65,21 +77,35 @@ export default {
     updateNoiseColor () {
       this.noise.type = this.noiseColor
     },
-    updateFilterEnabled () {
-      if (this.isFilterEnabled) {
-        this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
-        this.noise.disconnect(getDestination())
-        this.noise.connect(this.filter)
-      } else {
-        this.noise.disconnect()
-        this.noise.toDestination()
-      }
-    },
     updateFilterType () {
       this.filter.type = this.filterType
     },
     updateFrequencyCutoff () {
       this.filter.set({ frequency: this.frequencyCutoff })
+    },
+    updateTremoloFrequency () {
+      this.tremolo.set({ frequency: this.tremoloFrequency })
+    },
+    updateTremoloDepth () {
+      this.tremolo.set({ depth: this.tremoloDepth })
+    },
+    updateAudioChain () {
+      this.noise.disconnect()
+
+      // TODO: This conditional logic can be improved
+      if (!this.isFilterEnabled && !this.isTremoloEnabled) {
+        this.noise.toDestination()
+      } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.noise.connect(this.tremolo)
+      } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
+        this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
+        this.noise.connect(this.filter)
+      } else {
+        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Filter(this.frequencyCutoff, this.filterType).connect(this.tremolo)
+        this.noise.connect(this.filter)
+      }
     }
   }
 }
