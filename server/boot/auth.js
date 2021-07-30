@@ -39,14 +39,12 @@ module.exports = function () {
   // serializing, and querying the user record by ID from the database when
   // deserializing.
   passport.serializeUser(function (user, cb) {
-    console.log('serializing user: ');
     process.nextTick(function () {
       cb(null, { id: user.id, username: user.username })
     })
   })
 
   passport.deserializeUser(function (user, cb) {
-    console.log("DESERIALIZE")
     process.nextTick(function () {
       return cb(null, user)
     })

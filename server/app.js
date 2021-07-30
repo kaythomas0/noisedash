@@ -40,7 +40,6 @@ app.use(function (req, res, next) {
 })
 app.use(passport.initialize())
 app.use(passport.authenticate('session'))
-//app.use(passport.session());
 
 // Define routes
 app.use('/', indexRouter)

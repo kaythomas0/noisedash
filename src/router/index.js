@@ -41,7 +41,7 @@ const router = new VueRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  if (to.name === 'TMP_Home') {
+  if (to.name === 'Home') {
     instance.get('/auth')
       .then(response => {
         if (response.status === 200) {

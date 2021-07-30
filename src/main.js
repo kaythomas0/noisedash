@@ -4,7 +4,12 @@ import router from './router'
 import vuetify from './plugins/vuetify'
 import Axios from 'axios'
 
-Vue.prototype.$http = Axios
+const instance = Axios.create({
+  baseURL: 'https://localhost:3000',
+  withCredentials: true
+})
+
+Vue.prototype.$http = instance
 
 Vue.config.productionTip = false
 
