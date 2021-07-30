@@ -5,7 +5,6 @@ const db = require('../db')
 const router = express.Router()
 
 router.post('/', function (req, res, next) {
-  console.log('REQ: ', req.body)
   const salt = crypto.randomBytes(16)
   crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', function (err, hashedPassword) {
     if (err) { return next(err) }

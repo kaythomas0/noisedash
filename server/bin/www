@@ -5,27 +5,28 @@
  */
 const app = require('../app')
 const debug = require('debug')('example:server')
-const https = require('https')
 const fs = require('fs')
+const config = require('config')
+
+const tls = config.get('Server.tls')
+
+const http = require(tls ? 'https' : 'http')
 
 /**
  * Get port from environment and store in Express.
  */
-const port = normalizePort(process.env.PORT || '3000')
+const port = normalizePort(config.get('Server.listeningPort'))
 app.set('port', port)
 
-/**
- * HTTPS options.
- */
-const httpsOptions = {
-  key: fs.readFileSync('./certs/key.pem'),
-  cert: fs.readFileSync('./certs/cert.pem')
-}
+let server = http.createServer(app)
+if (tls) {
+  const httpsOptions = {
+    key: fs.readFileSync(config.get('Server.tlsKey')),
+	cert: fs.readFileSync(config.get('Server.tlsCert'))
+  }
 
-/**
- * Create HTTP server.
- */
-const server = https.createServer(httpsOptions, app)
+  server = http.createServer(httpsOptions, app)
+}
 
 /**
  * Listen on provided port, on all network interfaces.
