@@ -109,6 +109,7 @@
         <v-row justify="center">
           <v-select
             v-model="filterType"
+            :disabled="!isFilterEnabled"
             :items="filterTypeOptions"
             label="Filter Type"
             class="mx-3"
@@ -117,6 +118,7 @@
 
           <v-slider
             v-model="frequencyCutoff"
+            :disabled="!isFilterEnabled || isFilterCutoffLFOEnabled"
             label="Frequency Cutoff (Hz)"
             thumb-label="always"
             :thumb-size="40"
@@ -124,6 +126,39 @@
             min="0"
             class="mx-3"
             @change="updateFrequencyCutoff"
+          />
+
+          <v-checkbox
+            v-model="isFilterCutoffLFOEnabled"
+            :disabled="!isFilterEnabled"
+            label="Filter Cutoff LFO"
+            class="mb-5"
+            @change="updateAudioChain"
+          />
+
+          <v-slider
+            v-model="filterCutoffLFOFrequency"
+            :disabled="!isFilterCutoffLFOEnabled || !isFilterEnabled"
+            label="Rate (Hz)"
+            thumb-label="always"
+            :thumb-size="40"
+            max="10"
+            min="0.1"
+            step="0.1"
+            class="mx-3"
+            @change="updateFilterCutoffLFOFrequency"
+          />
+
+          <v-range-slider
+            v-model="filterCutoffLFORange"
+            :disabled="!isFilterCutoffLFOEnabled || !isFilterEnabled"
+            label="Frequency Range (Hz)"
+            thumb-label="always"
+            :thumb-size="40"
+            :min="filterCutoffLFOMin"
+            :max="filterCutoffLFOMax"
+            class="mx-3"
+            @change="updateFilterCutoffLFORange"
           />
         </v-row>
       </v-col>
@@ -147,6 +182,7 @@
         <v-row justify="center">
           <v-slider
             v-model="tremoloFrequency"
+            :disabled="!isTremoloEnabled"
             label="Frequency (0-1 Hz)"
             thumb-label="always"
             :thumb-size="40"
@@ -161,6 +197,7 @@
 
           <v-slider
             v-model="tremoloDepth"
+            :disabled="!isTremoloEnabled"
             label="Depth (0-1 Hz)"
             thumb-label="always"
             :thumb-size="40"

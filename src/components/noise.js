@@ -1,4 +1,4 @@
-import { Filter, Noise, Transport, Tremolo } from 'tone'
+import { Filter, LFO, Noise, Transport, Tremolo } from 'tone'
 
 export default {
   name: 'Noise',
@@ -15,6 +15,11 @@ export default {
     frequencyCutoff: 20000,
     filterTypeOptions: ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'notch', 'allpass', 'peaking'],
     filterType: 'lowpass',
+    isFilterCutoffLFOEnabled: false,
+    filterCutoffLFOFrequency: 1,
+    filterCutoffLFOMin: 0,
+    filterCutoffLFOMax: 20000,
+    filterCutoffLFORange: [100, 1000],
     rules: {
       number: value => !isNaN(parseInt(value, 10)) || 'Invalid number',
       negative: value => (!isNaN(parseInt(value, 10)) && value <= 0) || "Can't be greater than 0"
@@ -27,6 +32,7 @@ export default {
     this.noise = new Noise()
     this.filter = new Filter()
     this.tremolo = new Tremolo()
+    this.lfo = new LFO()
   },
   methods: {
     playNoise () {
@@ -46,6 +52,11 @@ export default {
         this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.filter = new Filter(this.frequencyCutoff, this.filterType).connect(this.tremolo)
         this.noise = new Noise({ volume: this.noiseVolume, type: this.noiseColor }).connect(this.filter)
+      }
+
+      if (this.isFilterCutoffLFOEnabled) {
+        this.lfo = new LFO({ frequency: this.filterCutoffLFOFrequency, min: this.filterCutoffLFORange[0], max: this.filterCutoffLFORange[1] })
+        this.lfo.connect(this.filter.frequency).start()
       }
 
       if (this.isTimerEnabled) {
@@ -83,6 +94,12 @@ export default {
     updateFrequencyCutoff () {
       this.filter.set({ frequency: this.frequencyCutoff })
     },
+    updateFilterCutoffLFOFrequency () {
+      this.lfo.set({ frequency: this.filterCutoffLFOFrequency })
+    },
+    updateFilterCutoffLFORange () {
+      this.lfo.set({ min: this.filterCutoffLFORange[0], max: this.filterCutoffLFORange[1] })
+    },
     updateTremoloFrequency () {
       this.tremolo.set({ frequency: this.tremoloFrequency })
     },
@@ -98,9 +115,16 @@ export default {
       } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
         this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.noise.connect(this.tremolo)
-      } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
+      } else if (this.isFilterEnabled && !this.isFilterCutoffLFOEnabled && !this.isTremoloEnabled) {
         this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
         this.noise.connect(this.filter)
+        this.lfo.disconnect()
+        this.lfo.stop()
+      } else if (this.isFilterEnabled && this.isFilterCutoffLFOEnabled && !this.isTremoloEnabled) {
+        this.filter = new Filter(this.frequencyCutoff, this.filterType).toDestination()
+        this.noise.connect(this.filter)
+        this.lfo = new LFO({ frequency: this.filterCutoffLFOFrequency, min: this.filterCutoffLFORange[0], max: this.filterCutoffLFORange[1] })
+        this.lfo.connect(this.filter.frequency).start()
       } else {
         this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.filter = new Filter(this.frequencyCutoff, this.filterType).connect(this.tremolo)
