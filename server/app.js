@@ -9,6 +9,7 @@ const config = require('config')
 
 const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
+const profilesRouter = require('./routes/profiles')
 
 const app = express()
 
@@ -43,5 +44,6 @@ app.use(passport.authenticate('session'))
 // Define routes
 app.use('/', authRouter)
 app.use('/users', usersRouter)
+app.use('/profiles', profilesRouter)
 
 module.exports = app

@@ -12,6 +12,7 @@ module.exports = function () {
 
     db.run(`CREATE TABLE IF NOT EXISTS profiles (
       name TEXT UNIQUE,
+      user INTEGER,
       timer_enabled INTEGER,
       timer_seconds INTEGER,
       volume INTEGER,
@@ -26,7 +27,6 @@ module.exports = function () {
       tremolo_enabled INTEGER,
       tremolo_frequency REAL,
       tremolo_depth REAL,
-      user INTEGER,
       FOREIGN KEY(user) REFERENCES user(id))`
     )
   })
