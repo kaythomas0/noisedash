@@ -7,9 +7,7 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const config = require('config')
 
-const indexRouter = require('./routes/index')
 const authRouter = require('./routes/auth')
-const myaccountRouter = require('./routes/myaccount')
 const usersRouter = require('./routes/users')
 
 const app = express()
@@ -43,9 +41,7 @@ app.use(passport.initialize())
 app.use(passport.authenticate('session'))
 
 // Define routes
-app.use('/', indexRouter)
 app.use('/', authRouter)
-app.use('/myaccount', myaccountRouter)
 app.use('/users', usersRouter)
 
 module.exports = app
