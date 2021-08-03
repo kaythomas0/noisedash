@@ -4,7 +4,7 @@ const db = require('../db')
 
 const router = express.Router()
 
-router.post('/', function (req, res, next) {
+router.post('/users', function (req, res, next) {
   const salt = crypto.randomBytes(16)
   crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', function (err, hashedPassword) {
     if (err) {

@@ -3,7 +3,7 @@ const db = require('../db')
 
 const router = express.Router()
 
-router.post('/', function (req, res, next) {
+router.post('/profiles', function (req, res, next) {
   if (!req.user) {
     return res.sendStatus(401)
   }
@@ -47,6 +47,7 @@ router.post('/', function (req, res, next) {
     ],
     function (err) {
       if (err) {
+        console.log(err)
         return res.sendStatus(500)
       }
 
@@ -55,7 +56,7 @@ router.post('/', function (req, res, next) {
   )
 })
 
-router.get('/', function (req, res, next) {
+router.get('/profiles', function (req, res, next) {
   if (!req.user) {
     return res.sendStatus(401)
   }

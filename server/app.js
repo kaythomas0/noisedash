@@ -43,7 +43,7 @@ app.use(passport.authenticate('session'))
 
 // Define routes
 app.use('/', authRouter)
-app.use('/users', usersRouter)
-app.use('/profiles', profilesRouter)
+app.use('/', usersRouter)
+app.use('/', profilesRouter)
 
 module.exports = app
