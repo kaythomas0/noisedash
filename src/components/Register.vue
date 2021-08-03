@@ -77,7 +77,7 @@ export default {
       })
         .then(response => {
           if (response.status === 200) {
-            this.$router.push('/')
+            this.$router.push('/login')
           }
         })
         .catch(function (error) {

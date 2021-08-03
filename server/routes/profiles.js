@@ -5,47 +5,78 @@ const router = express.Router()
 
 router.post('/', function (req, res, next) {
   if (!req.user) {
-    res.sendStatus(401)
+    return res.sendStatus(401)
   }
+
+  console.log(req.body)
 
   db.run(`INSERT INTO profiles (
     name,
     user,
     timer_enabled,
-    timer_seconds,
+    duration,
     volume,
     noise_color,
     filter_enabled,
     filter_type,
     filter_cutoff,
-    filter_cutoff_lfo_enabled,
-    filter_cutoff_lfo_rate,
-    filter_cutoff_lfo_min,
-    filter_cutoff_lfo_max,
+    lfo_filter_cutoff_enabled,
+    lfo_filter_cutoff_frequency,
+    lfo_filter_cutoff_low,
+    lfo_filter_cutoff_high,
     tremolo_enabled,
     tremolo_frequency,
     tremolo_depth)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
       req.body.name,
       req.user.id,
-      req.body.timerEnabled,
-      req.body.timerSeconds,
+      req.body.isTimerEnabled,
+      req.body.duration,
       req.body.volume,
       req.body.noiseColor,
-      req.body.filterEnabled,
+      req.body.isFilterEnabled,
       req.body.filterType,
       req.body.filterCutoff,
-      req.body.filterCutoffLFOEnabled,
-      req.body.filterCutoffLFORate,
-      req.body.filterCutoffLFOMin,
-      req.body.filterCutoffLFOMax,
-      req.body.tremoloEnabled,
+      req.body.isLFOFilterCutoffEnabled,
+      req.body.lfoFilterCutoffFrequency,
+      req.body.lfoFilterCutoffLow,
+      req.body.lfoFilterCutoffHigh,
+      req.body.isTremoloEnabled,
       req.body.tremoloFrequency,
       req.body.tremoloDepth
     ],
     function (err) {
-      // TODO: Handle error
-      console.log(err)
+      if (err) {
+        return res.sendStatus(500)
+      }
+
+      res.sendStatus(200)
     }
   )
 })
+
+router.get('/', function (req, res, next) {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  const profiles = []
+
+  db.all('SELECT name FROM profiles WHERE user = ?', [req.user.id], (err, rows) => {
+    if (err) {
+      console.log('Error getting profiles')
+      console.log(err)
+      return res.sendStatus(500)
+    }
+
+    rows.forEach((row) => {
+      profiles.push(row.name)
+      console.log(row.name)
+    });
+
+    console.log('PROFILES: ')
+    res.json({ profiles: profiles })
+  })
+})
+
+module.exports = router

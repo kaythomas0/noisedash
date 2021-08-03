@@ -7,7 +7,10 @@ const router = express.Router()
 router.post('/', function (req, res, next) {
   const salt = crypto.randomBytes(16)
   crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', function (err, hashedPassword) {
-    if (err) { return next(err) }
+    if (err) {
+      console.log(err)
+      res.sendStatus(500)
+    }
 
     db.run('INSERT INTO users (username, hashed_password, salt, name) VALUES (?, ?, ?, ?)', [
       req.body.username,
@@ -15,7 +18,10 @@ router.post('/', function (req, res, next) {
       salt,
       req.body.name
     ], function (err) {
-      if (err) { return next(err) }
+      if (err) {
+        console.log(err)
+        res.sendStatus(500)
+      }
 
       const user = {
         id: this.lastID.toString(),
@@ -23,10 +29,14 @@ router.post('/', function (req, res, next) {
         displayName: req.body.name
       }
       req.login(user, function (err) {
-        if (err) { return next(err) }
+        if (err) {
+          console.log(err)
+          res.sendStatus(500)
+        }
       })
     })
   })
+  res.sendStatus(200)
 })
 
 module.exports = router

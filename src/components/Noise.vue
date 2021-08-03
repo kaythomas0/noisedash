@@ -18,37 +18,98 @@
 
       <v-col cols="12">
         <h2 class="headline font-weight-bold mb-5">
+          Profiles
+        </h2>
+
+        <v-select
+          v-model="selectedProfile"
+          :items="profileItems"
+          label="Profiles"
+          class="mx-3"
+          @click="loadProfiles"
+        />
+
+        <v-dialog
+          v-model="profileDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              v-on="on"
+            >
+              Save Profile
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Profile Name</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="profileName"
+                      label="Profile Name"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="profileDialog = false"
+              >
+                Close
+              </v-btn>
+              <v-btn
+                text
+                @click="saveProfile"
+              >
+                Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-col>
+
+      <v-col cols="12">
+        <h2 class="headline font-weight-bold mb-5">
           Playback
         </h2>
 
         <v-row justify="center">
           <v-btn
-            :disabled="startDisabled"
+            :disabled="playDisabled"
             class="mx-3 mb-5"
-            @click="playNoise"
+            @click="play"
           >
             Start
           </v-btn>
 
           <v-btn
             class="mx-3 mb-5"
-            @click="stopTransport"
+            @click="stop"
           >
             Stop
           </v-btn>
 
           <v-checkbox
             v-model="isTimerEnabled"
-            :disabled="startDisabled"
+            :disabled="playDisabled"
             label="Enable Timer"
             class="mx-3"
           />
 
           <v-text-field
-            v-model="noiseDuration"
+            v-model="duration"
             label="Seconds"
             class="mx-3"
-            :disabled="startDisabled || !isTimerEnabled"
+            :disabled="playDisabled || !isTimerEnabled"
           />
 
           <v-text-field
@@ -70,7 +131,7 @@
 
         <v-row justify="center">
           <v-slider
-            v-model="noiseVolume"
+            v-model="volume"
             label="Volume"
             thumb-label="always"
             :thumb-size="40"
@@ -82,7 +143,7 @@
 
           <v-select
             v-model="noiseColor"
-            :items="noiseColorOptions"
+            :items="noiseColorItems"
             label="Noise Color"
             class="mx-3"
             @change="updateNoiseColor"
@@ -110,26 +171,26 @@
           <v-select
             v-model="filterType"
             :disabled="!isFilterEnabled"
-            :items="filterTypeOptions"
+            :items="filterTypeItems"
             label="Filter Type"
             class="mx-3"
             @change="updateFilterType"
           />
 
           <v-slider
-            v-model="frequencyCutoff"
-            :disabled="!isFilterEnabled || isFilterCutoffLFOEnabled"
+            v-model="filterCutoff"
+            :disabled="!isFilterEnabled || isLFOFilterCutoffEnabled"
             label="Frequency Cutoff (Hz)"
             thumb-label="always"
             :thumb-size="40"
             max="20000"
             min="0"
             class="mx-3"
-            @change="updateFrequencyCutoff"
+            @change="updateFilterCutoff"
           />
 
           <v-checkbox
-            v-model="isFilterCutoffLFOEnabled"
+            v-model="isLFOFilterCutoffEnabled"
             :disabled="!isFilterEnabled"
             label="Filter Cutoff LFO"
             class="mb-5"
@@ -137,28 +198,28 @@
           />
 
           <v-slider
-            v-model="filterCutoffLFOFrequency"
-            :disabled="!isFilterCutoffLFOEnabled || !isFilterEnabled"
-            label="Rate (Hz)"
+            v-model="lfoFilterCutoffFrequency"
+            :disabled="!isLFOFilterCutoffEnabled || !isFilterEnabled"
+            label="Frequency (Hz)"
             thumb-label="always"
             :thumb-size="40"
             max="10"
             min="0.1"
             step="0.1"
             class="mx-3"
-            @change="updateFilterCutoffLFOFrequency"
+            @change="updateLFOFilterCutoffFrequency"
           />
 
           <v-range-slider
-            v-model="filterCutoffLFORange"
-            :disabled="!isFilterCutoffLFOEnabled || !isFilterEnabled"
+            v-model="lfoFilterCutoffRange"
+            :disabled="!isLFOFilterCutoffEnabled || !isFilterEnabled"
             label="Frequency Range (Hz)"
             thumb-label="always"
             :thumb-size="40"
-            :min="filterCutoffLFOMin"
-            :max="filterCutoffLFOMax"
+            :min="lfoFilterCutoffMin"
+            :max="lfoFilterCutoffMax"
             class="mx-3"
-            @change="updateFilterCutoffLFORange"
+            @change="updateLFOFilterCutoffRange"
           />
         </v-row>
       </v-col>
