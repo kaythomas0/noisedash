@@ -1,9 +1,8 @@
 const express = require('express')
 const session = require('express-session')
-const FileStore = require('session-file-store')(session);
+const FileStore = require('session-file-store')(session)
 const cors = require('cors')
 const passport = require('passport')
-const path = require('path')
 const cookieParser = require('cookie-parser')
 const config = require('config')
 
@@ -22,7 +21,7 @@ app.use(cors(corsOptions))
 
 const fileStoreOptions = {
   path: config.get('Server.sessionFileStorePath')
-};
+}
 
 require('./boot/db')()
 require('./boot/auth')()

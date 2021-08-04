@@ -131,7 +131,7 @@ export default {
         this.noise.connect(this.filter)
       }
     },
-    loadProfiles () {
+    populateProfileItems () {
       this.$http.get('https://localhost:3000/profiles')
         .then(response => {
           if (response.status === 200) {
@@ -170,6 +170,17 @@ export default {
         })
 
       this.profileDialog = false
+    },
+    loadProfile () {
+      this.$http.get('https://localhost:3000/profiles/'.concat(this.profileItems.indexOf(this.selectedProfile) + 1))
+        .then(response => {
+          if (response.status === 200) {
+            console.log(response.data.profile)
+          }
+        })
+        .catch(function (error) {
+          console.error(error.response)
+        })
     }
   }
 }

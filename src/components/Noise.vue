@@ -21,13 +21,22 @@
           Profiles
         </h2>
 
-        <v-select
-          v-model="selectedProfile"
-          :items="profileItems"
-          label="Profiles"
-          class="mx-3"
-          @click="loadProfiles"
-        />
+        <v-row justify="center">
+          <v-select
+            v-model="selectedProfile"
+            :items="profileItems"
+            label="Profiles"
+            class="mx-3"
+            @click="populateProfileItems"
+          />
+
+          <v-btn
+            class="mx-3 mb-5"
+            @click="loadProfile"
+          >
+            Load Profile
+          </v-btn>
+        </v-row>
 
         <v-dialog
           v-model="profileDialog"
