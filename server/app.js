@@ -5,20 +5,14 @@ const cors = require('cors')
 const passport = require('passport')
 const cookieParser = require('cookie-parser')
 const config = require('config')
-
 const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
 const profilesRouter = require('./routes/profiles')
-
 const app = express()
-
 const corsOptions = {
   origin: 'http://localhost:'.concat(config.get('Client.listeningPort')),
   credentials: true
 }
-
-app.use(cors(corsOptions))
-
 const fileStoreOptions = {
   path: config.get('Server.sessionFileStorePath')
 }
@@ -26,10 +20,16 @@ const fileStoreOptions = {
 require('./boot/db')()
 require('./boot/auth')()
 
+app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
-app.use(session({ store: new FileStore(fileStoreOptions), secret: config.get('Server.sessionSecret'), resave: true, saveUninitialized: true }))
+app.use(session({
+  store: new FileStore(fileStoreOptions),
+  secret: config.get('Server.sessionSecret'),
+  resave: true,
+  saveUninitialized: true
+}))
 app.use(function (req, res, next) {
   const msgs = req.session.messages || []
   res.locals.messages = msgs

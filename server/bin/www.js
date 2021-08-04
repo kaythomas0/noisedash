@@ -7,9 +7,7 @@ const app = require('../app')
 const debug = require('debug')('example:server')
 const fs = require('fs')
 const config = require('config')
-
 const tls = config.get('Server.tls')
-
 const http = require(tls ? 'https' : 'http')
 
 /**
@@ -22,7 +20,7 @@ let server = http.createServer(app)
 if (tls) {
   const httpsOptions = {
     key: fs.readFileSync(config.get('Server.tlsKey')),
-	cert: fs.readFileSync(config.get('Server.tlsCert'))
+    cert: fs.readFileSync(config.get('Server.tlsCert'))
   }
 
   server = http.createServer(httpsOptions, app)

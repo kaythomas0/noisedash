@@ -1,6 +1,5 @@
 const express = require('express')
 const passport = require('passport')
-
 const router = express.Router()
 
 router.post('/login/password', passport.authenticate('local'), function (req, res, next) {
