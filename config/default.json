@@ -1,13 +1,13 @@
 {
   "Server": {
-	"listeningPort": 3000,
-	"sessionFileStorePath": "./sessions",
-	"sessionSecret": "cats",
-	"tls": true,
-	"tlsKey": "./certs/key.pem",
-	"tlsCert": "./certs/cert.pem"
+    "listeningPort": 3000,
+    "sessionFileStorePath": "./sessions",
+    "sessionSecret": "cats",
+    "tls": true,
+    "tlsKey": "./certs/key.pem",
+    "tlsCert": "./certs/cert.pem"
   },
   "Client": {
-	"listeningPort": 8080
+	  "listeningPort": 8080
   }
 }
