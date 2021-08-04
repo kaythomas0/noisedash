@@ -175,7 +175,22 @@ export default {
       this.$http.get('https://localhost:3000/profiles/'.concat(this.profileItems.indexOf(this.selectedProfile) + 1))
         .then(response => {
           if (response.status === 200) {
-            console.log(response.data.profile)
+            const profile = response.data.profile
+
+            this.isTimerEnabled = profile.isTimerEnabled === 1
+            this.duration = profile.duration
+            this.volume = profile.volume
+            this.noiseColor = profile.noiseColor
+            this.isFilterEnabled = profile.isFilterEnabled === 1
+            this.filterType = profile.filterType
+            this.filterCutoff = profile.filterCutoff
+            this.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled === 1
+            this.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
+            this.lfoFilterCutoffRange[0] = profile.lfoFilterCutoffLow
+            this.lfoFilterCutoffRange[1] = profile.lfoFilterCutoffHigh
+            this.isTremoloEnabled = profile.isTimerEnabled === 1
+            this.tremoloFrequency = profile.tremoloFrequency
+            this.tremoloDepth = profile.tremoloDepth
           }
         })
         .catch(function (error) {
