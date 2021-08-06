@@ -16,6 +16,7 @@ router.get('/auth', function (req, res) {
 
 router.get('/logout', function (req, res, next) {
   req.logout()
+  res.sendStatus(200)
 })
 
 module.exports = router
