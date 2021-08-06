@@ -84,6 +84,7 @@ router.get('/profiles/:profileId', function (req, res, next) {
     return res.sendStatus(401)
   }
 
+  // TODO: I'm guessing there's a better way to marshal this data
   const profile = {
     name: null,
     isTimerEnabled: null,

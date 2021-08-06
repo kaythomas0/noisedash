@@ -73,7 +73,8 @@ export default {
       this.$http.post('https://localhost:3000/users', {
         name: this.name,
         username: this.username,
-        password: this.password
+        password: this.password,
+        isAdmin: 1
       })
         .then(response => {
           if (response.status === 200) {

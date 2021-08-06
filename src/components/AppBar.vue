@@ -21,7 +21,9 @@
         <v-list-item-group
           v-model="group"
         >
-          <v-list-item>
+          <v-list-item
+            @click="home"
+          >
             <v-list-item-icon>
               <v-icon>mdi-home</v-icon>
             </v-list-item-icon>
@@ -42,7 +44,6 @@
           <v-list-item>
             <v-switch
               v-model="$vuetify.theme.dark"
-              inset
               label="Dark Mode"
             />
           </v-list-item>
@@ -61,6 +62,12 @@ export default {
     group: null
   }),
   methods: {
+    home () {
+      this.$router.push('/')
+    },
+    admin () {
+      this.$router.push('/admin')
+    },
     logout () {
       this.$http.get('https://localhost:3000/logout')
         .then(response => {

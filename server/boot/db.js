@@ -7,7 +7,8 @@ module.exports = function () {
       username TEXT UNIQUE,
       hashed_password BLOB,
       salt BLOB,
-      name TEXT)`
+      name TEXT,
+      is_admin INTEGER)`
     )
 
     db.run(`CREATE TABLE IF NOT EXISTS profiles (
