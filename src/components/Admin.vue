@@ -11,6 +11,9 @@
         <thead>
           <tr>
             <th class="text-left">
+              ID
+            </th>
+            <th class="text-left">
               Username
             </th>
             <th class="text-left">
@@ -26,17 +29,18 @@
             v-for="user in users"
             :key="user.username"
           >
+            <td>{{ user.id }}</td>
             <td>{{ user.username }}</td>
             <td>
               <v-switch
                 v-model="user.isAdmin"
                 :label="`${user.isAdmin ? 'True' : 'False'}`"
-                @change="updateUser(user.username, user.isAdmin); snackbar = true"
+                @change="updateUser(user.id, user.isAdmin); snackbar = true"
               />
             </td>
             <td>
               <v-btn
-                @click="updateUser(user.username)"
+                @click="deleteUser(user.id)"
               >
                 Delete
               </v-btn>
@@ -88,20 +92,29 @@ export default {
           console.error(error.response)
         })
     },
-    updateUser (username, isAdmin) {
-      this.$http.put('https://localhost:3000/users', {
-        username: username,
+    updateUser (id, isAdmin) {
+      this.$http.patch('https://localhost:3000/users/'.concat(id), {
         isAdmin: isAdmin ? 1 : 0
       })
         .then(response => {
           if (response.status === 200) {
-            console.log('User updated')
             this.updateText = 'User updated'
           }
         })
         .catch(function (error) {
           console.error(error.response)
           this.updateText = 'Error updating user'
+        })
+    },
+    deleteUser (id) {
+      this.$http.delete('https://localhost:3000/users/'.concat(id))
+        .then(response => {
+          if (response.status === 200) {
+            this.getUsers()
+          }
+        })
+        .catch(function (error) {
+          console.error(error.response)
         })
     }
   }

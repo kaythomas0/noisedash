@@ -25,9 +25,9 @@
           <v-select
             v-model="selectedProfile"
             :items="profileItems"
+            return-object
             label="Profiles"
             class="mx-3"
-            @click="populateProfileItems"
           />
 
           <v-btn

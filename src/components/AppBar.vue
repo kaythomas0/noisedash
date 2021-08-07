@@ -2,7 +2,7 @@
   <v-container>
     <v-app-bar
       app
-      color="secondary"
+      color="primary"
       dark
       dense
     >

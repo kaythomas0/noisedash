@@ -3,28 +3,22 @@ const crypto = require('crypto')
 const db = require('../db')
 const router = express.Router()
 
-router.get('/users', function (req, res, next) {
+router.get('/users', function (req, res) {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
-  // TODO: I'm guessing there's a better way to marshal this data
   const users = []
 
-  db.all('SELECT username, name, is_admin as isAdmin FROM users', (err, rows) => {
+  db.all('SELECT id, username, name, is_admin as isAdmin FROM users', (err, rows) => {
     if (err) {
-      console.log('Error getting profiles')
-      console.log(err)
       return res.sendStatus(500)
     }
 
     rows.forEach((row) => {
-      const user = {
-        username: null,
-        name: null,
-        isAdmin: null
-      }
+      const user = {}
 
+      user.id = row.id
       user.username = row.username
       user.name = row.name
       user.isAdmin = row.isAdmin === 1
@@ -36,11 +30,10 @@ router.get('/users', function (req, res, next) {
   })
 })
 
-router.post('/users', function (req, res, next) {
+router.post('/users', function (req, res) {
   const salt = crypto.randomBytes(16)
   crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', function (err, hashedPassword) {
     if (err) {
-      console.log(err)
       res.sendStatus(500)
     }
 
@@ -52,7 +45,6 @@ router.post('/users', function (req, res, next) {
       req.body.isAdmin
     ], function (err) {
       if (err) {
-        console.log(err)
         res.sendStatus(500)
       }
 
@@ -63,7 +55,6 @@ router.post('/users', function (req, res, next) {
       }
       req.login(user, function (err) {
         if (err) {
-          console.log(err)
           res.sendStatus(500)
         }
       })
@@ -72,19 +63,49 @@ router.post('/users', function (req, res, next) {
   res.sendStatus(200)
 })
 
-router.put('/users', function (req, res, next) {
+router.patch('/users/:userId', function (req, res) {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
-  db.run('UPDATE users SET is_admin = ? WHERE username = ?', [req.body.isAdmin, req.body.username], (err) => {
+  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
     if (err) {
-      console.log('Error getting profiles')
-      console.log(err)
       return res.sendStatus(500)
     }
 
-    console.log(`Row(s) updated: ${this.changes}`)
+    if (row.is_admin === 0) {
+      return res.sendStatus(401)
+    }
+
+    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin, req.params.userId], (err) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
+    })
+  })
+
+  res.sendStatus(200)
+})
+
+router.delete('/users/:userId', function (req, res) {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
+    if (err) {
+      return res.sendStatus(500)
+    }
+
+    if (row.is_admin === 0) {
+      return res.sendStatus(401)
+    }
+
+    db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
+    })
   })
 
   res.sendStatus(200)

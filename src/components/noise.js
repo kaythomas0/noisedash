@@ -4,8 +4,8 @@ export default {
   name: 'Noise',
 
   data: () => ({
-    selectedProfile: '',
-    profileItems: [''],
+    selectedProfile: {},
+    profileItems: [],
     profileDialog: false,
     profileName: '',
     playDisabled: false,
@@ -33,6 +33,7 @@ export default {
     this.filter = new Filter()
     this.tremolo = new Tremolo()
     this.lfo = new LFO()
+    this.populateProfileItems()
   },
   methods: {
     play () {
@@ -160,19 +161,15 @@ export default {
         tremoloFrequency: this.tremoloFrequency,
         tremoloDepth: this.tremoloDepth
       })
-        .then(response => {
-          if (response.status === 200) {
-            console.log('Profile saved')
-          }
-        })
         .catch(function (error) {
           console.error(error.response)
         })
 
       this.profileDialog = false
+      this.populateProfileItems()
     },
     loadProfile () {
-      this.$http.get('https://localhost:3000/profiles/'.concat(this.profileItems.indexOf(this.selectedProfile) + 1))
+      this.$http.get('https://localhost:3000/profiles/'.concat(this.selectedProfile.id))
         .then(response => {
           if (response.status === 200) {
             const profile = response.data.profile
@@ -188,7 +185,7 @@ export default {
             this.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
             this.lfoFilterCutoffRange[0] = profile.lfoFilterCutoffLow
             this.lfoFilterCutoffRange[1] = profile.lfoFilterCutoffHigh
-            this.isTremoloEnabled = profile.isTimerEnabled === 1
+            this.isTremoloEnabled = profile.isTremoloEnabled === 1
             this.tremoloFrequency = profile.tremoloFrequency
             this.tremoloDepth = profile.tremoloDepth
           }

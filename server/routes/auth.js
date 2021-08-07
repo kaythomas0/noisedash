@@ -14,7 +14,7 @@ router.get('/auth', function (req, res) {
   }
 })
 
-router.get('/logout', function (req, res, next) {
+router.get('/logout', function (req, res) {
   req.logout()
   res.sendStatus(200)
 })
