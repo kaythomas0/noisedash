@@ -28,13 +28,14 @@
             return-object
             label="Profiles"
             class="mx-3"
+            @change="loadProfile"
           />
 
           <v-btn
             class="mx-3 mb-5"
-            @click="loadProfile"
+            @click="deleteProfile"
           >
-            Load Profile
+            Delete Profile
           </v-btn>
         </v-row>
 

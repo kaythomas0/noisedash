@@ -3,6 +3,27 @@ const crypto = require('crypto')
 const db = require('../db')
 const router = express.Router()
 
+router.get('/users/current', function (req, res) {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.get('SELECT is_admin as isAdmin, * FROM users WHERE id = ?', [req.user.id], (err, row) => {
+    if (err) {
+      return res.sendStatus(500)
+    }
+
+    const user = {}
+
+    user.id = row.id
+    user.username = row.username
+    user.name = row.name
+    user.isAdmin = row.isAdmin === 1
+
+    res.json({ user: user })
+  })
+})
+
 router.get('/users', function (req, res) {
   if (!req.user) {
     return res.sendStatus(401)

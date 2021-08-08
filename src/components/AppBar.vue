@@ -7,7 +7,7 @@
       dense
     >
       <v-app-bar-nav-icon
-        @click="drawyer = true"
+        @click="openDrawyer"
       />
     </v-app-bar>
     <v-navigation-drawer
@@ -29,6 +29,17 @@
             </v-list-item-icon>
             <v-list-item-title>
               Home
+            </v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            v-if="isAdmin"
+            @click="admin"
+          >
+            <v-list-item-icon>
+              <v-icon>mdi-database-cog</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>
+              Admin
             </v-list-item-title>
           </v-list-item>
           <v-list-item
@@ -59,7 +70,8 @@ export default {
 
   data: () => ({
     drawyer: false,
-    group: null
+    group: null,
+    isAdmin: false
   }),
   methods: {
     home () {
@@ -78,6 +90,21 @@ export default {
         .catch(function (error) {
           console.error(error.response)
         })
+    },
+    openDrawyer () {
+      this.$http.get('https://localhost:3000/users/current')
+        .then(response => {
+          if (response.data.user.isAdmin) {
+            this.isAdmin = true
+          } else {
+            this.isAdmin = false
+          }
+        })
+        .catch(function (error) {
+          console.error(error.response)
+          this.isAdmin = false
+        })
+      this.drawyer = true
     }
   }
 }

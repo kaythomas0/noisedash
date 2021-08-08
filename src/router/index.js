@@ -59,6 +59,19 @@ router.beforeEach((to, from, next) => {
         console.error(error.response)
         next('/login')
       })
+  } else if (to.name === 'Admin') {
+    instance.get('/admin')
+      .then(response => {
+        if (response.status === 200) {
+          next()
+        } else {
+          next('/')
+        }
+      })
+      .catch(function (error) {
+        console.error(error.response)
+        next('/')
+      })
   } else {
     next()
   }

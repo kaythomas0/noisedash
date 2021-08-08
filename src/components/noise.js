@@ -146,18 +146,18 @@ export default {
     saveProfile () {
       this.$http.post('https://localhost:3000/profiles', {
         name: this.profileName,
-        isTimerEnabled: this.isTimerEnabled ? 1 : 0,
+        isTimerEnabled: this.isTimerEnabled,
         duration: this.duration,
         volume: this.volume,
         noiseColor: this.noiseColor,
-        isFilterEnabled: this.isFilterEnabled ? 1 : 0,
+        isFilterEnabled: this.isFilterEnabled,
         filterType: this.filterType,
         filterCutoff: this.filterCutoff,
-        isLFOFilterCutoffEnabled: this.isLFOFilterCutoffEnabled ? 1 : 0,
+        isLFOFilterCutoffEnabled: this.isLFOFilterCutoffEnabled,
         lfoFilterCutoffFrequency: this.lfoFilterCutoffFrequency,
         lfoFilterCutoffLow: this.lfoFilterCutoffRange[0],
         lfoFilterCutoffHigh: this.lfoFilterCutoffRange[1],
-        isTremoloEnabled: this.isTremoloEnabled ? 1 : 0,
+        isTremoloEnabled: this.isTremoloEnabled,
         tremoloFrequency: this.tremoloFrequency,
         tremoloDepth: this.tremoloDepth
       })
@@ -174,20 +174,31 @@ export default {
           if (response.status === 200) {
             const profile = response.data.profile
 
-            this.isTimerEnabled = profile.isTimerEnabled === 1
+            this.isTimerEnabled = profile.isTimerEnabled
             this.duration = profile.duration
             this.volume = profile.volume
             this.noiseColor = profile.noiseColor
-            this.isFilterEnabled = profile.isFilterEnabled === 1
+            this.isFilterEnabled = profile.isFilterEnabled
             this.filterType = profile.filterType
             this.filterCutoff = profile.filterCutoff
-            this.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled === 1
+            this.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled
             this.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
             this.lfoFilterCutoffRange[0] = profile.lfoFilterCutoffLow
             this.lfoFilterCutoffRange[1] = profile.lfoFilterCutoffHigh
-            this.isTremoloEnabled = profile.isTremoloEnabled === 1
+            this.isTremoloEnabled = profile.isTremoloEnabled
             this.tremoloFrequency = profile.tremoloFrequency
             this.tremoloDepth = profile.tremoloDepth
+          }
+        })
+        .catch(function (error) {
+          console.error(error.response)
+        })
+    },
+    deleteProfile () {
+      this.$http.delete('https://localhost:3000/profiles/'.concat(this.selectedProfile.id))
+        .then(response => {
+          if (response.status === 200) {
+            this.populateProfileItems()
           }
         })
         .catch(function (error) {

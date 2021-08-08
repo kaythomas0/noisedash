@@ -27,18 +27,18 @@ router.post('/profiles', function (req, res) {
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
     req.body.name,
     req.user.id,
-    req.body.isTimerEnabled,
+    req.body.isTimerEnabled ? 1 : 0,
     req.body.duration,
     req.body.volume,
     req.body.noiseColor,
-    req.body.isFilterEnabled,
+    req.body.isFilterEnabled ? 1 : 0,
     req.body.filterType,
     req.body.filterCutoff,
-    req.body.isLFOFilterCutoffEnabled,
+    req.body.isLFOFilterCutoffEnabled ? 1 : 0,
     req.body.lfoFilterCutoffFrequency,
     req.body.lfoFilterCutoffLow,
     req.body.lfoFilterCutoffHigh,
-    req.body.isTremoloEnabled,
+    req.body.isTremoloEnabled ? 1 : 0,
     req.body.tremoloFrequency,
     req.body.tremoloDepth
   ],
@@ -105,24 +105,48 @@ router.get('/profiles/:profileId', function (req, res) {
       return res.sendStatus(500)
     }
 
-    // TODO: Should return 'true' or 'false' rather than 1 or 0 for bool values
     profile.name = row.name
-    profile.isTimerEnabled = row.isTimerEnabled
+    profile.isTimerEnabled = row.isTimerEnabled === 1
     profile.duration = row.duration
     profile.volume = row.volume
     profile.noiseColor = row.noiseColor
-    profile.isFilterEnabled = row.isFilterEnabled
+    profile.isFilterEnabled = row.isFilterEnabled === 1
     profile.filterType = row.filterType
-    profile.isLFOFilterCutoffEnabled = row.isLFOFilterCutoffEnabled
+    profile.filterCutoff = row.filterCutoff
+    profile.isLFOFilterCutoffEnabled = row.isLFOFilterCutoffEnabled === 1
     profile.lfoFilterCutoffFrequency = row.lfoFilterCutoffFrequency
     profile.lfoFilterCutoffLow = row.lfoFilterCutoffLow
     profile.lfoFilterCutoffHigh = row.lfoFilterCutoffHigh
-    profile.isTremoloEnabled = row.isTremoloEnabled
+    profile.isTremoloEnabled = row.isTremoloEnabled === 1
     profile.tremoloFrequency = row.tremoloFrequency
     profile.tremoloDepth = row.tremoloDepth
 
     res.json({ profile: profile })
   })
+})
+
+router.delete('/profiles/:profileId', function (req, res) {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], (err, row) => {
+    if (err) {
+      return res.sendStatus(500)
+    }
+
+    if (row.user.toString() !== req.user.id) {
+      return res.sendStatus(401)
+    }
+
+    db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
+    })
+  })
+
+  res.sendStatus(200)
 })
 
 module.exports = router
