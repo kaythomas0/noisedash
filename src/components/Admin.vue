@@ -82,7 +82,7 @@ export default {
   },
   methods: {
     getUsers () {
-      this.$http.get('https://localhost:3000/users')
+      this.$http.get('/users')
         .then(response => {
           if (response.status === 200) {
             this.users = response.data.users
@@ -93,8 +93,8 @@ export default {
         })
     },
     updateUser (id, isAdmin) {
-      this.$http.patch('https://localhost:3000/users/'.concat(id), {
-        isAdmin: isAdmin ? 1 : 0
+      this.$http.patch('/users/'.concat(id), {
+        isAdmin: isAdmin
       })
         .then(response => {
           if (response.status === 200) {
@@ -107,7 +107,7 @@ export default {
         })
     },
     deleteUser (id) {
-      this.$http.delete('https://localhost:3000/users/'.concat(id))
+      this.$http.delete('/users/'.concat(id))
         .then(response => {
           if (response.status === 200) {
             this.getUsers()

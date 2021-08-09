@@ -1,12 +1,7 @@
 import Vue from 'vue'
-import Axios from 'axios'
 import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
-
-const instance = Axios.create({
-  baseURL: 'https://localhost:3000',
-  withCredentials: true
-})
+import instance from '../axios'
 
 Vue.use(VueRouter)
 

@@ -98,7 +98,7 @@ router.patch('/users/:userId', function (req, res) {
       return res.sendStatus(401)
     }
 
-    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin, req.params.userId], (err) => {
+    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
       if (err) {
         return res.sendStatus(500)
       }

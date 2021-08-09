@@ -3,11 +3,8 @@
     "listeningPort": 3000,
     "sessionFileStorePath": "./sessions",
     "sessionSecret": "cats",
-    "tls": true,
+    "tls": false,
     "tlsKey": "./certs/key.pem",
     "tlsCert": "./certs/cert.pem"
-  },
-  "Client": {
-	  "listeningPort": 8080
   }
 }

@@ -60,7 +60,7 @@ export default {
   }),
   methods: {
     login () {
-      this.$http.post('https://localhost:3000/login/password', {
+      this.$http.post('/login/password', {
         username: this.username,
         password: this.password
       })

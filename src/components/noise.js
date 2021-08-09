@@ -133,7 +133,7 @@ export default {
       }
     },
     populateProfileItems () {
-      this.$http.get('https://localhost:3000/profiles')
+      this.$http.get('/profiles')
         .then(response => {
           if (response.status === 200) {
             this.profileItems = response.data.profiles
@@ -144,7 +144,7 @@ export default {
         })
     },
     saveProfile () {
-      this.$http.post('https://localhost:3000/profiles', {
+      this.$http.post('/profiles', {
         name: this.profileName,
         isTimerEnabled: this.isTimerEnabled,
         duration: this.duration,
@@ -169,7 +169,7 @@ export default {
       this.populateProfileItems()
     },
     loadProfile () {
-      this.$http.get('https://localhost:3000/profiles/'.concat(this.selectedProfile.id))
+      this.$http.get('/profiles/'.concat(this.selectedProfile.id))
         .then(response => {
           if (response.status === 200) {
             const profile = response.data.profile
@@ -195,7 +195,7 @@ export default {
         })
     },
     deleteProfile () {
-      this.$http.delete('https://localhost:3000/profiles/'.concat(this.selectedProfile.id))
+      this.$http.delete('/profiles/'.concat(this.selectedProfile.id))
         .then(response => {
           if (response.status === 200) {
             this.populateProfileItems()

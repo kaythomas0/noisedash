@@ -1,8 +1,5 @@
 #!/usr/bin/env node
 
-/**
- * Module dependencies.
- */
 const app = require('../app')
 const debug = require('debug')('example:server')
 const fs = require('fs')
@@ -10,9 +7,6 @@ const config = require('config')
 const tls = config.get('Server.tls')
 const http = require(tls ? 'https' : 'http')
 
-/**
- * Get port from environment and store in Express.
- */
 const port = normalizePort(config.get('Server.listeningPort'))
 app.set('port', port)
 
@@ -26,16 +20,10 @@ if (tls) {
   server = http.createServer(httpsOptions, app)
 }
 
-/**
- * Listen on provided port, on all network interfaces.
- */
 server.listen(port)
 server.on('error', onError)
 server.on('listening', onListening)
 
-/**
- * Normalize a port into a number, string, or false.
- */
 function normalizePort (val) {
   const port = parseInt(val, 10)
 
@@ -52,9 +40,6 @@ function normalizePort (val) {
   return false
 }
 
-/**
- * Event listener for HTTP server "error" event.
- */
 function onError (error) {
   if (error.syscall !== 'listen') {
     throw error
@@ -77,9 +62,6 @@ function onError (error) {
   }
 }
 
-/**
- * Event listener for HTTP server "listening" event.
- */
 function onListening () {
   const addr = server.address()
   const bind = typeof addr === 'string'

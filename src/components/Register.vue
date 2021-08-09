@@ -70,7 +70,7 @@ export default {
   }),
   methods: {
     register () {
-      this.$http.post('https://localhost:3000/users', {
+      this.$http.post('/users', {
         name: this.name,
         username: this.username,
         password: this.password,

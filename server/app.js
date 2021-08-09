@@ -1,18 +1,14 @@
 const express = require('express')
 const session = require('express-session')
 const FileStore = require('session-file-store')(session)
-const cors = require('cors')
 const passport = require('passport')
+const path = require('path')
 const cookieParser = require('cookie-parser')
 const config = require('config')
 const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
 const profilesRouter = require('./routes/profiles')
 const app = express()
-const corsOptions = {
-  origin: 'http://localhost:'.concat(config.get('Client.listeningPort')),
-  credentials: true
-}
 const fileStoreOptions = {
   path: config.get('Server.sessionFileStorePath')
 }
@@ -20,10 +16,12 @@ const fileStoreOptions = {
 require('./boot/db')()
 require('./boot/auth')()
 
-app.use(cors(corsOptions))
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../dist')))
+}
 app.use(session({
   store: new FileStore(fileStoreOptions),
   secret: config.get('Server.sessionSecret'),

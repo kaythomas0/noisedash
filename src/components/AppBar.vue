@@ -81,7 +81,7 @@ export default {
       this.$router.push('/admin')
     },
     logout () {
-      this.$http.get('https://localhost:3000/logout')
+      this.$http.get('/logout')
         .then(response => {
           if (response.status === 200) {
             this.$router.push('/login')
@@ -92,7 +92,7 @@ export default {
         })
     },
     openDrawyer () {
-      this.$http.get('https://localhost:3000/users/current')
+      this.$http.get('/users/current')
         .then(response => {
           if (response.data.user.isAdmin) {
             this.isAdmin = true
