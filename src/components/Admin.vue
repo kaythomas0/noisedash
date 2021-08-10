@@ -1,70 +1,72 @@
 <template>
   <v-container>
-    <v-col cols="12">
-      <v-col class="mb-4">
+    <v-row class="text-left">
+      <v-col class="mb-5">
         <h1 class="display-2 font-weight-bold mb-3">
           Admin Dashboard
         </h1>
       </v-col>
 
-      <v-simple-table>
-        <thead>
-          <tr>
-            <th class="text-left">
-              ID
-            </th>
-            <th class="text-left">
-              Username
-            </th>
-            <th class="text-left">
-              Is Admin
-            </th>
-            <th class="text-left">
-              Delete User
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="user in users"
-            :key="user.username"
-          >
-            <td>{{ user.id }}</td>
-            <td>{{ user.username }}</td>
-            <td>
-              <v-switch
-                v-model="user.isAdmin"
-                :label="`${user.isAdmin ? 'True' : 'False'}`"
-                @change="updateUser(user.id, user.isAdmin); snackbar = true"
-              />
-            </td>
-            <td>
-              <v-btn
-                @click="deleteUser(user.id)"
-              >
-                Delete
-              </v-btn>
-            </td>
-          </tr>
-        </tbody>
-      </v-simple-table>
-      <v-snackbar
-        v-model="snackbar"
-        timeout="3000"
-      >
-        {{ updateText }}
+      <v-col cols="12">
+        <v-simple-table>
+          <thead>
+            <tr>
+              <th class="text-left">
+                ID
+              </th>
+              <th class="text-left">
+                Username
+              </th>
+              <th class="text-left">
+                Is Admin
+              </th>
+              <th class="text-left">
+                Delete User
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="user in users"
+              :key="user.username"
+            >
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>
+                <v-switch
+                  v-model="user.isAdmin"
+                  :label="`${user.isAdmin ? 'True' : 'False'}`"
+                  @change="updateUser(user.id, user.isAdmin); snackbar = true"
+                />
+              </td>
+              <td>
+                <v-btn
+                  @click="deleteUser(user.id)"
+                >
+                  Delete
+                </v-btn>
+              </td>
+            </tr>
+          </tbody>
+        </v-simple-table>
+        <v-snackbar
+          v-model="snackbar"
+          timeout="3000"
+        >
+          {{ updateText }}
 
-        <template v-slot:action="{ attrs }">
-          <v-btn
-            text
-            v-bind="attrs"
-            @click="snackbar = false"
-          >
-            Close
-          </v-btn>
-        </template>
-      </v-snackbar>
-    </v-col>
+          <template v-slot:action="{ attrs }">
+            <v-btn
+              text
+              v-bind="attrs"
+              @click="snackbar = false"
+            >
+              Close
+            </v-btn>
+          </template>
+        </v-snackbar>
+      </v-col>
+    </v-row>
   </v-container>
 </template>
 

@@ -4,13 +4,17 @@ export default {
   name: 'Noise',
 
   data: () => ({
+    isTimerValid: false,
     selectedProfile: {},
     profileItems: [],
     profileDialog: false,
     profileName: '',
     playDisabled: false,
     isTimerEnabled: false,
-    duration: 60,
+    hours: 0,
+    minutes: 0,
+    seconds: 30,
+    duration: 30,
     timeRemaining: 0,
     noiseColor: 'pink',
     noiseColorItems: ['pink', 'white', 'brown'],
@@ -20,13 +24,21 @@ export default {
     filterType: 'lowpass',
     filterTypeItems: ['lowpass', 'highpass', 'bandpass', 'lowshelf', 'highshelf', 'notch', 'allpass', 'peaking'],
     isLFOFilterCutoffEnabled: false,
-    lfoFilterCutoffFrequency: 1,
+    lfoFilterCutoffFrequency: 0.5,
     lfoFilterCutoffMin: 0,
     lfoFilterCutoffMax: 20000,
-    lfoFilterCutoffRange: [100, 1000],
+    lfoFilterCutoffRange: [100, 5000],
     isTremoloEnabled: false,
     tremoloFrequency: 0.5,
-    tremoloDepth: 0.5
+    tremoloDepth: 0.5,
+    rules: {
+      lt (n) {
+        return value => (!isNaN(parseInt(value, 10)) && value < n) || 'Must be less than ' + n
+      },
+      gt (n) {
+        return value => (!isNaN(parseInt(value, 10)) && value > n) || 'Must be greater than ' + n
+      }
+    }
   }),
   created () {
     this.noise = new Noise()
@@ -61,10 +73,15 @@ export default {
       }
 
       if (this.isTimerEnabled) {
+        console.log(this.hours)
+        console.log(this.minutes)
+        console.log(this.seconds)
+        this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
+        console.log(this.duration)
         this.noise.sync().start(0).stop(this.duration)
         Transport.loopEnd = this.duration
         this.timeRemaining = this.duration
-        this.transportInterval = setInterval(() => this.stopTransport(), this.duration * 1000 + 100)
+        this.transportInterval = setInterval(() => this.stop(), this.duration * 1000 + 100)
         this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
       } else {
         this.noise.sync().start(0)
@@ -79,6 +96,7 @@ export default {
 
       clearInterval(this.timeRemainingInterval)
       this.timeRemaining = 0
+      this.duration = 0
     },
     startTimer () {
       this.timeRemaining -= 1
