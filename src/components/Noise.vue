@@ -14,7 +14,7 @@
             class="mx-3 mb-5"
             fab
             large
-            color="success"
+            color="primary"
             @click="play"
           >
             <v-icon>mdi-play</v-icon>
@@ -24,7 +24,7 @@
             class="mx-3 mb-5"
             fab
             large
-            color="error"
+            color="secondary"
             @click="stop"
           >
             <v-icon>mdi-stop</v-icon>
