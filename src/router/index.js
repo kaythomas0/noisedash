@@ -50,7 +50,7 @@ router.beforeEach((to, from, next) => {
           next('/login')
         }
       })
-      .catch(function (error) {
+      .catch((error) => {
         console.error(error.response)
         next('/login')
       })
@@ -63,7 +63,7 @@ router.beforeEach((to, from, next) => {
           next('/')
         }
       })
-      .catch(function (error) {
+      .catch((error) => {
         console.error(error.response)
         next('/')
       })

@@ -69,7 +69,7 @@ export default {
             this.$router.push('/')
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
     }

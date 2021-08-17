@@ -3,12 +3,12 @@ const crypto = require('crypto')
 const db = require('../db')
 const router = express.Router()
 
-router.get('/users/current', function (req, res) {
+router.get('/users/current', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin as isAdmin, * FROM users WHERE id = ?', [req.user.id], function (err, row) {
+  db.get('SELECT is_admin as isAdmin, * FROM users WHERE id = ?', [req.user.id], (err, row) => {
     if (err) {
       return res.sendStatus(500)
     }
@@ -24,14 +24,14 @@ router.get('/users/current', function (req, res) {
   })
 })
 
-router.get('/users', function (req, res) {
+router.get('/users', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
   const users = []
 
-  db.all('SELECT id, username, name, is_admin as isAdmin FROM users', function (err, rows) {
+  db.all('SELECT id, username, name, is_admin as isAdmin FROM users', (err, rows) => {
     if (err) {
       return res.sendStatus(500)
     }
@@ -51,9 +51,9 @@ router.get('/users', function (req, res) {
   })
 })
 
-router.post('/users', function (req, res) {
+router.post('/users', (req, res) => {
   const salt = crypto.randomBytes(16)
-  crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', function (err, hashedPassword) {
+  crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', (err, hashedPassword) => {
     if (err) {
       return res.sendStatus(500)
     }
@@ -78,7 +78,7 @@ router.post('/users', function (req, res) {
         username: req.body.username,
         displayName: req.body.name
       }
-      req.login(user, function (err) {
+      req.login(user, (err) => {
         if (err) {
           return res.sendStatus(500)
         } else {
@@ -89,13 +89,13 @@ router.post('/users', function (req, res) {
   })
 })
 
-router.patch('/users/:userId', function (req, res) {
+router.patch('/users/:userId', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
-  db.serialize(function () {
-    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], function (err, row) {
+  db.serialize(() => {
+    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
       if (err) {
         return res.sendStatus(500)
       }
@@ -105,7 +105,7 @@ router.patch('/users/:userId', function (req, res) {
       }
     })
 
-    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], function (err) {
+    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
       if (err) {
         return res.sendStatus(500)
       } else {
@@ -115,13 +115,13 @@ router.patch('/users/:userId', function (req, res) {
   })
 })
 
-router.delete('/users/:userId', function (req, res) {
+router.delete('/users/:userId', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
-  db.serialize(function () {
-    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], function (err, row) {
+  db.serialize(() => {
+    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
       if (err) {
         return res.sendStatus(500)
       }
@@ -131,7 +131,7 @@ router.delete('/users/:userId', function (req, res) {
       }
     })
 
-    db.run('DELETE FROM users WHERE id = ?', [req.params.userId], function (err) {
+    db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
       if (err) {
         return res.sendStatus(500)
       } else {

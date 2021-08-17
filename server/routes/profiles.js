@@ -2,14 +2,14 @@ const express = require('express')
 const db = require('../db')
 const router = express.Router()
 
-router.post('/profiles', function (req, res) {
+router.post('/profiles', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
   let profileID = 0
 
-  db.serialize(function () {
+  db.serialize(() => {
     db.run(`INSERT INTO profiles (
       name,
       user,
@@ -58,7 +58,7 @@ router.post('/profiles', function (req, res) {
         profileID,
         s.id
       ],
-      function (err) {
+      (err) => {
         if (err) {
           return res.sendStatus(500)
         }
@@ -68,14 +68,14 @@ router.post('/profiles', function (req, res) {
   return res.sendStatus(200)
 })
 
-router.get('/profiles', function (req, res) {
+router.get('/profiles', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
   const profiles = []
 
-  db.all('SELECT id, name FROM profiles WHERE user = ?', [req.user.id], function (err, rows) {
+  db.all('SELECT id, name FROM profiles WHERE user = ?', [req.user.id], (err, rows) => {
     if (err) {
       return res.sendStatus(500)
     }
@@ -93,7 +93,7 @@ router.get('/profiles', function (req, res) {
   })
 })
 
-router.get('/profiles/:profileId', function (req, res) {
+router.get('/profiles/:profileId', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
@@ -117,7 +117,7 @@ router.get('/profiles/:profileId', function (req, res) {
     tremolo_enabled as isTremoloEnabled,
     tremolo_frequency as tremoloFrequency,
     tremolo_depth as tremoloDepth
-    FROM profiles WHERE id = ?`, [req.params.profileId], function (err, row) {
+    FROM profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
     if (err) {
       return res.sendStatus(500)
     }
@@ -146,13 +146,13 @@ router.get('/profiles/:profileId', function (req, res) {
   })
 })
 
-router.delete('/profiles/:profileId', function (req, res) {
+router.delete('/profiles/:profileId', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
-  db.serialize(function () {
-    db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], function (err, row) {
+  db.serialize(() => {
+    db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], (err, row) => {
       if (err) {
         return res.sendStatus(500)
       }
@@ -162,7 +162,7 @@ router.delete('/profiles/:profileId', function (req, res) {
       }
     })
 
-    db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], function (err) {
+    db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
       if (err) {
         return res.sendStatus(500)
       } else {

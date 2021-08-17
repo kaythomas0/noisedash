@@ -11,7 +11,7 @@ const upload = multer({ storage: storage })
 const db = require('../db')
 const router = express.Router()
 
-router.post('/samples', upload.single('sample'), function (req, res, next) {
+router.post('/samples', upload.single('sample'), (req, res, next) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
@@ -21,7 +21,7 @@ router.post('/samples', upload.single('sample'), function (req, res, next) {
     0,
     req.user.id
   ],
-  function (err) {
+  (err) => {
     if (err) {
       return res.sendStatus(500)
     } else {
@@ -30,14 +30,14 @@ router.post('/samples', upload.single('sample'), function (req, res, next) {
   })
 })
 
-router.get('/samples', function (req, res) {
+router.get('/samples', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
   const samples = []
 
-  db.all('SELECT id, name, volume FROM samples WHERE user = ?', [req.user.id], function (err, rows) {
+  db.all('SELECT id, name, volume FROM samples WHERE user = ?', [req.user.id], (err, rows) => {
     if (err) {
       return res.sendStatus(500)
     }

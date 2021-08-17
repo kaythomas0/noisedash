@@ -10,12 +10,12 @@ module.exports = function () {
   // (`username` and `password`) submitted by the user.  The function must verify
   // that the password is correct and then invoke `cb` with a user object, which
   // will be set at `req.user` in route handlers after authentication.
-  passport.use(new Strategy(function (username, password, cb) {
-    db.get('SELECT rowid AS id, * FROM users WHERE username = ?', [username], function (err, row) {
+  passport.use(new Strategy((username, password, cb) => {
+    db.get('SELECT rowid AS id, * FROM users WHERE username = ?', [username], (err, row) => {
       if (err) { return cb(err) }
       if (!row) { return cb(null, false, { message: 'Incorrect username or password.' }) }
 
-      crypto.pbkdf2(password, row.salt, 10000, 32, 'sha256', function (err, hashedPassword) {
+      crypto.pbkdf2(password, row.salt, 10000, 32, 'sha256', (err, hashedPassword) => {
         if (err) { return cb(err) }
         if (!crypto.timingSafeEqual(row.hashed_password, hashedPassword)) {
           return cb(null, false, { message: 'Incorrect username or password.' })
@@ -38,14 +38,14 @@ module.exports = function () {
   // typical implementation of this is as simple as supplying the user ID when
   // serializing, and querying the user record by ID from the database when
   // deserializing.
-  passport.serializeUser(function (user, cb) {
-    process.nextTick(function () {
+  passport.serializeUser((user, cb) => {
+    process.nextTick(() => {
       cb(null, { id: user.id, username: user.username })
     })
   })
 
-  passport.deserializeUser(function (user, cb) {
-    process.nextTick(function () {
+  passport.deserializeUser((user, cb) => {
+    process.nextTick(() => {
       return cb(null, user)
     })
   })

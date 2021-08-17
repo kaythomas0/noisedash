@@ -81,7 +81,7 @@ export default {
             this.$router.push('/login')
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
     }

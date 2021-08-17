@@ -1,7 +1,7 @@
 const db = require('../db')
 
 module.exports = function () {
-  db.serialize(function () {
+  db.serialize(() => {
     db.run(`CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY,
       username TEXT UNIQUE,

@@ -169,7 +169,7 @@ export default {
             this.profileItems = response.data.profiles
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
     },
@@ -192,7 +192,7 @@ export default {
         tremoloDepth: this.tremoloDepth,
         samples: this.samples
       })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
 
@@ -221,7 +221,7 @@ export default {
             this.tremoloDepth = profile.tremoloDepth
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
     },
@@ -232,7 +232,7 @@ export default {
             this.populateProfileItems()
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
     },
@@ -248,7 +248,7 @@ export default {
             })
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error)
         })
     },
@@ -268,7 +268,7 @@ export default {
             this.getSamples()
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
 

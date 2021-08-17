@@ -90,7 +90,7 @@ export default {
             this.users = response.data.users
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
     },
@@ -115,7 +115,7 @@ export default {
             this.getUsers()
           }
         })
-        .catch(function (error) {
+        .catch((error) => {
           console.error(error.response)
         })
     }

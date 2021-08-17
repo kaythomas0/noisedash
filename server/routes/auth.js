@@ -3,11 +3,11 @@ const passport = require('passport')
 const db = require('../db')
 const router = express.Router()
 
-router.post('/login/password', passport.authenticate('local'), function (req, res, next) {
+router.post('/login/password', passport.authenticate('local'), (req, res, next) => {
   return res.send('Authenticated and logged in')
 })
 
-router.get('/auth', function (req, res) {
+router.get('/auth', (req, res) => {
   if (req.user) {
     res.sendStatus(200)
   } else {
@@ -15,12 +15,12 @@ router.get('/auth', function (req, res) {
   }
 })
 
-router.get('/admin', function (req, res) {
+router.get('/admin', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], function (err, row) {
+  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
     if (err) {
       return res.sendStatus(500)
     }
@@ -33,7 +33,7 @@ router.get('/admin', function (req, res) {
   })
 })
 
-router.get('/logout', function (req, res) {
+router.get('/logout', (req, res) => {
   req.logout()
   res.sendStatus(200)
 })
