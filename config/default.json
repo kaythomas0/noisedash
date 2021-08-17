@@ -1,10 +1,11 @@
 {
   "Server": {
     "listeningPort": 3000,
-    "sessionFileStorePath": "./sessions",
+    "sessionFileStorePath": "sessions",
+    "sampleUploadPath": "samples",
     "sessionSecret": "cats",
     "tls": false,
-    "tlsKey": "./certs/key.pem",
-    "tlsCert": "./certs/cert.pem"
+    "tlsKey": "certs/key.pem",
+    "tlsCert": "certs/cert.pem"
   }
 }

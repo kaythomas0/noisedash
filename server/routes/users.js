@@ -55,7 +55,7 @@ router.post('/users', function (req, res) {
   const salt = crypto.randomBytes(16)
   crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', function (err, hashedPassword) {
     if (err) {
-      res.sendStatus(500)
+      return res.sendStatus(500)
     }
 
     db.run('INSERT INTO users (username, hashed_password, salt, name, is_admin) VALUES (?, ?, ?, ?, ?)', [
@@ -66,7 +66,11 @@ router.post('/users', function (req, res) {
       req.body.isAdmin
     ], function (err) {
       if (err) {
-        res.sendStatus(500)
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          return res.sendStatus(409)
+        } else {
+          return res.sendStatus(500)
+        }
       }
 
       const user = {
@@ -76,12 +80,13 @@ router.post('/users', function (req, res) {
       }
       req.login(user, function (err) {
         if (err) {
-          res.sendStatus(500)
+          return res.sendStatus(500)
+        } else {
+          return res.sendStatus(200)
         }
       })
     })
   })
-  res.sendStatus(200)
 })
 
 router.patch('/users/:userId', function (req, res) {
@@ -101,11 +106,11 @@ router.patch('/users/:userId', function (req, res) {
     db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
       if (err) {
         return res.sendStatus(500)
+      } else {
+        return res.sendStatus(200)
       }
     })
   })
-
-  res.sendStatus(200)
 })
 
 router.delete('/users/:userId', function (req, res) {
@@ -125,11 +130,11 @@ router.delete('/users/:userId', function (req, res) {
     db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
       if (err) {
         return res.sendStatus(500)
+      } else {
+        return res.sendStatus(200)
       }
     })
   })
-
-  res.sendStatus(200)
 })
 
 module.exports = router

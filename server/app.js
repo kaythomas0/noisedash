@@ -8,6 +8,7 @@ const config = require('config')
 const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
 const profilesRouter = require('./routes/profiles')
+const samplesRouter = require('./routes/samples')
 const app = express()
 const fileStoreOptions = {
   path: config.get('Server.sessionFileStorePath')
@@ -22,6 +23,7 @@ app.use(cookieParser())
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../dist')))
 }
+app.use('/samples', express.static(path.join(__dirname, '../', config.get('Server.sampleUploadPath'))))
 app.use(session({
   store: new FileStore(fileStoreOptions),
   secret: config.get('Server.sessionSecret'),
@@ -42,5 +44,6 @@ app.use(passport.authenticate('session'))
 app.use('/', authRouter)
 app.use('/', usersRouter)
 app.use('/', profilesRouter)
+app.use('/', samplesRouter)
 
 module.exports = app

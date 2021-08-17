@@ -45,9 +45,9 @@ router.post('/profiles', function (req, res) {
   function (err) {
     if (err) {
       return res.sendStatus(500)
+    } else {
+      return res.sendStatus(200)
     }
-
-    res.sendStatus(200)
   }
   )
 })
@@ -86,6 +86,7 @@ router.get('/profiles/:profileId', function (req, res) {
 
   db.get(`SELECT
     name,
+    user,
     timer_enabled as isTimerEnabled,
     duration,
     volume,
@@ -103,6 +104,10 @@ router.get('/profiles/:profileId', function (req, res) {
     FROM profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
     if (err) {
       return res.sendStatus(500)
+    }
+
+    if (row.user.toString() !== req.user.id) {
+      return res.sendStatus(401)
     }
 
     profile.name = row.name
@@ -142,11 +147,11 @@ router.delete('/profiles/:profileId', function (req, res) {
     db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
       if (err) {
         return res.sendStatus(500)
+      } else {
+        return res.sendStatus(200)
       }
     })
   })
-
-  res.sendStatus(200)
 })
 
 module.exports = router

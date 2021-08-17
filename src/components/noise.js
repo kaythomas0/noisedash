@@ -1,4 +1,4 @@
-import { Filter, LFO, Noise, Transport, Tremolo } from 'tone'
+import { Filter, LFO, Noise, Players, Transport, Tremolo } from 'tone'
 
 export default {
   name: 'Noise',
@@ -31,6 +31,12 @@ export default {
     isTremoloEnabled: false,
     tremoloFrequency: 0.5,
     tremoloDepth: 0.5,
+    samples: [],
+    checkedSamples: [],
+    selectedSample: null,
+    sampleDialog: false,
+    sampleName: '',
+    file: null,
     rules: {
       lt (n) {
         return value => (!isNaN(parseInt(value, 10)) && value < n) || 'Must be less than ' + n
@@ -45,7 +51,9 @@ export default {
     this.filter = new Filter()
     this.tremolo = new Tremolo()
     this.lfo = new LFO()
+    this.players = new Players()
     this.populateProfileItems()
+    this.getSamples()
   },
   methods: {
     play () {
@@ -73,18 +81,22 @@ export default {
       }
 
       if (this.isTimerEnabled) {
-        console.log(this.hours)
-        console.log(this.minutes)
-        console.log(this.seconds)
         this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
-        console.log(this.duration)
         this.noise.sync().start(0).stop(this.duration)
         Transport.loopEnd = this.duration
         this.timeRemaining = this.duration
         this.transportInterval = setInterval(() => this.stop(), this.duration * 1000 + 100)
         this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
+
+        this.checkedSamples.forEach(s => {
+          this.players.player(s).unsync().sync().start(0).stop(this.duration)
+        })
       } else {
         this.noise.sync().start(0)
+
+        this.checkedSamples.forEach(s => {
+          this.players.player(s).unsync().sync().start(0)
+        })
       }
 
       Transport.start()
@@ -222,6 +234,40 @@ export default {
         .catch(function (error) {
           console.error(error.response)
         })
+    },
+    getSamples () {
+      this.$http.get('/samples')
+        .then(response => {
+          if (response.status === 200) {
+            this.samples = response.data.samples
+            this.samples.forEach((s) => {
+              this.players.add(s.id, '/samples/' + s.name).toDestination()
+            })
+          }
+        })
+        .catch(function (error) {
+          console.error(error.response)
+        })
+    },
+    uploadSample () {
+      const formData = new FormData()
+
+      formData.append('name', this.sampleName)
+      formData.append('sample', this.selectedSample)
+
+      this.$http.post('/samples', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+        .catch(function (error) {
+          console.error(error.response)
+        })
+
+      this.sampleDialog = false
+    },
+    updateSampleVolume (id, index) {
+      this.players.player(id).volume.value = this.samples[index].volume
     }
   }
 }

@@ -29,7 +29,14 @@ module.exports = function () {
       tremolo_enabled INTEGER,
       tremolo_frequency REAL,
       tremolo_depth REAL,
-      FOREIGN KEY(user) REFERENCES user(id))`
+      FOREIGN KEY(user) REFERENCES users(id))`
+    )
+
+    db.run(`CREATE TABLE IF NOT EXISTS samples (
+      id INTEGER PRIMARY KEY,
+      name TEXT UNIQUE,
+      user INTEGER,
+      FOREIGN KEY(user) REFERENCES users(id))`
     )
   })
 }

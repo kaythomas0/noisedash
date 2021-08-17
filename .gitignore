@@ -111,3 +111,6 @@ db.sqlite3
 
 # Sessions file store
 sessions/*
+
+# Samples
+samples/*

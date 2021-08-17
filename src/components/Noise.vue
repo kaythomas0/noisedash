@@ -275,6 +275,105 @@
 
       <v-col cols="12">
         <h2 class="headline font-weight-bold mb-5">
+          Samples
+        </h2>
+
+        <v-row
+          v-for="(sample, index) in samples"
+          :key="sample.name"
+        >
+          <v-container>
+            <v-row
+              justify="center"
+            >
+              <v-checkbox
+                v-model="checkedSamples"
+                :value="sample.id"
+                :label="`${sample.name}`"
+                class="mx-3"
+              />
+            </v-row>
+
+            <v-row>
+              <v-slider
+                v-model="sample.volume"
+                label="Volume"
+                thumb-label
+                max="0"
+                min="-30"
+                class="mx-3"
+                @change="updateSampleVolume(sample.id, index)"
+              />
+              <div
+                class="mx-3"
+              >
+                <p>{{ samples[index].volume }}</p>
+              </div>
+            </v-row>
+          </v-container>
+        </v-row>
+
+        <v-dialog
+          v-model="sampleDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              class="mx-3 mb-5"
+              v-on="on"
+            >
+              Upload Sample
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Add a Sample</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <p><strong>WARNING:</strong> Uploaded samples are publicly accessible.</p>
+                </v-row>
+                <v-row>
+                  <v-file-input
+                    v-model="selectedSample"
+                    accept="audio/*"
+                    label="Upload a sample!"
+                  />
+                </v-row>
+                <v-row>
+                  <v-col cols="12">
+                    <v-text-field
+                      v-model="sampleName"
+                      label="Sample Name"
+                      required
+                    />
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="sampleDialog = false"
+              >
+                Close
+              </v-btn>
+              <v-btn
+                text
+                @click="uploadSample"
+              >
+                Upload
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </v-col>
+
+      <v-col cols="12">
+        <h2 class="headline font-weight-bold mb-5">
           Profiles
         </h2>
 
