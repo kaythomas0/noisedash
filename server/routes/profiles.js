@@ -7,49 +7,65 @@ router.post('/profiles', function (req, res) {
     return res.sendStatus(401)
   }
 
-  db.run(`INSERT INTO profiles (
-    name,
-    user,
-    timer_enabled,
-    duration,
-    volume,
-    noise_color,
-    filter_enabled,
-    filter_type,
-    filter_cutoff,
-    lfo_filter_cutoff_enabled,
-    lfo_filter_cutoff_frequency,
-    lfo_filter_cutoff_low,
-    lfo_filter_cutoff_high,
-    tremolo_enabled,
-    tremolo_frequency,
-    tremolo_depth)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-    req.body.name,
-    req.user.id,
-    req.body.isTimerEnabled ? 1 : 0,
-    req.body.duration,
-    req.body.volume,
-    req.body.noiseColor,
-    req.body.isFilterEnabled ? 1 : 0,
-    req.body.filterType,
-    req.body.filterCutoff,
-    req.body.isLFOFilterCutoffEnabled ? 1 : 0,
-    req.body.lfoFilterCutoffFrequency,
-    req.body.lfoFilterCutoffLow,
-    req.body.lfoFilterCutoffHigh,
-    req.body.isTremoloEnabled ? 1 : 0,
-    req.body.tremoloFrequency,
-    req.body.tremoloDepth
-  ],
-  function (err) {
-    if (err) {
-      return res.sendStatus(500)
-    } else {
-      return res.sendStatus(200)
-    }
-  }
-  )
+  let profileID = 0
+
+  db.serialize(function () {
+    db.run(`INSERT INTO profiles (
+      name,
+      user,
+      timer_enabled,
+      duration,
+      volume,
+      noise_color,
+      filter_enabled,
+      filter_type,
+      filter_cutoff,
+      lfo_filter_cutoff_enabled,
+      lfo_filter_cutoff_frequency,
+      lfo_filter_cutoff_low,
+      lfo_filter_cutoff_high,
+      tremolo_enabled,
+      tremolo_frequency,
+      tremolo_depth)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+      req.body.name,
+      req.user.id,
+      req.body.isTimerEnabled ? 1 : 0,
+      req.body.duration,
+      req.body.volume,
+      req.body.noiseColor,
+      req.body.isFilterEnabled ? 1 : 0,
+      req.body.filterType,
+      req.body.filterCutoff,
+      req.body.isLFOFilterCutoffEnabled ? 1 : 0,
+      req.body.lfoFilterCutoffFrequency,
+      req.body.lfoFilterCutoffLow,
+      req.body.lfoFilterCutoffHigh,
+      req.body.isTremoloEnabled ? 1 : 0,
+      req.body.tremoloFrequency,
+      req.body.tremoloDepth
+    ],
+    function (err) {
+      if (err) {
+        return res.sendStatus(500)
+      }
+
+      profileID = this.lastID
+    })
+
+    req.body.samples.forEach(s => {
+      db.run('INSERT INTO profiles_samples (profile, sample) VALUES (?, ?)', [
+        profileID,
+        s.id
+      ],
+      function (err) {
+        if (err) {
+          return res.sendStatus(500)
+        }
+      })
+    })
+  })
+  return res.sendStatus(200)
 })
 
 router.get('/profiles', function (req, res) {
@@ -59,12 +75,12 @@ router.get('/profiles', function (req, res) {
 
   const profiles = []
 
-  db.all('SELECT id, name FROM profiles WHERE user = ?', [req.user.id], (err, rows) => {
+  db.all('SELECT id, name FROM profiles WHERE user = ?', [req.user.id], function (err, rows) {
     if (err) {
       return res.sendStatus(500)
     }
 
-    rows.forEach((row) => {
+    rows.forEach(row => {
       const profile = {}
 
       profile.id = row.id
@@ -101,7 +117,7 @@ router.get('/profiles/:profileId', function (req, res) {
     tremolo_enabled as isTremoloEnabled,
     tremolo_frequency as tremoloFrequency,
     tremolo_depth as tremoloDepth
-    FROM profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
+    FROM profiles WHERE id = ?`, [req.params.profileId], function (err, row) {
     if (err) {
       return res.sendStatus(500)
     }
@@ -135,16 +151,18 @@ router.delete('/profiles/:profileId', function (req, res) {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], (err, row) => {
-    if (err) {
-      return res.sendStatus(500)
-    }
+  db.serialize(function () {
+    db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], function (err, row) {
+      if (err) {
+        return res.sendStatus(500)
+      }
 
-    if (row.user.toString() !== req.user.id) {
-      return res.sendStatus(401)
-    }
+      if (row.user.toString() !== req.user.id) {
+        return res.sendStatus(401)
+      }
+    })
 
-    db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
+    db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], function (err) {
       if (err) {
         return res.sendStatus(500)
       } else {

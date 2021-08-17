@@ -20,7 +20,7 @@ router.get('/admin', function (req, res) {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
+  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], function (err, row) {
     if (err) {
       return res.sendStatus(500)
     }

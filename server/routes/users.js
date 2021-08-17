@@ -8,7 +8,7 @@ router.get('/users/current', function (req, res) {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin as isAdmin, * FROM users WHERE id = ?', [req.user.id], (err, row) => {
+  db.get('SELECT is_admin as isAdmin, * FROM users WHERE id = ?', [req.user.id], function (err, row) {
     if (err) {
       return res.sendStatus(500)
     }
@@ -31,12 +31,12 @@ router.get('/users', function (req, res) {
 
   const users = []
 
-  db.all('SELECT id, username, name, is_admin as isAdmin FROM users', (err, rows) => {
+  db.all('SELECT id, username, name, is_admin as isAdmin FROM users', function (err, rows) {
     if (err) {
       return res.sendStatus(500)
     }
 
-    rows.forEach((row) => {
+    rows.forEach(row => {
       const user = {}
 
       user.id = row.id
@@ -94,16 +94,18 @@ router.patch('/users/:userId', function (req, res) {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
-    if (err) {
-      return res.sendStatus(500)
-    }
+  db.serialize(function () {
+    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], function (err, row) {
+      if (err) {
+        return res.sendStatus(500)
+      }
 
-    if (row.is_admin === 0) {
-      return res.sendStatus(401)
-    }
+      if (row.is_admin === 0) {
+        return res.sendStatus(401)
+      }
+    })
 
-    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
+    db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], function (err) {
       if (err) {
         return res.sendStatus(500)
       } else {
@@ -118,16 +120,18 @@ router.delete('/users/:userId', function (req, res) {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
-    if (err) {
-      return res.sendStatus(500)
-    }
+  db.serialize(function () {
+    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], function (err, row) {
+      if (err) {
+        return res.sendStatus(500)
+      }
 
-    if (row.is_admin === 0) {
-      return res.sendStatus(401)
-    }
+      if (row.is_admin === 0) {
+        return res.sendStatus(401)
+      }
+    })
 
-    db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
+    db.run('DELETE FROM users WHERE id = ?', [req.params.userId], function (err) {
       if (err) {
         return res.sendStatus(500)
       } else {

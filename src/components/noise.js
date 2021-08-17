@@ -189,7 +189,8 @@ export default {
         lfoFilterCutoffHigh: this.lfoFilterCutoffRange[1],
         isTremoloEnabled: this.isTremoloEnabled,
         tremoloFrequency: this.tremoloFrequency,
-        tremoloDepth: this.tremoloDepth
+        tremoloDepth: this.tremoloDepth,
+        samples: this.samples
       })
         .catch(function (error) {
           console.error(error.response)
@@ -240,13 +241,15 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.samples = response.data.samples
-            this.samples.forEach((s) => {
-              this.players.add(s.id, '/samples/' + s.name).toDestination()
+            this.samples.forEach(s => {
+              if (!this.players.has(s.id)) {
+                this.players.add(s.id, '/samples/' + s.name).toDestination()
+              }
             })
           }
         })
         .catch(function (error) {
-          console.error(error.response)
+          console.error(error)
         })
     },
     uploadSample () {
@@ -260,6 +263,11 @@ export default {
           'Content-Type': 'multipart/form-data'
         }
       })
+        .then(response => {
+          if (response.status === 200) {
+            this.getSamples()
+          }
+        })
         .catch(function (error) {
           console.error(error.response)
         })

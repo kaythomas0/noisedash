@@ -16,8 +16,9 @@ router.post('/samples', upload.single('sample'), function (req, res, next) {
     return res.sendStatus(401)
   }
 
-  db.run('INSERT INTO samples (name, user) VALUES (?, ?)', [
+  db.run('INSERT INTO samples (name, volume, user) VALUES (?, ?, ?)', [
     req.body.name,
+    0,
     req.user.id
   ],
   function (err) {
@@ -36,16 +37,17 @@ router.get('/samples', function (req, res) {
 
   const samples = []
 
-  db.all('SELECT id, name FROM samples WHERE user = ?', [req.user.id], (err, rows) => {
+  db.all('SELECT id, name, volume FROM samples WHERE user = ?', [req.user.id], function (err, rows) {
     if (err) {
       return res.sendStatus(500)
     }
 
-    rows.forEach((row) => {
+    rows.forEach(row => {
       const sample = {}
 
       sample.id = row.id
       sample.name = row.name
+      sample.volume = row.volume
 
       samples.push(sample)
     })
