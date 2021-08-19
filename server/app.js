@@ -30,7 +30,7 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }))
-app.use(function (req, res, next) {
+app.use((req, res, next) => {
   const msgs = req.session.messages || []
   res.locals.messages = msgs
   res.locals.hasMessages = !!msgs.length

@@ -51,17 +51,23 @@ router.post('/profiles', (req, res) => {
       }
 
       profileID = this.lastID
-    })
 
-    req.body.samples.forEach(s => {
-      db.run('INSERT INTO profiles_samples (profile, sample) VALUES (?, ?)', [
-        profileID,
-        s.id
-      ],
-      (err) => {
-        if (err) {
-          return res.sendStatus(500)
-        }
+      req.body.samples.forEach(s => {
+        db.run('INSERT INTO profiles_samples (profile, sample) VALUES (?, ?)', [
+          profileID,
+          s.id
+        ],
+        (err) => {
+          if (err) {
+            return res.sendStatus(500)
+          }
+        })
+
+        db.run('UPDATE samples SET volume = ? WHERE id = ?', [s.volume, s.id], (err) => {
+          if (err) {
+            return res.sendStatus(500)
+          }
+        })
       })
     })
   })
@@ -100,49 +106,83 @@ router.get('/profiles/:profileId', (req, res) => {
 
   const profile = {}
 
-  db.get(`SELECT
-    name,
-    user,
-    timer_enabled as isTimerEnabled,
-    duration,
-    volume,
-    noise_color as noiseColor,
-    filter_enabled as isFilterEnabled,
-    filter_type as filterType,
-    filter_cutoff as filterCutoff,
-    lfo_filter_cutoff_enabled as isLFOFilterCutoffEnabled,
-    lfo_filter_cutoff_frequency as lfoFilterCutoffFrequency,
-    lfo_filter_cutoff_low as lfoFilterCutoffLow,
-    lfo_filter_cutoff_high as lfoFilterCutoffHigh,
-    tremolo_enabled as isTremoloEnabled,
-    tremolo_frequency as tremoloFrequency,
-    tremolo_depth as tremoloDepth
-    FROM profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
-    if (err) {
-      return res.sendStatus(500)
-    }
+  db.serialize(() => {
+    db.get(`SELECT
+      name,
+      user,
+      timer_enabled as isTimerEnabled,
+      duration,
+      volume,
+      noise_color as noiseColor,
+      filter_enabled as isFilterEnabled,
+      filter_type as filterType,
+      filter_cutoff as filterCutoff,
+      lfo_filter_cutoff_enabled as isLFOFilterCutoffEnabled,
+      lfo_filter_cutoff_frequency as lfoFilterCutoffFrequency,
+      lfo_filter_cutoff_low as lfoFilterCutoffLow,
+      lfo_filter_cutoff_high as lfoFilterCutoffHigh,
+      tremolo_enabled as isTremoloEnabled,
+      tremolo_frequency as tremoloFrequency,
+      tremolo_depth as tremoloDepth
+      FROM profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
 
-    if (row.user.toString() !== req.user.id) {
-      return res.sendStatus(401)
-    }
+      if (row.user.toString() !== req.user.id) {
+        return res.sendStatus(401)
+      }
 
-    profile.name = row.name
-    profile.isTimerEnabled = row.isTimerEnabled === 1
-    profile.duration = row.duration
-    profile.volume = row.volume
-    profile.noiseColor = row.noiseColor
-    profile.isFilterEnabled = row.isFilterEnabled === 1
-    profile.filterType = row.filterType
-    profile.filterCutoff = row.filterCutoff
-    profile.isLFOFilterCutoffEnabled = row.isLFOFilterCutoffEnabled === 1
-    profile.lfoFilterCutoffFrequency = row.lfoFilterCutoffFrequency
-    profile.lfoFilterCutoffLow = row.lfoFilterCutoffLow
-    profile.lfoFilterCutoffHigh = row.lfoFilterCutoffHigh
-    profile.isTremoloEnabled = row.isTremoloEnabled === 1
-    profile.tremoloFrequency = row.tremoloFrequency
-    profile.tremoloDepth = row.tremoloDepth
+      profile.name = row.name
+      profile.isTimerEnabled = row.isTimerEnabled === 1
+      profile.duration = row.duration
+      profile.volume = row.volume
+      profile.noiseColor = row.noiseColor
+      profile.isFilterEnabled = row.isFilterEnabled === 1
+      profile.filterType = row.filterType
+      profile.filterCutoff = row.filterCutoff
+      profile.isLFOFilterCutoffEnabled = row.isLFOFilterCutoffEnabled === 1
+      profile.lfoFilterCutoffFrequency = row.lfoFilterCutoffFrequency
+      profile.lfoFilterCutoffLow = row.lfoFilterCutoffLow
+      profile.lfoFilterCutoffHigh = row.lfoFilterCutoffHigh
+      profile.isTremoloEnabled = row.isTremoloEnabled === 1
+      profile.tremoloFrequency = row.tremoloFrequency
+      profile.tremoloDepth = row.tremoloDepth
 
-    res.json({ profile: profile })
+      const sampleIds = []
+
+      db.all('SELECT sample FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err, rows) => {
+        if (err) {
+          return res.sendStatus(500)
+        }
+
+        const samples = []
+
+        rows.forEach(row => {
+          sampleIds.push(row.sample)
+        })
+
+        db.all('SELECT id, name, volume FROM samples WHERE id IN ( ' + sampleIds.map(() => { return '?' }).join(',') + ' )', sampleIds, (err, rows) => {
+          if (err) {
+            return res.sendStatus(500)
+          }
+
+          rows.forEach(row => {
+            const sample = {}
+
+            sample.id = row.id
+            sample.name = row.name
+            sample.volume = row.volume
+
+            samples.push(sample)
+          })
+
+          profile.samples = samples
+
+          res.json({ profile: profile })
+        })
+      })
+    })
   })
 })
 
@@ -163,6 +203,12 @@ router.delete('/profiles/:profileId', (req, res) => {
     })
 
     db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
+    })
+
+    db.run('DELETE FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err) => {
       if (err) {
         return res.sendStatus(500)
       } else {

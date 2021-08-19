@@ -219,6 +219,8 @@ export default {
             this.isTremoloEnabled = profile.isTremoloEnabled
             this.tremoloFrequency = profile.tremoloFrequency
             this.tremoloDepth = profile.tremoloDepth
+
+            this.samples = profile.samples
           }
         })
         .catch((error) => {

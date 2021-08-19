@@ -323,24 +323,27 @@
               class="mx-3 mb-5"
               v-on="on"
             >
-              Upload Sample
+              Add Sample
             </v-btn>
           </template>
           <v-card>
             <v-card-title>
-              <span class="text-h5">Add a Sample</span>
+              <span class="text-h5">Add Sample</span>
             </v-card-title>
             <v-card-text>
               <v-container>
-                <v-row>
-                  <p><strong>WARNING:</strong> Uploaded samples are publicly accessible.</p>
-                </v-row>
+                <v-divider />
                 <v-row>
                   <v-file-input
                     v-model="selectedSample"
                     accept="audio/*"
                     label="Upload a sample!"
                   />
+                </v-row>
+                <v-row>
+                  <v-col cols="12">
+                    <p><strong>WARNING:</strong> Uploaded samples are publicly accessible.</p>
+                  </v-col>
                 </v-row>
                 <v-row>
                   <v-col cols="12">
