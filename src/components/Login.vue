@@ -37,6 +37,7 @@
 
       <v-btn
         class="mx-3 mb-5"
+        :disabled="!valid"
         @click="login"
       >
         Login

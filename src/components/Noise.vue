@@ -279,19 +279,14 @@
         </h2>
 
         <v-row
-          v-for="(sample, index) in samples"
+          v-for="(sample, index) in loadedSamples"
           :key="sample.name"
         >
           <v-container>
             <v-row
               justify="center"
             >
-              <v-checkbox
-                v-model="checkedSamples"
-                :value="sample.id"
-                :label="`${sample.name}`"
-                class="mx-3"
-              />
+              {{ sample.name }}
             </v-row>
 
             <v-row>
@@ -307,14 +302,14 @@
               <div
                 class="mx-3"
               >
-                <p>{{ samples[index].volume }}</p>
+                <p>{{ loadedSamples[index].volume }}</p>
               </div>
             </v-row>
           </v-container>
         </v-row>
 
         <v-dialog
-          v-model="sampleDialog"
+          v-model="addSampleDialog"
           max-width="600px"
         >
           <template v-slot:activator="{ on, attrs }">
@@ -332,27 +327,24 @@
             </v-card-title>
             <v-card-text>
               <v-container>
-                <v-divider />
-                <v-row>
-                  <v-file-input
-                    v-model="selectedSample"
-                    accept="audio/*"
-                    label="Upload a sample!"
-                  />
+                <v-row v-if="unloadedSamples.length != 0">
+                  <v-list-item
+                    v-for="(sample) in unloadedSamples"
+                    :key="sample.name"
+                  >
+                    <v-list-item-action>
+                      <v-checkbox
+                        v-model="checkedSamples"
+                        :value="sample.id"
+                      />
+                    </v-list-item-action>
+                    <v-list-item-content>
+                      <v-list-item-title>{{ sample.name }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
                 </v-row>
-                <v-row>
-                  <v-col cols="12">
-                    <p><strong>WARNING:</strong> Uploaded samples are publicly accessible.</p>
-                  </v-col>
-                </v-row>
-                <v-row>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="sampleName"
-                      label="Sample Name"
-                      required
-                    />
-                  </v-col>
+                <v-row v-else>
+                  No samples to add
                 </v-row>
               </v-container>
             </v-card-text>
@@ -360,18 +352,85 @@
               <v-spacer />
               <v-btn
                 text
-                @click="sampleDialog = false"
+                @click="addSampleDialog = false"
               >
                 Close
               </v-btn>
               <v-btn
                 text
-                @click="uploadSample"
+                :disabled="unloadedSamples.length === 0"
+                @click="addSample"
               >
-                Upload
+                Add
               </v-btn>
             </v-card-actions>
           </v-card>
+        </v-dialog>
+
+        <v-dialog
+          v-model="uploadSampleDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              class="mx-3 mb-5"
+              v-on="on"
+            >
+              Upload Sample
+            </v-btn>
+          </template>
+          <v-form
+            v-model="isSampleUploadValid"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Upload Sample</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <p><strong>WARNING:</strong> Uploaded samples are publicly accessible.</p>
+                    </v-col>
+                  </v-row>
+                  <v-row>
+                    <v-file-input
+                      v-model="selectedSample"
+                      accept="audio/*"
+                      label="Upload a sample!"
+                      :rules="[rules.required()]"
+                    />
+                  </v-row>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="sampleName"
+                        label="Sample Name"
+                        :rules="[rules.required()]"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="uploadSampleDialog = false"
+                >
+                  Close
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isSampleUploadValid"
+                  @click="uploadSample"
+                >
+                  Upload
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
         </v-dialog>
       </v-col>
 
@@ -393,6 +452,7 @@
 
         <v-btn
           class="mx-3"
+          :disabled="profileItems.length < 2"
           @click="deleteProfile"
         >
           Delete Profile
@@ -411,39 +471,44 @@
               Save Profile
             </v-btn>
           </template>
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">Profile Name</span>
-            </v-card-title>
-            <v-card-text>
-              <v-container>
-                <v-row>
-                  <v-col cols="12">
-                    <v-text-field
-                      v-model="profileName"
-                      label="Profile Name"
-                      required
-                    />
-                  </v-col>
-                </v-row>
-              </v-container>
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer />
-              <v-btn
-                text
-                @click="profileDialog = false"
-              >
-                Close
-              </v-btn>
-              <v-btn
-                text
-                @click="saveProfile"
-              >
-                Save
-              </v-btn>
-            </v-card-actions>
-          </v-card>
+          <v-form
+            v-model="isProfileValid"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Profile Name</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="profileName"
+                        label="Profile Name"
+                        :rules="[rules.required()]"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="profileDialog = false"
+                >
+                  Close
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isProfileValid"
+                  @click="saveProfile"
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
         </v-dialog>
       </v-col>
     </v-row>

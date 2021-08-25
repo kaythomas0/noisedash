@@ -18,9 +18,7 @@
       <v-list
         nav
       >
-        <v-list-item-group
-          v-model="group"
-        >
+        <v-list-item-group>
           <v-list-item
             @click="home"
           >
@@ -70,7 +68,6 @@ export default {
 
   data: () => ({
     drawyer: false,
-    group: null,
     isAdmin: false
   }),
   methods: {

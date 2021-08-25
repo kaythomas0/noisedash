@@ -9,6 +9,7 @@ export default {
     profileItems: [],
     profileDialog: false,
     profileName: '',
+    isProfileValid: false,
     playDisabled: false,
     isTimerEnabled: false,
     hours: 0,
@@ -31,21 +32,39 @@ export default {
     isTremoloEnabled: false,
     tremoloFrequency: 0.5,
     tremoloDepth: 0.5,
-    samples: [],
-    checkedSamples: [],
+    allSamples: [],
+    loadedSamples: [],
     selectedSample: null,
-    sampleDialog: false,
+    uploadSampleDialog: false,
+    addSampleDialog: false,
+    checkedSamples: [],
     sampleName: '',
     file: null,
+    isSampleUploadValid: false,
     rules: {
       lt (n) {
         return value => (!isNaN(parseInt(value, 10)) && value < n) || 'Must be less than ' + n
       },
       gt (n) {
         return value => (!isNaN(parseInt(value, 10)) && value > n) || 'Must be greater than ' + n
+      },
+      required () {
+        return value => !!value || 'Required'
       }
     }
   }),
+  computed: {
+    unloadedSamples: function () {
+      const samples = []
+      this.allSamples.forEach(s1 => {
+        const result = this.loadedSamples.find(s2 => s2.id === s1.id)
+        if (!result) {
+          samples.push(s1)
+        }
+      })
+      return samples
+    }
+  },
   created () {
     this.noise = new Noise()
     this.filter = new Filter()
@@ -88,14 +107,14 @@ export default {
         this.transportInterval = setInterval(() => this.stop(), this.duration * 1000 + 100)
         this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
 
-        this.checkedSamples.forEach(s => {
-          this.players.player(s).unsync().sync().start(0).stop(this.duration)
+        this.loadedSamples.forEach(s => {
+          this.players.player(s.id).unsync().sync().start(0).stop(this.duration)
         })
       } else {
         this.noise.sync().start(0)
 
-        this.checkedSamples.forEach(s => {
-          this.players.player(s).unsync().sync().start(0)
+        this.loadedSamples.forEach(s => {
+          this.players.player(s.id).unsync().sync().start(0)
         })
       }
 
@@ -166,7 +185,23 @@ export default {
       this.$http.get('/profiles')
         .then(response => {
           if (response.status === 200) {
-            this.profileItems = response.data.profiles
+            if (response.data.profiles.length === 0) {
+              this.addDefaultProfile()
+            } else {
+              this.profileItems = response.data.profiles
+              this.selectedProfile = this.profileItems[0]
+            }
+          }
+        })
+        .catch((error) => {
+          console.error(error.response)
+        })
+    },
+    addDefaultProfile () {
+      this.$http.post('/profiles/default')
+        .then(response => {
+          if (response.status === 200) {
+            this.selectedProfile = { id: response.data.id, text: 'Default' }
           }
         })
         .catch((error) => {
@@ -190,14 +225,28 @@ export default {
         isTremoloEnabled: this.isTremoloEnabled,
         tremoloFrequency: this.tremoloFrequency,
         tremoloDepth: this.tremoloDepth,
-        samples: this.samples
+        samples: this.loadedSamples
+      }).then(response => {
+        const id = response.data.id
+        if (response.status === 200) {
+          this.profileDialog = false
+          this.populateProfileItems()
+
+          this.$http.get('/profiles')
+            .then(response => {
+              if (response.status === 200) {
+                this.profileItems = response.data.profiles
+                this.selectedProfile = { id: id, text: this.profileName }
+              }
+            })
+            .catch((error) => {
+              console.error(error.response)
+            })
+        }
       })
         .catch((error) => {
           console.error(error.response)
         })
-
-      this.profileDialog = false
-      this.populateProfileItems()
     },
     loadProfile () {
       this.$http.get('/profiles/'.concat(this.selectedProfile.id))
@@ -220,7 +269,7 @@ export default {
             this.tremoloFrequency = profile.tremoloFrequency
             this.tremoloDepth = profile.tremoloDepth
 
-            this.samples = profile.samples
+            this.loadedSamples = profile.samples
           }
         })
         .catch((error) => {
@@ -242,8 +291,8 @@ export default {
       this.$http.get('/samples')
         .then(response => {
           if (response.status === 200) {
-            this.samples = response.data.samples
-            this.samples.forEach(s => {
+            this.allSamples = response.data.samples
+            this.allSamples.forEach(s => {
               if (!this.players.has(s.id)) {
                 this.players.add(s.id, '/samples/' + s.name).toDestination()
               }
@@ -274,10 +323,18 @@ export default {
           console.error(error.response)
         })
 
-      this.sampleDialog = false
+      this.uploadSampleDialog = false
+    },
+    addSample () {
+      this.checkedSamples.forEach(i => {
+        const load = this.allSamples.find(e => e.id === i)
+        this.loadedSamples.push(load)
+      })
+
+      this.addSampleDialog = false
     },
     updateSampleVolume (id, index) {
-      this.players.player(id).volume.value = this.samples[index].volume
+      this.players.player(id).volume.value = this.loadedSamples[index].volume
     }
   }
 }

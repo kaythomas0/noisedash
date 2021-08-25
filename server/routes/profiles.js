@@ -69,9 +69,47 @@ router.post('/profiles', (req, res) => {
           }
         })
       })
+
+      return res.json({ id: profileID })
     })
   })
-  return res.sendStatus(200)
+})
+
+router.post('/profiles/default', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.serialize(() => {
+    db.run(`INSERT INTO profiles (
+      name,
+      user,
+      timer_enabled,
+      duration,
+      volume,
+      noise_color,
+      filter_enabled,
+      filter_type,
+      filter_cutoff,
+      lfo_filter_cutoff_enabled,
+      lfo_filter_cutoff_frequency,
+      lfo_filter_cutoff_low,
+      lfo_filter_cutoff_high,
+      tremolo_enabled,
+      tremolo_frequency,
+      tremolo_depth)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+      'Default', req.user.id, 0, 30, -10, 'pink', 0, 'lowpass', 20000,
+      0, 0.5, 100, 5000, 0, 0.5, 0.5
+    ],
+    function (err) {
+      if (err) {
+        return res.sendStatus(500)
+      } else {
+        return res.json({ id: this.lastID })
+      }
+    })
+  })
 })
 
 router.get('/profiles', (req, res) => {
