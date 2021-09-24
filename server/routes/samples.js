@@ -3,8 +3,8 @@ const config = require('config')
 const multer = require('multer')
 const storage = multer.diskStorage({
   destination: config.get('Server.sampleUploadPath'),
-  filename: function (req, file, cb) {
-    cb(null, req.body.name)
+  filename: (req, file, cb) => {
+    cb(null, req.user.id + '_' + req.body.name)
   }
 })
 const upload = multer({ storage: storage })
@@ -16,17 +16,33 @@ router.post('/samples', upload.single('sample'), (req, res, next) => {
     return res.sendStatus(401)
   }
 
-  db.run('INSERT INTO samples (name, volume, user) VALUES (?, ?, ?)', [
-    req.body.name,
-    0,
-    req.user.id
-  ],
-  (err) => {
-    if (err) {
-      return res.sendStatus(500)
-    } else {
-      return res.sendStatus(200)
-    }
+  db.serialize(() => {
+    db.get('SELECT can_upload FROM users WHERE id = ?', [req.user.id], (err, row) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
+
+      if (row.can_upload === 0) {
+        return res.sendStatus(401)
+      }
+    })
+
+    db.run('INSERT INTO samples (name, user) VALUES (?, ?)', [
+      req.body.name,
+      req.user.id
+    ],
+    (err) => {
+      if (err) {
+        console.log(err)
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          return res.sendStatus(409)
+        } else {
+          return res.sendStatus(500)
+        }
+      } else {
+        return res.sendStatus(200)
+      }
+    })
   })
 })
 
@@ -37,8 +53,9 @@ router.get('/samples', (req, res) => {
 
   const samples = []
 
-  db.all('SELECT id, name, volume FROM samples WHERE user = ?', [req.user.id], (err, rows) => {
+  db.all('SELECT id, name FROM samples WHERE user = ?', [req.user.id], (err, rows) => {
     if (err) {
+      console.log(err)
       return res.sendStatus(500)
     }
 
@@ -47,7 +64,7 @@ router.get('/samples', (req, res) => {
 
       sample.id = row.id
       sample.name = row.name
-      sample.volume = row.volume
+      sample.user = req.user.id
 
       samples.push(sample)
     })

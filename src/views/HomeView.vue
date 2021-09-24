@@ -1,15 +1,15 @@
 <template>
-  <Admin />
+  <Noise />
 </template>
 
 <script>
-import Admin from '../components/Admin'
+import Noise from '../components/Noise'
 
 export default {
-  name: 'AdminPage',
+  name: 'HomeView',
 
   components: {
-    Admin
+    Noise
   }
 }
 </script>

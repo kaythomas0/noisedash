@@ -8,7 +8,9 @@ module.exports = function () {
       hashed_password BLOB,
       salt BLOB,
       name TEXT,
-      is_admin INTEGER)`
+      is_admin INTEGER,
+      dark_mode INTEGER,
+      can_upload INTEGER)`
     )
 
     db.run(`CREATE TABLE IF NOT EXISTS profiles (
@@ -35,7 +37,6 @@ module.exports = function () {
     db.run(`CREATE TABLE IF NOT EXISTS samples (
       id INTEGER PRIMARY KEY,
       name TEXT UNIQUE,
-      volume INTEGER,
       user INTEGER,
       FOREIGN KEY(user) REFERENCES users(id))`
     )
@@ -44,6 +45,7 @@ module.exports = function () {
       id INTEGER PRIMARY KEY,
       profile INTEGER,
       sample INTEGER,
+      volume INTEGER,
       FOREIGN KEY(profile) REFERENCES profiles(id),
       FOREIGN KEY(sample) REFERENCES samples(id))`
     )

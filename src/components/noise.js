@@ -10,6 +10,8 @@ export default {
     profileDialog: false,
     profileName: '',
     isProfileValid: false,
+    updateProfileSnackbar: false,
+    updateProfileText: '',
     playDisabled: false,
     isTimerEnabled: false,
     hours: 0,
@@ -32,6 +34,7 @@ export default {
     isTremoloEnabled: false,
     tremoloFrequency: 0.5,
     tremoloDepth: 0.5,
+    isReverbEnabled: false,
     allSamples: [],
     loadedSamples: [],
     selectedSample: null,
@@ -39,8 +42,10 @@ export default {
     addSampleDialog: false,
     checkedSamples: [],
     sampleName: '',
-    file: null,
     isSampleUploadValid: false,
+    canUpload: false,
+    errorSnackbar: false,
+    errorSnackbarText: '',
     rules: {
       lt (n) {
         return value => (!isNaN(parseInt(value, 10)) && value < n) || 'Must be less than ' + n
@@ -71,8 +76,9 @@ export default {
     this.tremolo = new Tremolo()
     this.lfo = new LFO()
     this.players = new Players()
-    this.populateProfileItems()
+    this.populateProfileItems(0)
     this.getSamples()
+    this.getCurrentUser()
   },
   methods: {
     play () {
@@ -108,12 +114,14 @@ export default {
         this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
 
         this.loadedSamples.forEach(s => {
+          this.players.player(s.id).loop = true
           this.players.player(s.id).unsync().sync().start(0).stop(this.duration)
         })
       } else {
         this.noise.sync().start(0)
 
         this.loadedSamples.forEach(s => {
+          this.players.player(s.id).loop = true
           this.players.player(s.id).unsync().sync().start(0)
         })
       }
@@ -181,7 +189,7 @@ export default {
         this.noise.connect(this.filter)
       }
     },
-    populateProfileItems () {
+    populateProfileItems (profileId) {
       this.$http.get('/profiles')
         .then(response => {
           if (response.status === 200) {
@@ -189,7 +197,7 @@ export default {
               this.addDefaultProfile()
             } else {
               this.profileItems = response.data.profiles
-              this.selectedProfile = this.profileItems[0]
+              this.selectedProfile = this.profileItems[profileId]
             }
           }
         })
@@ -201,7 +209,9 @@ export default {
       this.$http.post('/profiles/default')
         .then(response => {
           if (response.status === 200) {
-            this.selectedProfile = { id: response.data.id, text: 'Default' }
+            const defaultProfile = { id: response.data.id, text: 'Default' }
+            this.profileItems = [defaultProfile]
+            this.selectedProfile = defaultProfile
           }
         })
         .catch((error) => {
@@ -227,26 +237,44 @@ export default {
         tremoloDepth: this.tremoloDepth,
         samples: this.loadedSamples
       }).then(response => {
-        const id = response.data.id
         if (response.status === 200) {
           this.profileDialog = false
-          this.populateProfileItems()
-
-          this.$http.get('/profiles')
-            .then(response => {
-              if (response.status === 200) {
-                this.profileItems = response.data.profiles
-                this.selectedProfile = { id: id, text: this.profileName }
-              }
-            })
-            .catch((error) => {
-              console.error(error.response)
-            })
+          console.log('repsonse.data.id: ', response.data.id)
+          this.populateProfileItems(response.data.id - 1)
         }
       })
         .catch((error) => {
           console.error(error.response)
         })
+    },
+    updateProfile () {
+      this.$http.put('/profiles/'.concat(this.selectedProfile.id), {
+        isTimerEnabled: this.isTimerEnabled,
+        duration: this.duration,
+        volume: this.volume,
+        noiseColor: this.noiseColor,
+        isFilterEnabled: this.isFilterEnabled,
+        filterType: this.filterType,
+        filterCutoff: this.filterCutoff,
+        isLFOFilterCutoffEnabled: this.isLFOFilterCutoffEnabled,
+        lfoFilterCutoffFrequency: this.lfoFilterCutoffFrequency,
+        lfoFilterCutoffLow: this.lfoFilterCutoffRange[0],
+        lfoFilterCutoffHigh: this.lfoFilterCutoffRange[1],
+        isTremoloEnabled: this.isTremoloEnabled,
+        tremoloFrequency: this.tremoloFrequency,
+        tremoloDepth: this.tremoloDepth,
+        samples: this.loadedSamples
+      }).then(response => {
+        if (response.status === 200) {
+          this.updateProfileText = 'Profile saved'
+        }
+      })
+        .catch((error) => {
+          console.error(error.response)
+          this.updateProfileText = 'Error saving profile'
+        })
+
+      this.updateProfileSnackbar = true
     },
     loadProfile () {
       this.$http.get('/profiles/'.concat(this.selectedProfile.id))
@@ -280,7 +308,7 @@ export default {
       this.$http.delete('/profiles/'.concat(this.selectedProfile.id))
         .then(response => {
           if (response.status === 200) {
-            this.populateProfileItems()
+            this.populateProfileItems(0)
           }
         })
         .catch((error) => {
@@ -294,7 +322,7 @@ export default {
             this.allSamples = response.data.samples
             this.allSamples.forEach(s => {
               if (!this.players.has(s.id)) {
-                this.players.add(s.id, '/samples/' + s.name).toDestination()
+                this.players.add(s.id, '/samples/' + s.user + '_' + s.name).toDestination()
               }
             })
           }
@@ -320,6 +348,10 @@ export default {
           }
         })
         .catch((error) => {
+          if (error.response.status === 409) {
+            this.errorSnackbarText = 'Upload Failed: Duplicate Sample Name'
+            this.errorSnackbar = true
+          }
           console.error(error.response)
         })
 
@@ -328,13 +360,29 @@ export default {
     addSample () {
       this.checkedSamples.forEach(i => {
         const load = this.allSamples.find(e => e.id === i)
+        load.volume = -10
         this.loadedSamples.push(load)
       })
 
       this.addSampleDialog = false
+      this.checkedSamples = []
     },
     updateSampleVolume (id, index) {
       this.players.player(id).volume.value = this.loadedSamples[index].volume
+    },
+    removeSample (index) {
+      this.loadedSamples.splice(index, 1)
+    },
+    getCurrentUser () {
+      this.$http.get('/users/current')
+        .then(response => {
+          if (response.status === 200) {
+            this.canUpload = response.data.user.canUpload
+          }
+        })
+        .catch((error) => {
+          console.error(error.response)
+        })
     }
   }
 }

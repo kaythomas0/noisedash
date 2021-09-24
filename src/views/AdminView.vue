@@ -1,15 +1,15 @@
 <template>
-  <Login />
+  <Admin />
 </template>
 
 <script>
-import Login from '../components/Login'
+import Admin from '../components/Admin'
 
 export default {
-  name: 'Signin',
+  name: 'AdminView',
 
   components: {
-    Login
+    Admin
   }
 }
 </script>

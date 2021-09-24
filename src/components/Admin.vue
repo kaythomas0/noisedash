@@ -1,124 +1,96 @@
 <template>
   <v-container>
-    <v-row class="text-left">
+    <v-row class="text-center">
       <v-col class="mb-5">
         <h1 class="display-2 font-weight-bold mb-3">
           Admin Dashboard
         </h1>
       </v-col>
+    </v-row>
 
-      <v-col cols="12">
-        <v-simple-table>
-          <thead>
-            <tr>
-              <th class="text-left">
-                ID
-              </th>
-              <th class="text-left">
-                Username
-              </th>
-              <th class="text-left">
-                Is Admin
-              </th>
-              <th class="text-left">
-                Delete User
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr
-              v-for="user in users"
-              :key="user.username"
-            >
-              <td>{{ user.id }}</td>
-              <td>{{ user.username }}</td>
-              <td>
-                <v-switch
-                  v-model="user.isAdmin"
-                  :label="`${user.isAdmin ? 'True' : 'False'}`"
-                  @change="updateUser(user.id, user.isAdmin); snackbar = true"
-                />
-              </td>
-              <td>
-                <v-btn
-                  @click="deleteUser(user.id)"
-                >
-                  Delete
-                </v-btn>
-              </td>
-            </tr>
-          </tbody>
-        </v-simple-table>
-        <v-snackbar
-          v-model="snackbar"
-          timeout="3000"
-        >
-          {{ updateText }}
-
-          <template v-slot:action="{ attrs }">
-            <v-btn
-              text
-              v-bind="attrs"
-              @click="snackbar = false"
-            >
-              Close
-            </v-btn>
-          </template>
-        </v-snackbar>
+    <v-row class="text-center">
+      <v-col class="mb-5">
+        <h2 class="headline font-weight-bold">
+          Users
+        </h2>
       </v-col>
     </v-row>
+
+    <v-col cols="12">
+      <v-row
+        v-for="user in users"
+        :key="user.username"
+      >
+        <v-container>
+          <v-row
+            justify="center"
+          >
+            ID: {{ user.id }}
+          </v-row>
+          <v-row
+            justify="center"
+          >
+            Username: {{ user.username }}
+          </v-row>
+          <v-row
+            justify="center"
+          >
+            Name: {{ user.name }}
+          </v-row>
+          <v-row
+            justify="center"
+          >
+            <v-switch
+              v-model="user.isAdmin"
+              :label="`${user.isAdmin ? 'Admin' : 'Not Admin'}`"
+              :disabled="user.id === currentUser.id"
+              @change="updateUserAdmin(user.id, user.isAdmin); snackbar = true"
+            />
+          </v-row>
+          <v-row
+            justify="center"
+          >
+            <v-switch
+              v-model="user.canUpload"
+              :label="`${user.canUpload ? 'Can Upload Samples' : 'Cannot Upload Samples'}`"
+              :disabled="user.id === currentUser.id"
+              @change="updateUserUpload(user.id, user.canUpload); snackbar = true"
+            />
+          </v-row>
+          <v-row
+            justify="center"
+          >
+            <v-btn
+              :disabled="user.id === currentUser.id"
+              @click="deleteUser(user.id)"
+            >
+              Delete
+            </v-btn>
+          </v-row>
+          <v-divider
+            class="mt-7"
+          />
+        </v-container>
+      </v-row>
+
+      <v-snackbar
+        v-model="snackbar"
+        timeout="3000"
+      >
+        {{ updateText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
+    </v-col>
   </v-container>
 </template>
 
-<script>
-export default {
-  name: 'Admin',
-
-  data: () => ({
-    users: [],
-    snackbar: false,
-    updateText: ''
-  }),
-  created () {
-    this.getUsers()
-  },
-  methods: {
-    getUsers () {
-      this.$http.get('/users')
-        .then(response => {
-          if (response.status === 200) {
-            this.users = response.data.users
-          }
-        })
-        .catch((error) => {
-          console.error(error.response)
-        })
-    },
-    updateUser (id, isAdmin) {
-      this.$http.patch('/users/'.concat(id), {
-        isAdmin: isAdmin
-      })
-        .then(response => {
-          if (response.status === 200) {
-            this.updateText = 'User updated'
-          }
-        })
-        .catch(function (error) {
-          console.error(error.response)
-          this.updateText = 'Error updating user'
-        })
-    },
-    deleteUser (id) {
-      this.$http.delete('/users/'.concat(id))
-        .then(response => {
-          if (response.status === 200) {
-            this.getUsers()
-          }
-        })
-        .catch((error) => {
-          console.error(error.response)
-        })
-    }
-  }
-}
-</script>
+<script src="./admin.js"></script>

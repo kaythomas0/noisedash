@@ -8,17 +8,21 @@ router.get('/users/current', (req, res) => {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin as isAdmin, * FROM users WHERE id = ?', [req.user.id], (err, row) => {
+  db.get('SELECT is_admin as isAdmin, dark_mode as darkMode, can_upload as canUpload, * FROM users WHERE id = ?', [req.user.id], (err, row) => {
     if (err) {
       return res.sendStatus(500)
     }
 
     const user = {}
 
-    user.id = row.id
-    user.username = row.username
-    user.name = row.name
-    user.isAdmin = row.isAdmin === 1
+    if (row) {
+      user.id = row.id
+      user.username = row.username
+      user.name = row.name
+      user.isAdmin = row.isAdmin === 1
+      user.darkMode = row.darkMode === 1
+      user.canUpload = row.canUpload === 1
+    }
 
     res.json({ user: user })
   })
@@ -31,7 +35,7 @@ router.get('/users', (req, res) => {
 
   const users = []
 
-  db.all('SELECT id, username, name, is_admin as isAdmin FROM users', (err, rows) => {
+  db.all('SELECT id, username, name, is_admin as isAdmin, can_upload as canUpload FROM users', (err, rows) => {
     if (err) {
       return res.sendStatus(500)
     }
@@ -43,6 +47,7 @@ router.get('/users', (req, res) => {
       user.username = row.username
       user.name = row.name
       user.isAdmin = row.isAdmin === 1
+      user.canUpload = row.canUpload === 1
 
       users.push(user)
     })
@@ -58,12 +63,15 @@ router.post('/users', (req, res) => {
       return res.sendStatus(500)
     }
 
-    db.run('INSERT INTO users (username, hashed_password, salt, name, is_admin) VALUES (?, ?, ?, ?, ?)', [
+    db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload)
+      VALUES (?, ?, ?, ?, ?, ?, ?)`, [
       req.body.username,
       hashedPassword,
       salt,
       req.body.name,
-      req.body.isAdmin
+      req.body.isAdmin,
+      req.body.darkMode,
+      req.body.canUpload
     ], function (err) {
       if (err) {
         if (err.code === 'SQLITE_CONSTRAINT') {
@@ -89,7 +97,7 @@ router.post('/users', (req, res) => {
   })
 })
 
-router.patch('/users/:userId', (req, res) => {
+router.patch('/users/admin/:userId', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
@@ -106,6 +114,48 @@ router.patch('/users/:userId', (req, res) => {
     })
 
     db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
+      if (err) {
+        return res.sendStatus(500)
+      } else {
+        return res.sendStatus(200)
+      }
+    })
+  })
+})
+
+router.patch('/users/upload/:userId', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.serialize(() => {
+    db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
+
+      if (row.is_admin === 0) {
+        return res.sendStatus(401)
+      }
+    })
+
+    db.run('UPDATE users SET can_upload = ? WHERE id = ?', [req.body.canUpload ? 1 : 0, req.params.userId], (err) => {
+      if (err) {
+        return res.sendStatus(500)
+      } else {
+        return res.sendStatus(200)
+      }
+    })
+  })
+})
+
+router.patch('/users/dark-mode', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.serialize(() => {
+    db.run('UPDATE users SET dark_mode = ? WHERE id = ?', [req.body.darkMode ? 1 : 0, req.user.id], (err) => {
       if (err) {
         return res.sendStatus(500)
       } else {

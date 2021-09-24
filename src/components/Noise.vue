@@ -8,6 +8,10 @@
       </v-col>
 
       <v-col cols="12">
+        <h2 class="headline font-weight-bold mb-10">
+          Playback
+        </h2>
+
         <v-row justify="center">
           <v-btn
             :disabled="playDisabled || !isTimerValid"
@@ -30,6 +34,109 @@
             <v-icon>mdi-stop</v-icon>
           </v-btn>
         </v-row>
+      </v-col>
+
+      <v-col cols="12">
+        <h2 class="headline font-weight-bold mb-5">
+          Profiles
+        </h2>
+
+        <v-row justify="center">
+          <v-select
+            v-model="selectedProfile"
+            :items="profileItems"
+            return-object
+            label="Profiles"
+            class="mx-3 mb-5"
+            @change="loadProfile"
+          />
+        </v-row>
+
+        <v-btn
+          class="mx-3"
+          :disabled="profileItems.length < 2"
+          @click="deleteProfile"
+        >
+          Delete Profile
+        </v-btn>
+
+        <v-btn
+          class="mx-3"
+          @click="updateProfile"
+        >
+          Save Profile
+        </v-btn>
+
+        <v-snackbar
+          v-model="updateProfileSnackbar"
+          timeout="3000"
+        >
+          {{ updateProfileText }}
+
+          <template v-slot:action="{ attrs }">
+            <v-btn
+              text
+              v-bind="attrs"
+              @click="updateProfileSnackbar = false"
+            >
+              Close
+            </v-btn>
+          </template>
+        </v-snackbar>
+
+        <v-dialog
+          v-model="profileDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              class="mx-3"
+              v-on="on"
+              @click="profileName = ''"
+            >
+              Save Profile As...
+            </v-btn>
+          </template>
+          <v-form
+            v-model="isProfileValid"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Profile Name</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-col cols="12">
+                      <v-text-field
+                        v-model="profileName"
+                        label="Profile Name"
+                        :rules="[rules.required()]"
+                      />
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="profileDialog = false"
+                >
+                  Close
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isProfileValid"
+                  @click="saveProfile"
+                >
+                  Save
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </v-dialog>
       </v-col>
 
       <v-col cols="12">
@@ -273,7 +380,10 @@
         </v-row>
       </v-col>
 
-      <v-col cols="12">
+      <v-col
+        v-if="canUpload"
+        cols="12"
+      >
         <h2 class="headline font-weight-bold mb-5">
           Samples
         </h2>
@@ -290,6 +400,14 @@
             </v-row>
 
             <v-row>
+              <v-btn
+                icon
+                :disabled="playDisabled"
+                @click="removeSample(index)"
+              >
+                <v-icon>mdi-delete</v-icon>
+              </v-btn>
+
               <v-slider
                 v-model="sample.volume"
                 label="Volume"
@@ -434,83 +552,23 @@
         </v-dialog>
       </v-col>
 
-      <v-col cols="12">
-        <h2 class="headline font-weight-bold mb-5">
-          Profiles
-        </h2>
+      <v-snackbar
+        v-model="errorSnackbar"
+        color="error"
+        timeout="3000"
+      >
+        {{ errorSnackbarText }}
 
-        <v-row justify="center">
-          <v-select
-            v-model="selectedProfile"
-            :items="profileItems"
-            return-object
-            label="Profiles"
-            class="mx-3 mb-5"
-            @change="loadProfile"
-          />
-        </v-row>
-
-        <v-btn
-          class="mx-3"
-          :disabled="profileItems.length < 2"
-          @click="deleteProfile"
-        >
-          Delete Profile
-        </v-btn>
-
-        <v-dialog
-          v-model="profileDialog"
-          max-width="600px"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              v-bind="attrs"
-              class="mx-3"
-              v-on="on"
-            >
-              Save Profile
-            </v-btn>
-          </template>
-          <v-form
-            v-model="isProfileValid"
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            text
+            v-bind="attrs"
+            @click="errorSnackbar = false"
           >
-            <v-card>
-              <v-card-title>
-                <span class="text-h5">Profile Name</span>
-              </v-card-title>
-              <v-card-text>
-                <v-container>
-                  <v-row>
-                    <v-col cols="12">
-                      <v-text-field
-                        v-model="profileName"
-                        label="Profile Name"
-                        :rules="[rules.required()]"
-                      />
-                    </v-col>
-                  </v-row>
-                </v-container>
-              </v-card-text>
-              <v-card-actions>
-                <v-spacer />
-                <v-btn
-                  text
-                  @click="profileDialog = false"
-                >
-                  Close
-                </v-btn>
-                <v-btn
-                  text
-                  :disabled="!isProfileValid"
-                  @click="saveProfile"
-                >
-                  Save
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-form>
-        </v-dialog>
-      </v-col>
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
     </v-row>
   </v-container>
 </template>

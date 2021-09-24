@@ -57,34 +57,4 @@
   </v-form>
 </template>
 
-<script>
-export default {
-  data: () => ({
-    valid: false,
-    name: '',
-    username: '',
-    password: '',
-    rules: {
-      required: v => !!v || 'Required'
-    }
-  }),
-  methods: {
-    register () {
-      this.$http.post('/users', {
-        name: this.name,
-        username: this.username,
-        password: this.password,
-        isAdmin: 1
-      })
-        .then(response => {
-          if (response.status === 200) {
-            this.$router.push('/login')
-          }
-        })
-        .catch((error) => {
-          console.error(error.response)
-        })
-    }
-  }
-}
-</script>
+<script src="./register.js"></script>

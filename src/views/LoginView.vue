@@ -1,15 +1,15 @@
 <template>
-  <Noise />
+  <Login />
 </template>
 
 <script>
-import Noise from '../components/Noise'
+import Login from '../components/Login'
 
 export default {
-  name: 'Home',
+  name: 'LoginView',
 
   components: {
-    Noise
+    Login
   }
 }
 </script>

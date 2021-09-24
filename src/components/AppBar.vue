@@ -7,7 +7,7 @@
       dense
     >
       <v-app-bar-nav-icon
-        @click="openDrawyer"
+        @click="drawyer = true"
       />
     </v-app-bar>
     <v-navigation-drawer
@@ -54,6 +54,7 @@
             <v-switch
               v-model="$vuetify.theme.dark"
               label="Dark Mode"
+              @change="toggleDarkMode"
             />
           </v-list-item>
         </v-list-item-group>
@@ -62,47 +63,4 @@
   </v-container>
 </template>
 
-<script>
-export default {
-  name: 'AppBar',
-
-  data: () => ({
-    drawyer: false,
-    isAdmin: false
-  }),
-  methods: {
-    home () {
-      this.$router.push('/')
-    },
-    admin () {
-      this.$router.push('/admin')
-    },
-    logout () {
-      this.$http.get('/logout')
-        .then(response => {
-          if (response.status === 200) {
-            this.$router.push('/login')
-          }
-        })
-        .catch((error) => {
-          console.error(error.response)
-        })
-    },
-    openDrawyer () {
-      this.$http.get('/users/current')
-        .then(response => {
-          if (response.data.user.isAdmin) {
-            this.isAdmin = true
-          } else {
-            this.isAdmin = false
-          }
-        })
-        .catch(function (error) {
-          console.error(error.response)
-          this.isAdmin = false
-        })
-      this.drawyer = true
-    }
-  }
-}
-</script>
+<script src="./appbar.js"></script>

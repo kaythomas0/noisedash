@@ -47,23 +47,22 @@ router.post('/profiles', (req, res) => {
     ],
     function (err) {
       if (err) {
-        return res.sendStatus(500)
+        if (err.code === 'SQLITE_CONSTRAINT') {
+          return res.sendStatus(409)
+        } else {
+          return res.sendStatus(500)
+        }
       }
 
       profileID = this.lastID
 
       req.body.samples.forEach(s => {
-        db.run('INSERT INTO profiles_samples (profile, sample) VALUES (?, ?)', [
+        db.run('INSERT INTO profiles_samples (profile, sample, volume) VALUES (?, ?, ?)', [
           profileID,
-          s.id
+          s.id,
+          s.volume
         ],
         (err) => {
-          if (err) {
-            return res.sendStatus(500)
-          }
-        })
-
-        db.run('UPDATE samples SET volume = ? WHERE id = ?', [s.volume, s.id], (err) => {
           if (err) {
             return res.sendStatus(500)
           }
@@ -71,6 +70,88 @@ router.post('/profiles', (req, res) => {
       })
 
       return res.json({ id: profileID })
+    })
+  })
+})
+
+router.put('/profiles/:profileId', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.serialize(() => {
+    db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], (err, row) => {
+      if (err) {
+        return res.sendStatus(500)
+      }
+
+      if (row.user.toString() !== req.user.id) {
+        return res.sendStatus(401)
+      }
+    })
+
+    db.run(`UPDATE profiles SET
+      timer_enabled = ?,
+      duration = ?,
+      volume = ?,
+      noise_color = ?,
+      filter_enabled = ?,
+      filter_type = ?,
+      filter_cutoff = ?,
+      lfo_filter_cutoff_enabled = ?,
+      lfo_filter_cutoff_frequency = ?,
+      lfo_filter_cutoff_low = ?,
+      lfo_filter_cutoff_high = ?,
+      tremolo_enabled = ?,
+      tremolo_frequency = ?,
+      tremolo_depth = ?
+      WHERE id = ?`, [
+      req.body.isTimerEnabled ? 1 : 0,
+      req.body.duration,
+      req.body.volume,
+      req.body.noiseColor,
+      req.body.isFilterEnabled ? 1 : 0,
+      req.body.filterType,
+      req.body.filterCutoff,
+      req.body.isLFOFilterCutoffEnabled ? 1 : 0,
+      req.body.lfoFilterCutoffFrequency,
+      req.body.lfoFilterCutoffLow,
+      req.body.lfoFilterCutoffHigh,
+      req.body.isTremoloEnabled ? 1 : 0,
+      req.body.tremoloFrequency,
+      req.body.tremoloDepth,
+      req.params.profileId
+    ],
+    (err) => {
+      if (err) {
+        console.log(err)
+        return res.sendStatus(500)
+      }
+
+      db.serialize(() => {
+        db.run('DELETE FROM profiles_samples WHERE profile = ?', [
+          req.params.profileId
+        ],
+        (err) => {
+          if (err) {
+            return res.sendStatus(500)
+          }
+        })
+
+        req.body.samples.forEach(s => {
+          db.run('INSERT INTO profiles_samples (profile, sample, volume) VALUES (?, ?, ?)', [
+            req.params.profileId,
+            s.id,
+            s.volume
+          ],
+          (err) => {
+            if (err) {
+              return res.sendStatus(500)
+            }
+          })
+        })
+      })
+      return res.sendStatus(200)
     })
   })
 })
@@ -117,12 +198,12 @@ router.get('/profiles', (req, res) => {
     return res.sendStatus(401)
   }
 
-  const profiles = []
-
   db.all('SELECT id, name FROM profiles WHERE user = ?', [req.user.id], (err, rows) => {
     if (err) {
       return res.sendStatus(500)
     }
+
+    const profiles = []
 
     rows.forEach(row => {
       const profile = {}
@@ -141,8 +222,6 @@ router.get('/profiles/:profileId', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)
   }
-
-  const profile = {}
 
   db.serialize(() => {
     db.get(`SELECT
@@ -164,12 +243,15 @@ router.get('/profiles/:profileId', (req, res) => {
       tremolo_depth as tremoloDepth
       FROM profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
       if (err) {
+        console.log(err)
         return res.sendStatus(500)
       }
 
       if (row.user.toString() !== req.user.id) {
         return res.sendStatus(401)
       }
+
+      const profile = {}
 
       profile.name = row.name
       profile.isTimerEnabled = row.isTimerEnabled === 1
@@ -187,23 +269,33 @@ router.get('/profiles/:profileId', (req, res) => {
       profile.tremoloFrequency = row.tremoloFrequency
       profile.tremoloDepth = row.tremoloDepth
 
-      const sampleIds = []
-
       db.all('SELECT sample FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err, rows) => {
         if (err) {
+          console.log(err)
           return res.sendStatus(500)
         }
 
-        const samples = []
+        const sampleQueryArgs = []
+
+        sampleQueryArgs.push(req.params.profileId)
 
         rows.forEach(row => {
-          sampleIds.push(row.sample)
+          sampleQueryArgs.push(row.sample)
         })
 
-        db.all('SELECT id, name, volume FROM samples WHERE id IN ( ' + sampleIds.map(() => { return '?' }).join(',') + ' )', sampleIds, (err, rows) => {
+        db.all(`SELECT samples.id, name, profiles_samples.volume
+          FROM samples
+          INNER JOIN profiles_samples
+          ON profiles_samples.sample = samples.id
+          AND profiles_samples.profile = ?
+          WHERE samples.id IN ( ` +
+        sampleQueryArgs.map(() => { return '?' }).join(',') + ' )', sampleQueryArgs, (err, rows) => {
           if (err) {
+            console.log(err)
             return res.sendStatus(500)
           }
+
+          const samples = []
 
           rows.forEach(row => {
             const sample = {}
