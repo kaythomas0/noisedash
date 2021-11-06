@@ -5,9 +5,6 @@ export default {
     drawyer: false,
     isAdmin: false
   }),
-  created () {
-    this.getCurrentUser()
-  },
   methods: {
     home () {
       this.$router.push('/')
@@ -27,6 +24,7 @@ export default {
         })
     },
     getCurrentUser () {
+      this.drawyer = true
       this.$http.get('/users/current')
         .then(response => {
           if (response.status === 200) {

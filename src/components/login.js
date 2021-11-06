@@ -3,6 +3,8 @@ export default {
     valid: false,
     username: '',
     password: '',
+    snackbar: false,
+    snackbarText: '',
     usernameRules: [
       v => !!v || 'Username is required'
     ],
@@ -22,6 +24,10 @@ export default {
           }
         })
         .catch((error) => {
+          if (error.response.status === 401) {
+            this.snackbar = true
+            this.snackbarText = 'Login Failed: Unauthorized'
+          }
           console.error(error.response)
         })
     }

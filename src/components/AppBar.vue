@@ -7,7 +7,7 @@
       dense
     >
       <v-app-bar-nav-icon
-        @click="drawyer = true"
+        @click="getCurrentUser"
       />
     </v-app-bar>
     <v-navigation-drawer

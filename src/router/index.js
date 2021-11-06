@@ -67,6 +67,19 @@ router.beforeEach((to, from, next) => {
         console.error(error.response)
         next('/')
       })
+  } else if (to.name === 'Register') {
+    instance.get('/users')
+      .then(response => {
+        if (response.data.users.length !== 0) {
+          next('/')
+        } else {
+          next()
+        }
+      })
+      .catch((error) => {
+        console.error(error.response)
+        next('/')
+      })
   } else {
     next()
   }

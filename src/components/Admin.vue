@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-row class="text-center">
+    <v-row>
       <v-col class="mb-5">
         <h1 class="display-2 font-weight-bold mb-3">
           Admin Dashboard
@@ -8,13 +8,84 @@
       </v-col>
     </v-row>
 
-    <v-row class="text-center">
-      <v-col class="mb-5">
-        <h2 class="headline font-weight-bold">
-          Users
-        </h2>
-      </v-col>
-    </v-row>
+    <v-dialog
+      v-model="addUserDialog"
+      max-width="600px"
+    >
+      <template v-slot:activator="{ on, attrs }">
+        <v-btn
+          v-bind="attrs"
+          v-on="on"
+          @click="addUserDialog = true"
+        >
+          Add User
+        </v-btn>
+      </template>
+      <v-form
+        v-model="isUserValid"
+      >
+        <v-card>
+          <v-card-title>
+            <span class="text-h5">Add User</span>
+          </v-card-title>
+          <v-card-text>
+            <v-container>
+              <v-row>
+                <v-col cols="12">
+                  <v-text-field
+                    v-model="name"
+                    :rules="[rules.required]"
+                    label="Name"
+                    required
+                  />
+                  <v-text-field
+                    v-model="username"
+                    :rules="[rules.required]"
+                    label="Username"
+                    required
+                  />
+                  <v-text-field
+                    v-model="password"
+                    type="password"
+                    :rules="[rules.required]"
+                    label="Password"
+                    required
+                  />
+                  <v-switch
+                    v-model="isAdmin"
+                    :label="`${isAdmin ? 'Admin' : 'Not Admin'}`"
+                  />
+                  <v-switch
+                    v-model="canUpload"
+                    :label="`${canUpload ? 'Can Upload Samples' : 'Cannot Upload Samples'}`"
+                  />
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-card-text>
+          <v-card-actions>
+            <v-spacer />
+            <v-btn
+              text
+              @click="addUserDialog = false"
+            >
+              Close
+            </v-btn>
+            <v-btn
+              text
+              :disabled="!isUserValid"
+              @click="addUser"
+            >
+              Register
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-form>
+    </v-dialog>
+
+    <v-divider
+      class="my-7"
+    />
 
     <v-col cols="12">
       <v-row
@@ -22,24 +93,16 @@
         :key="user.username"
       >
         <v-container>
-          <v-row
-            justify="center"
-          >
+          <v-row>
             ID: {{ user.id }}
           </v-row>
-          <v-row
-            justify="center"
-          >
+          <v-row>
             Username: {{ user.username }}
           </v-row>
-          <v-row
-            justify="center"
-          >
+          <v-row>
             Name: {{ user.name }}
           </v-row>
-          <v-row
-            justify="center"
-          >
+          <v-row>
             <v-switch
               v-model="user.isAdmin"
               :label="`${user.isAdmin ? 'Admin' : 'Not Admin'}`"
@@ -47,9 +110,7 @@
               @change="updateUserAdmin(user.id, user.isAdmin); snackbar = true"
             />
           </v-row>
-          <v-row
-            justify="center"
-          >
+          <v-row>
             <v-switch
               v-model="user.canUpload"
               :label="`${user.canUpload ? 'Can Upload Samples' : 'Cannot Upload Samples'}`"
@@ -57,9 +118,7 @@
               @change="updateUserUpload(user.id, user.canUpload); snackbar = true"
             />
           </v-row>
-          <v-row
-            justify="center"
-          >
+          <v-row>
             <v-btn
               :disabled="user.id === currentUser.id"
               @click="deleteUser(user.id)"

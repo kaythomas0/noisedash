@@ -42,6 +42,24 @@
       >
         Login
       </v-btn>
+
+      <v-snackbar
+        v-model="snackbar"
+        color="error"
+        timeout="3000"
+      >
+        {{ snackbarText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            text
+            v-bind="attrs"
+            @click="snackbar = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
     </v-container>
   </v-form>
 </template>

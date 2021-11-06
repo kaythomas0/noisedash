@@ -5,7 +5,17 @@ export default {
     currentUser: {},
     users: [],
     snackbar: false,
-    updateText: ''
+    updateText: '',
+    addUserDialog: false,
+    isUserValid: false,
+    name: '',
+    username: '',
+    password: '',
+    isAdmin: false,
+    canUpload: false,
+    rules: {
+      required: v => !!v || 'Required'
+    }
   }),
   created () {
     this.getCurrentUser()
@@ -66,6 +76,27 @@ export default {
       this.$http.delete('/users/'.concat(id))
         .then(response => {
           if (response.status === 200) {
+            this.getUsers()
+          }
+        })
+        .catch((error) => {
+          console.error(error.response)
+        })
+    },
+    addUser () {
+      this.$http.post('/users', {
+        name: this.name,
+        username: this.username,
+        password: this.password,
+        isAdmin: this.isAdmin,
+        darkMode: 0,
+        canUpload: this.canUpload
+      })
+        .then(response => {
+          if (response.status === 200) {
+            this.addUserDialog = false
+            this.updateText = 'User Registered'
+            this.snackbar = true
             this.getUsers()
           }
         })

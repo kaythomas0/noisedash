@@ -378,6 +378,7 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.canUpload = response.data.user.canUpload
+            this.$vuetify.theme.dark = response.data.user.darkMode
           }
         })
         .catch((error) => {

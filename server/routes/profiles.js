@@ -185,6 +185,7 @@ router.post('/profiles/default', (req, res) => {
     ],
     function (err) {
       if (err) {
+        console.log('ERROR: ', err)
         return res.sendStatus(500)
       } else {
         return res.json({ id: this.lastID })

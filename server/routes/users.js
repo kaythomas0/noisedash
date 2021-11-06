@@ -29,10 +29,6 @@ router.get('/users/current', (req, res) => {
 })
 
 router.get('/users', (req, res) => {
-  if (!req.user) {
-    return res.sendStatus(401)
-  }
-
   const users = []
 
   db.all('SELECT id, username, name, is_admin as isAdmin, can_upload as canUpload FROM users', (err, rows) => {
@@ -57,42 +53,94 @@ router.get('/users', (req, res) => {
 })
 
 router.post('/users', (req, res) => {
-  const salt = crypto.randomBytes(16)
-  crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', (err, hashedPassword) => {
-    if (err) {
-      return res.sendStatus(500)
-    }
-
-    db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload)
-      VALUES (?, ?, ?, ?, ?, ?, ?)`, [
-      req.body.username,
-      hashedPassword,
-      salt,
-      req.body.name,
-      req.body.isAdmin,
-      req.body.darkMode,
-      req.body.canUpload
-    ], function (err) {
+  db.serialize(() => {
+    db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
       if (err) {
-        if (err.code === 'SQLITE_CONSTRAINT') {
-          return res.sendStatus(409)
-        } else {
-          return res.sendStatus(500)
-        }
+        return res.sendStatus(500)
       }
 
-      const user = {
-        id: this.lastID.toString(),
-        username: req.body.username,
-        displayName: req.body.name
-      }
-      req.login(user, (err) => {
-        if (err) {
-          return res.sendStatus(500)
-        } else {
-          return res.sendStatus(200)
+      if (row.count !== 0) {
+        if (!req.user) {
+          return res.sendStatus(401)
         }
-      })
+
+        db.get('SELECT is_admin as isAdmin FROM users WHERE id = ?', [req.user.id], (err, row) => {
+          if (err) {
+            return res.sendStatus(500)
+          }
+
+          if (row.isAdmin !== 1) {
+            return res.sendStatus(401)
+          }
+
+          const salt = crypto.randomBytes(16)
+          crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', (err, hashedPassword) => {
+            if (err) {
+              return res.sendStatus(500)
+            }
+
+            db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload)
+              VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+              req.body.username,
+              hashedPassword,
+              salt,
+              req.body.name,
+              req.body.isAdmin,
+              req.body.darkMode,
+              req.body.canUpload
+            ], (err) => {
+              if (err) {
+                if (err.code === 'SQLITE_CONSTRAINT') {
+                  return res.sendStatus(409)
+                } else {
+                  return res.sendStatus(500)
+                }
+              }
+
+              return res.sendStatus(200)
+            })
+          })
+        })
+      } else {
+        const salt = crypto.randomBytes(16)
+        crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', (err, hashedPassword) => {
+          if (err) {
+            return res.sendStatus(500)
+          }
+
+          db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+            req.body.username,
+            hashedPassword,
+            salt,
+            req.body.name,
+            req.body.isAdmin,
+            req.body.darkMode,
+            req.body.canUpload
+          ], function (err) {
+            if (err) {
+              if (err.code === 'SQLITE_CONSTRAINT') {
+                return res.sendStatus(409)
+              } else {
+                return res.sendStatus(500)
+              }
+            }
+
+            const user = {
+              id: this.lastID.toString(),
+              username: req.body.username,
+              displayName: req.body.name
+            }
+            req.login(user, (err) => {
+              if (err) {
+                return res.sendStatus(500)
+              } else {
+                return res.sendStatus(200)
+              }
+            })
+          })
+        })
+      }
     })
   })
 })
