@@ -40,4 +40,19 @@ router.get('/logout', (req, res) => {
   res.sendStatus(200)
 })
 
+router.get('/setup', (req, res) => {
+  db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
+    if (err) {
+      logger.error(err)
+      return res.sendStatus(500)
+    }
+
+    if (row.count === 0) {
+      return res.json({ setup: true })
+    } else {
+      return res.json({ setup: false })
+    }
+  })
+})
+
 module.exports = router

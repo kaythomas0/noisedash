@@ -68,9 +68,9 @@ router.beforeEach((to, from, next) => {
         next('/')
       })
   } else if (to.name === 'Register') {
-    instance.get('/users')
+    instance.get('/setup')
       .then(response => {
-        if (response.data.users.length !== 0) {
+        if (!response.data.setup) {
           next('/')
         } else {
           next()

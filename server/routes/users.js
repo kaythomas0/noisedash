@@ -31,6 +31,10 @@ router.get('/users/current', (req, res) => {
 })
 
 router.get('/users', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
   const users = []
 
   db.all('SELECT id, username, name, is_admin as isAdmin, can_upload as canUpload FROM users', (err, rows) => {
