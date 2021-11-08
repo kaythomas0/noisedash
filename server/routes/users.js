@@ -2,6 +2,7 @@ const express = require('express')
 const crypto = require('crypto')
 const db = require('../db')
 const router = express.Router()
+const logger = require('../logger')
 
 router.get('/users/current', (req, res) => {
   if (!req.user) {
@@ -10,6 +11,7 @@ router.get('/users/current', (req, res) => {
 
   db.get('SELECT is_admin as isAdmin, dark_mode as darkMode, can_upload as canUpload, * FROM users WHERE id = ?', [req.user.id], (err, row) => {
     if (err) {
+      logger.error(err)
       return res.sendStatus(500)
     }
 
@@ -33,6 +35,7 @@ router.get('/users', (req, res) => {
 
   db.all('SELECT id, username, name, is_admin as isAdmin, can_upload as canUpload FROM users', (err, rows) => {
     if (err) {
+      logger.error(err)
       return res.sendStatus(500)
     }
 
@@ -56,6 +59,7 @@ router.post('/users', (req, res) => {
   db.serialize(() => {
     db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -66,6 +70,7 @@ router.post('/users', (req, res) => {
 
         db.get('SELECT is_admin as isAdmin FROM users WHERE id = ?', [req.user.id], (err, row) => {
           if (err) {
+            logger.error(err)
             return res.sendStatus(500)
           }
 
@@ -76,6 +81,7 @@ router.post('/users', (req, res) => {
           const salt = crypto.randomBytes(16)
           crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', (err, hashedPassword) => {
             if (err) {
+              logger.error(err)
               return res.sendStatus(500)
             }
 
@@ -90,6 +96,7 @@ router.post('/users', (req, res) => {
               req.body.canUpload
             ], (err) => {
               if (err) {
+                logger.error(err)
                 if (err.code === 'SQLITE_CONSTRAINT') {
                   return res.sendStatus(409)
                 } else {
@@ -105,6 +112,7 @@ router.post('/users', (req, res) => {
         const salt = crypto.randomBytes(16)
         crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', (err, hashedPassword) => {
           if (err) {
+            logger.error(err)
             return res.sendStatus(500)
           }
 
@@ -119,6 +127,7 @@ router.post('/users', (req, res) => {
             req.body.canUpload
           ], function (err) {
             if (err) {
+              logger.error(err)
               if (err.code === 'SQLITE_CONSTRAINT') {
                 return res.sendStatus(409)
               } else {
@@ -133,6 +142,7 @@ router.post('/users', (req, res) => {
             }
             req.login(user, (err) => {
               if (err) {
+                logger.error(err)
                 return res.sendStatus(500)
               } else {
                 return res.sendStatus(200)
@@ -153,6 +163,7 @@ router.patch('/users/admin/:userId', (req, res) => {
   db.serialize(() => {
     db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -163,6 +174,7 @@ router.patch('/users/admin/:userId', (req, res) => {
 
     db.run('UPDATE users SET is_admin = ? WHERE id = ?', [req.body.isAdmin ? 1 : 0, req.params.userId], (err) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       } else {
         return res.sendStatus(200)
@@ -179,6 +191,7 @@ router.patch('/users/upload/:userId', (req, res) => {
   db.serialize(() => {
     db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -189,6 +202,7 @@ router.patch('/users/upload/:userId', (req, res) => {
 
     db.run('UPDATE users SET can_upload = ? WHERE id = ?', [req.body.canUpload ? 1 : 0, req.params.userId], (err) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       } else {
         return res.sendStatus(200)
@@ -205,6 +219,7 @@ router.patch('/users/dark-mode', (req, res) => {
   db.serialize(() => {
     db.run('UPDATE users SET dark_mode = ? WHERE id = ?', [req.body.darkMode ? 1 : 0, req.user.id], (err) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       } else {
         return res.sendStatus(200)
@@ -221,6 +236,7 @@ router.delete('/users/:userId', (req, res) => {
   db.serialize(() => {
     db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -231,6 +247,7 @@ router.delete('/users/:userId', (req, res) => {
 
     db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       } else {
         return res.sendStatus(200)

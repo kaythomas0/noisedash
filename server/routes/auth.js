@@ -2,6 +2,7 @@ const express = require('express')
 const passport = require('passport')
 const db = require('../db')
 const router = express.Router()
+const logger = require('../logger')
 
 router.post('/login/password', passport.authenticate('local'), (req, res, next) => {
   return res.send('Authenticated and logged in')
@@ -22,6 +23,7 @@ router.get('/admin', (req, res) => {
 
   db.get('SELECT is_admin FROM users WHERE id = ?', [req.user.id], (err, row) => {
     if (err) {
+      logger.error(err)
       return res.sendStatus(500)
     }
 

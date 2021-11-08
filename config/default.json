@@ -4,6 +4,7 @@
     "sessionFileStorePath": "sessions",
     "sampleUploadPath": "samples",
     "sessionSecret": "cats",
+    "logFilePath": "log/noisedash.log",
     "tls": false,
     "tlsKey": "certs/key.pem",
     "tlsCert": "certs/cert.pem"

@@ -10,6 +10,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage })
 const db = require('../db')
 const router = express.Router()
+const logger = require('../logger')
 
 router.post('/samples', upload.single('sample'), (req, res, next) => {
   if (!req.user) {
@@ -19,6 +20,7 @@ router.post('/samples', upload.single('sample'), (req, res, next) => {
   db.serialize(() => {
     db.get('SELECT can_upload FROM users WHERE id = ?', [req.user.id], (err, row) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -33,7 +35,7 @@ router.post('/samples', upload.single('sample'), (req, res, next) => {
     ],
     (err) => {
       if (err) {
-        console.log(err)
+        logger.error(err)
         if (err.code === 'SQLITE_CONSTRAINT') {
           return res.sendStatus(409)
         } else {
@@ -55,7 +57,7 @@ router.get('/samples', (req, res) => {
 
   db.all('SELECT id, name FROM samples WHERE user = ?', [req.user.id], (err, rows) => {
     if (err) {
-      console.log(err)
+      logger.error(err)
       return res.sendStatus(500)
     }
 

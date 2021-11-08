@@ -1,6 +1,7 @@
 const express = require('express')
 const db = require('../db')
 const router = express.Router()
+const logger = require('../logger')
 
 router.post('/profiles', (req, res) => {
   if (!req.user) {
@@ -47,6 +48,7 @@ router.post('/profiles', (req, res) => {
     ],
     function (err) {
       if (err) {
+        logger.error(err)
         if (err.code === 'SQLITE_CONSTRAINT') {
           return res.sendStatus(409)
         } else {
@@ -64,6 +66,7 @@ router.post('/profiles', (req, res) => {
         ],
         (err) => {
           if (err) {
+            logger.error(err)
             return res.sendStatus(500)
           }
         })
@@ -82,6 +85,7 @@ router.put('/profiles/:profileId', (req, res) => {
   db.serialize(() => {
     db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], (err, row) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -124,7 +128,7 @@ router.put('/profiles/:profileId', (req, res) => {
     ],
     (err) => {
       if (err) {
-        console.log(err)
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -134,6 +138,7 @@ router.put('/profiles/:profileId', (req, res) => {
         ],
         (err) => {
           if (err) {
+            logger.error(err)
             return res.sendStatus(500)
           }
         })
@@ -146,6 +151,7 @@ router.put('/profiles/:profileId', (req, res) => {
           ],
           (err) => {
             if (err) {
+              logger.error(err)
               return res.sendStatus(500)
             }
           })
@@ -185,7 +191,7 @@ router.post('/profiles/default', (req, res) => {
     ],
     function (err) {
       if (err) {
-        console.log('ERROR: ', err)
+        logger.error(err)
         return res.sendStatus(500)
       } else {
         return res.json({ id: this.lastID })
@@ -201,6 +207,7 @@ router.get('/profiles', (req, res) => {
 
   db.all('SELECT id, name FROM profiles WHERE user = ?', [req.user.id], (err, rows) => {
     if (err) {
+      logger.error(err)
       return res.sendStatus(500)
     }
 
@@ -244,7 +251,7 @@ router.get('/profiles/:profileId', (req, res) => {
       tremolo_depth as tremoloDepth
       FROM profiles WHERE id = ?`, [req.params.profileId], (err, row) => {
       if (err) {
-        console.log(err)
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -272,7 +279,7 @@ router.get('/profiles/:profileId', (req, res) => {
 
       db.all('SELECT sample FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err, rows) => {
         if (err) {
-          console.log(err)
+          logger.error(err)
           return res.sendStatus(500)
         }
 
@@ -292,7 +299,7 @@ router.get('/profiles/:profileId', (req, res) => {
           WHERE samples.id IN ( ` +
         sampleQueryArgs.map(() => { return '?' }).join(',') + ' )', sampleQueryArgs, (err, rows) => {
           if (err) {
-            console.log(err)
+            logger.error(err)
             return res.sendStatus(500)
           }
 
@@ -325,6 +332,7 @@ router.delete('/profiles/:profileId', (req, res) => {
   db.serialize(() => {
     db.get('SELECT user FROM profiles WHERE id = ?', [req.params.profileId], (err, row) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
 
@@ -335,12 +343,14 @@ router.delete('/profiles/:profileId', (req, res) => {
 
     db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       }
     })
 
     db.run('DELETE FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err) => {
       if (err) {
+        logger.error(err)
         return res.sendStatus(500)
       } else {
         return res.sendStatus(200)

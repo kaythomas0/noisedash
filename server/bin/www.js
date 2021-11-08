@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 const app = require('../app')
-const debug = require('debug')('example:server')
 const fs = require('fs')
 const config = require('config')
 const tls = config.get('Server.tls')
 const http = require(tls ? 'https' : 'http')
+const logger = require('../logger')
 
 const port = normalizePort(config.get('Server.listeningPort'))
 app.set('port', port)
@@ -52,10 +52,10 @@ function onError (error) {
   // handle specific listen errors with friendly messages
   switch (error.code) {
     case 'EACCES':
-      console.error(bind + ' requires elevated privileges')
+      logger.error(new Error(bind + ' requires elevated privileges'))
       process.exit(1)
     case 'EADDRINUSE':
-      console.error(bind + ' is already in use')
+      logger.error(new Error(bind + ' is already in use'))
       process.exit(1)
     default:
       throw error
@@ -67,5 +67,5 @@ function onListening () {
   const bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port
-  debug('Listening on ' + bind)
+  logger.log('info', 'Listening on %s', bind)
 }
