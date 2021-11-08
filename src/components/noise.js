@@ -96,7 +96,7 @@ export default {
       } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && this.isTremoloEnabled) {
         this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
-        this.noise.connect(this.filter)
+        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
         this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
       } else {
@@ -207,7 +207,11 @@ export default {
               this.addDefaultProfile()
             } else {
               this.profileItems = response.data.profiles
-              this.selectedProfile = this.profileItems.find(p => p.id === profileId + 1)
+              if (profileId === 0) {
+                this.selectedProfile = this.profileItems[0]
+              } else {
+                this.selectedProfile = this.profileItems.find(p => p.id === profileId)
+              }
               this.loadProfile()
             }
           }
@@ -250,7 +254,7 @@ export default {
       }).then(response => {
         if (response.status === 200) {
           this.profileDialog = false
-          this.populateProfileItems(response.data.id - 1)
+          this.populateProfileItems(response.data.id)
         }
       })
         .catch((error) => {

@@ -37,9 +37,10 @@ module.exports = function () {
 
     db.run(`CREATE TABLE IF NOT EXISTS samples (
       id INTEGER PRIMARY KEY,
-      name TEXT UNIQUE,
+      name TEXT,
       user INTEGER,
-      FOREIGN KEY(user) REFERENCES users(id))`
+      FOREIGN KEY(user) REFERENCES users(id),
+      UNIQUE(user,name))`
     )
 
     db.run(`CREATE TABLE IF NOT EXISTS profiles_samples (
