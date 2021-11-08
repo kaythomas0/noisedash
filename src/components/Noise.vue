@@ -8,7 +8,7 @@
       </v-col>
 
       <v-col cols="12">
-        <h2 class="headline font-weight-bold mb-10">
+        <h2 class="display-1 font-weight-bold mb-10">
           Playback
         </h2>
 
@@ -48,36 +48,37 @@
             return-object
             label="Profiles"
             class="mx-3 mb-5"
+            :disabled="playDisabled"
             @change="loadProfile"
           />
         </v-row>
 
         <v-btn
-          class="mx-3"
-          :disabled="profileItems.length < 2"
+          class="mx-3 my-3"
+          :disabled="profileItems.length < 2 || playDisabled"
           @click="deleteProfile"
         >
           Delete Profile
         </v-btn>
 
         <v-btn
-          class="mx-3"
+          class="mx-3 my-3"
           @click="updateProfile"
         >
           Save Profile
         </v-btn>
 
         <v-snackbar
-          v-model="updateProfileSnackbar"
+          v-model="infoSnackbar"
           timeout="3000"
         >
-          {{ updateProfileText }}
+          {{ infoSnackbarText }}
 
           <template v-slot:action="{ attrs }">
             <v-btn
               text
               v-bind="attrs"
-              @click="updateProfileSnackbar = false"
+              @click="infoSnackbar = false"
             >
               Close
             </v-btn>
@@ -91,7 +92,8 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              class="mx-3"
+              class="mx-3 my-3"
+              :disabled="playDisabled"
               v-on="on"
               @click="profileName = ''"
             >
@@ -198,7 +200,7 @@
       </v-col>
 
       <v-col cols="12">
-        <h2 class="headline font-weight-bold mb-5">
+        <h2 class="display-1 font-weight-bold mb-5">
           Noise Settings
         </h2>
 
@@ -384,7 +386,7 @@
         v-if="canUpload"
         cols="12"
       >
-        <h2 class="headline font-weight-bold mb-5">
+        <h2 class="display-1 font-weight-bold mb-5">
           Samples
         </h2>
 
@@ -433,7 +435,8 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              class="mx-3 mb-5"
+              class="mx-3 my-3 mb-5"
+              :disabled="playDisabled"
               v-on="on"
             >
               Add Sample
@@ -492,7 +495,7 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
-              class="mx-3 mb-5"
+              class="mx-3 my-3 mb-5"
               v-on="on"
             >
               Upload Sample

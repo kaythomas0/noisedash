@@ -6,7 +6,7 @@ export default {
     users: [],
     snackbar: false,
     updateText: '',
-    addUserDialog: false,
+    registerUserDialog: false,
     isUserValid: false,
     name: '',
     username: '',
@@ -83,7 +83,7 @@ export default {
           console.error(error.response)
         })
     },
-    addUser () {
+    registerUser () {
       this.$http.post('/users', {
         name: this.name,
         username: this.username,
@@ -94,7 +94,7 @@ export default {
       })
         .then(response => {
           if (response.status === 200) {
-            this.addUserDialog = false
+            this.registerUserDialog = false
             this.updateText = 'User Registered'
             this.snackbar = true
             this.getUsers()

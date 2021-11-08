@@ -10,8 +10,8 @@ export default {
     profileDialog: false,
     profileName: '',
     isProfileValid: false,
-    updateProfileSnackbar: false,
-    updateProfileText: '',
+    infoSnackbar: false,
+    infoSnackbarText: '',
     playDisabled: false,
     isTimerEnabled: false,
     hours: 0,
@@ -85,7 +85,6 @@ export default {
       this.playDisabled = true
       Transport.cancel()
 
-      // TODO: This conditional logic can be improved
       if (!this.isFilterEnabled && !this.isTremoloEnabled) {
         this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).toDestination()
       } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
@@ -94,6 +93,12 @@ export default {
       } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
         this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
         this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+      } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.noise.connect(this.filter)
+        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo.connect(this.filter.frequency).start()
       } else {
         this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
@@ -167,7 +172,6 @@ export default {
     updateAudioChain () {
       this.noise.disconnect()
 
-      // TODO: This conditional logic can be improved
       if (!this.isFilterEnabled && !this.isTremoloEnabled) {
         this.noise.toDestination()
       } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
@@ -180,6 +184,12 @@ export default {
         this.lfo.stop()
       } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && !this.isTremoloEnabled) {
         this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
+        this.noise.connect(this.filter)
+        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo.connect(this.filter.frequency).start()
+      } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
         this.noise.connect(this.filter)
         this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
@@ -197,7 +207,8 @@ export default {
               this.addDefaultProfile()
             } else {
               this.profileItems = response.data.profiles
-              this.selectedProfile = this.profileItems[profileId]
+              this.selectedProfile = this.profileItems.find(p => p.id === profileId + 1)
+              this.loadProfile()
             }
           }
         })
@@ -239,7 +250,6 @@ export default {
       }).then(response => {
         if (response.status === 200) {
           this.profileDialog = false
-          console.log('repsonse.data.id: ', response.data.id)
           this.populateProfileItems(response.data.id - 1)
         }
       })
@@ -266,15 +276,15 @@ export default {
         samples: this.loadedSamples
       }).then(response => {
         if (response.status === 200) {
-          this.updateProfileText = 'Profile saved'
+          this.infoSnackbarText = 'Profile Saved'
+          this.infoSnackbar = true
         }
       })
         .catch((error) => {
           console.error(error.response)
-          this.updateProfileText = 'Error saving profile'
+          this.errorSnackbarText = 'Error Saving Profile'
+          this.errorSnackbar = true
         })
-
-      this.updateProfileSnackbar = true
     },
     loadProfile () {
       this.$http.get('/profiles/'.concat(this.selectedProfile.id))

@@ -9,16 +9,16 @@
     </v-row>
 
     <v-dialog
-      v-model="addUserDialog"
+      v-model="registerUserDialog"
       max-width="600px"
     >
       <template v-slot:activator="{ on, attrs }">
         <v-btn
           v-bind="attrs"
           v-on="on"
-          @click="addUserDialog = true"
+          @click="registerUserDialog = true"
         >
-          Add User
+          Register User
         </v-btn>
       </template>
       <v-form
@@ -26,7 +26,7 @@
       >
         <v-card>
           <v-card-title>
-            <span class="text-h5">Add User</span>
+            <span class="text-h5">Register User</span>
           </v-card-title>
           <v-card-text>
             <v-container>
@@ -67,14 +67,14 @@
             <v-spacer />
             <v-btn
               text
-              @click="addUserDialog = false"
+              @click="registerUserDialog = false"
             >
               Close
             </v-btn>
             <v-btn
               text
               :disabled="!isUserValid"
-              @click="addUser"
+              @click="registerUser"
             >
               Register
             </v-btn>
