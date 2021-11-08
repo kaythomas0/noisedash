@@ -4,7 +4,13 @@ const multer = require('multer')
 const storage = multer.diskStorage({
   destination: config.get('Server.sampleUploadPath'),
   filename: (req, file, cb) => {
-    cb(null, req.user.id + '_' + req.body.name)
+    if (!req.user) {
+      const err = new Error('Unauthenticated user attempted to upload sample')
+      logger.error(err)
+      cb(err, null)
+    } else {
+      cb(null, req.user.id + '_' + req.body.name)
+    }
   }
 })
 const upload = multer({ storage: storage })
