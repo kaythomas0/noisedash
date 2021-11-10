@@ -1,3 +1,3 @@
 const sqlite3 = require('sqlite3')
 
-module.exports = new sqlite3.Database('db.sqlite3')
+module.exports = new sqlite3.Database('db/db.sqlite3')

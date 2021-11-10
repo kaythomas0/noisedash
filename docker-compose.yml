@@ -1,0 +1,16 @@
+version: "3"
+
+services:
+  noisedash:
+    image: kevinthomas0/noisedash:latest
+    container_name: noisedash
+    ports:
+      - "1432:1432"
+    volumes:
+      - db:/var/noisedash/db
+      - samples:/var/noisedash/samples
+
+volumes:
+  db:
+  samples:
+
