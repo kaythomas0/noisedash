@@ -47,12 +47,12 @@ router.beforeEach((to, from, next) => {
         if (response.status === 200) {
           next()
         } else {
-          next('/login')
+          next('/register')
         }
       })
       .catch((error) => {
         console.error(error.response)
-        next('/login')
+        next('/register')
       })
   } else if (to.name === 'Admin') {
     instance.get('/admin')
@@ -71,14 +71,14 @@ router.beforeEach((to, from, next) => {
     instance.get('/setup')
       .then(response => {
         if (!response.data.setup) {
-          next('/')
+          next('/login')
         } else {
           next()
         }
       })
       .catch((error) => {
         console.error(error.response)
-        next('/')
+        next('/login')
       })
   } else {
     next()

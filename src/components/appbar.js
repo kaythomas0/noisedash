@@ -3,7 +3,8 @@ export default {
 
   data: () => ({
     drawyer: false,
-    isAdmin: false
+    isAdmin: false,
+    loggedIn: false
   }),
   methods: {
     home () {
@@ -24,10 +25,12 @@ export default {
         })
     },
     getCurrentUser () {
+      this.loggedIn = false
       this.drawyer = true
       this.$http.get('/users/current')
         .then(response => {
           if (response.status === 200) {
+            this.loggedIn = true
             this.isAdmin = response.data.user.isAdmin
             this.$vuetify.theme.dark = response.data.user.darkMode
           }

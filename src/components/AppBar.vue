@@ -41,6 +41,7 @@
             </v-list-item-title>
           </v-list-item>
           <v-list-item
+            :disabled="!loggedIn"
             @click="logout"
           >
             <v-list-item-icon>
@@ -54,6 +55,7 @@
             <v-switch
               v-model="$vuetify.theme.dark"
               label="Dark Mode"
+              :disabled="!loggedIn"
               @change="toggleDarkMode"
             />
           </v-list-item>

@@ -1,0 +1,6 @@
+dist
+log
+node_modules
+samples
+sessions
+db.sqlite3
