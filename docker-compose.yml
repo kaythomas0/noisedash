@@ -9,6 +9,7 @@ services:
     volumes:
       - db:/var/noisedash/db
       - samples:/var/noisedash/samples
+      - ./config:/var/noisedash/config
 
 volumes:
   db:
