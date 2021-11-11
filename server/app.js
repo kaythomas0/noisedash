@@ -18,14 +18,18 @@ const fileStoreOptions = {
 require('./boot/db')()
 require('./boot/auth')()
 
-app.use(history())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../dist')))
 }
+
+// Workaround for allowing static files to be served while using connect-history-api-fallback
 app.use('/samples', express.static(path.join(__dirname, '../', config.get('Server.sampleUploadPath'))))
+app.use(history())
+app.use('/samples', express.static(path.join(__dirname, '../', config.get('Server.sampleUploadPath'))))
+
 app.use(session({
   store: new FileStore(fileStoreOptions),
   secret: config.get('Server.sessionSecret'),
