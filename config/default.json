@@ -3,6 +3,7 @@
     "listeningPort": 1432,
     "sessionFileStorePath": "sessions",
     "sampleUploadPath": "samples",
+    "maxSampleSize": 10737418240, // In bytes, 10GB by default
     "sessionSecret": "cats",
     "logFile": "log/noisedash.log",
     "tls": false,
