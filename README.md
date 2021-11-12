@@ -1,4 +1,4 @@
-# noisedash
+# Noisedash
 
 Self-hostable web tool for generating ambient noises.
 
