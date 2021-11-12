@@ -105,10 +105,10 @@ export default {
         this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       }
 
-      if (this.isLFOFilterCutoffEnabled) {
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
-        this.lfo.connect(this.filter.frequency).start()
-      }
+      // if (this.isLFOFilterCutoffEnabled) {
+      //   this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+      //   this.lfo.connect(this.filter.frequency).start()
+      // }
 
       if (this.isTimerEnabled) {
         this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
@@ -393,6 +393,7 @@ export default {
     },
     updateSampleVolume (id, index) {
       this.players.player(id).volume.value = this.loadedSamples[index].volume
+      this.$forceUpdate()
     },
     removeSample (index) {
       this.loadedSamples.splice(index, 1)
