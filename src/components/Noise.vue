@@ -28,7 +28,7 @@
             class="mx-3 mb-5"
             fab
             large
-            color="secondary"
+            color="primary"
             @click="stop"
           >
             <v-icon>mdi-stop</v-icon>
@@ -67,23 +67,6 @@
         >
           Save Profile
         </v-btn>
-
-        <v-snackbar
-          v-model="infoSnackbar"
-          timeout="3000"
-        >
-          {{ infoSnackbarText }}
-
-          <template v-slot:action="{ attrs }">
-            <v-btn
-              text
-              v-bind="attrs"
-              @click="infoSnackbar = false"
-            >
-              Close
-            </v-btn>
-          </template>
-        </v-snackbar>
 
         <v-dialog
           v-model="profileDialog"
@@ -554,6 +537,23 @@
           </v-form>
         </v-dialog>
       </v-col>
+
+      <v-snackbar
+        v-model="infoSnackbar"
+        timeout="3000"
+      >
+        {{ infoSnackbarText }}
+
+        <template v-slot:action="{ attrs }">
+          <v-btn
+            text
+            v-bind="attrs"
+            @click="infoSnackbar = false"
+          >
+            Close
+          </v-btn>
+        </template>
+      </v-snackbar>
 
       <v-snackbar
         v-model="errorSnackbar"

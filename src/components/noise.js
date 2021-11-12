@@ -255,10 +255,14 @@ export default {
         if (response.status === 200) {
           this.profileDialog = false
           this.populateProfileItems(response.data.id)
+          this.infoSnackbarText = 'Profile Saved'
+          this.infoSnackbar = true
         }
       })
         .catch((error) => {
           console.error(error.response)
+          this.errorSnackbarText = 'Error Saving Profile'
+          this.errorSnackbar = true
         })
     },
     updateProfile () {
@@ -323,10 +327,14 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.populateProfileItems(0)
+            this.infoSnackbarText = 'Profile Deleted'
+            this.infoSnackbar = true
           }
         })
         .catch((error) => {
           console.error(error.response)
+          this.errorSnackbarText = 'Error Deleting Profile'
+          this.errorSnackbar = true
         })
     },
     getSamples () {
@@ -359,11 +367,13 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.getSamples()
+            this.infoSnackbarText = 'Sample Uploaded'
+            this.infoSnackbar = true
           }
         })
         .catch((error) => {
           if (error.response.status === 409) {
-            this.errorSnackbarText = 'Upload Failed: Duplicate Sample Name'
+            this.errorSnackbarText = 'Error Uploading Sample: Duplicate Sample Name'
             this.errorSnackbar = true
           }
           console.error(error.response)
