@@ -25,10 +25,11 @@ export default {
         })
         .catch((error) => {
           if (error.response.status === 401) {
-            this.snackbar = true
             this.snackbarText = 'Login Failed: Unauthorized'
+          } else {
+            this.snackbarText = 'Login Failed'
           }
-          console.error(error.response)
+          this.snackbar = true
         })
     }
   }

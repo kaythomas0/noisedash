@@ -216,9 +216,6 @@ export default {
             }
           }
         })
-        .catch((error) => {
-          console.error(error.response)
-        })
     },
     addDefaultProfile () {
       this.$http.post('/profiles/default')
@@ -228,9 +225,6 @@ export default {
             this.profileItems = [defaultProfile]
             this.selectedProfile = defaultProfile
           }
-        })
-        .catch((error) => {
-          console.error(error.response)
         })
     },
     saveProfile () {
@@ -259,8 +253,7 @@ export default {
           this.infoSnackbar = true
         }
       })
-        .catch((error) => {
-          console.error(error.response)
+        .catch(() => {
           this.errorSnackbarText = 'Error Saving Profile'
           this.errorSnackbar = true
         })
@@ -288,8 +281,7 @@ export default {
           this.infoSnackbar = true
         }
       })
-        .catch((error) => {
-          console.error(error.response)
+        .catch(() => {
           this.errorSnackbarText = 'Error Saving Profile'
           this.errorSnackbar = true
         })
@@ -318,9 +310,6 @@ export default {
             this.loadedSamples = profile.samples
           }
         })
-        .catch((error) => {
-          console.error(error.response)
-        })
     },
     deleteProfile () {
       this.$http.delete('/profiles/'.concat(this.selectedProfile.id))
@@ -331,8 +320,7 @@ export default {
             this.infoSnackbar = true
           }
         })
-        .catch((error) => {
-          console.error(error.response)
+        .catch(() => {
           this.errorSnackbarText = 'Error Deleting Profile'
           this.errorSnackbar = true
         })
@@ -348,9 +336,6 @@ export default {
               }
             })
           }
-        })
-        .catch((error) => {
-          console.error(error)
         })
     },
     uploadSample () {
@@ -374,9 +359,10 @@ export default {
         .catch((error) => {
           if (error.response.status === 409) {
             this.errorSnackbarText = 'Error Uploading Sample: Duplicate Sample Name'
-            this.errorSnackbar = true
+          } else {
+            this.errorSnackbarText = 'Error Uploading Sample'
           }
-          console.error(error.response)
+          this.errorSnackbar = true
         })
 
       this.uploadSampleDialog = false
@@ -405,9 +391,6 @@ export default {
             this.canUpload = response.data.user.canUpload
             this.$vuetify.theme.dark = response.data.user.darkMode
           }
-        })
-        .catch((error) => {
-          console.error(error.response)
         })
     }
   }

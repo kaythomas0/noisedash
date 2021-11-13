@@ -29,9 +29,6 @@ export default {
             this.users = response.data.users
           }
         })
-        .catch((error) => {
-          console.error(error.response)
-        })
     },
     getCurrentUser () {
       this.$http.get('/users/current')
@@ -39,9 +36,6 @@ export default {
           if (response.status === 200) {
             this.currentUser = response.data.user
           }
-        })
-        .catch((error) => {
-          console.error(error.response)
         })
     },
     updateUserAdmin (id, isAdmin) {
@@ -53,8 +47,7 @@ export default {
             this.updateText = 'User updated'
           }
         })
-        .catch(function (error) {
-          console.error(error.response)
+        .catch(() => {
           this.updateText = 'Error updating user'
         })
     },
@@ -67,8 +60,7 @@ export default {
             this.updateText = 'User updated'
           }
         })
-        .catch(function (error) {
-          console.error(error.response)
+        .catch(() => {
           this.updateText = 'Error updating user'
         })
     },
@@ -78,9 +70,6 @@ export default {
           if (response.status === 200) {
             this.getUsers()
           }
-        })
-        .catch((error) => {
-          console.error(error.response)
         })
     },
     registerUser () {
@@ -99,9 +88,6 @@ export default {
             this.snackbar = true
             this.getUsers()
           }
-        })
-        .catch((error) => {
-          console.error(error.response)
         })
     }
   }

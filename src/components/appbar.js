@@ -20,9 +20,6 @@ export default {
             this.$router.push('/login')
           }
         })
-        .catch((error) => {
-          console.error(error.response)
-        })
     },
     getCurrentUser () {
       this.loggedIn = false
@@ -35,8 +32,7 @@ export default {
             this.$vuetify.theme.dark = response.data.user.darkMode
           }
         })
-        .catch((error) => {
-          console.error(error.response)
+        .catch(() => {
           this.isAdmin = false
         })
     },
@@ -44,9 +40,6 @@ export default {
       this.$http.patch('/users/dark-mode', {
         darkMode: this.$vuetify.theme.dark
       })
-        .catch((error) => {
-          console.error(error.response)
-        })
     }
   }
 }
