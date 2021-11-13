@@ -2,6 +2,8 @@
 
 Self-hostable web tool for generating ambient noises.
 
+![Noisedash](./.github/noisedash-screenshot-1.jpg)
+
 # Features
 
 * Generate and customize ambient noises and user-uploadable samples
