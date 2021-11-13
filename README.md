@@ -10,7 +10,8 @@ Self-hostable web tool for generating ambient noises.
 * Save "noise profiles" so you can easily switch between your created soundscapes
 * Fine-tune your noises with audio processing tools like filters, LFOs, and effects
 * Upload audio samples (e.g rain, wind, thunder) to combine with your generated noises
-* Manage multiple users
+* Use admin tools to manage multiple users
+* Mobile friendly
 
 # Installation
 
@@ -55,4 +56,4 @@ npm run server-prod
 
 # Contributing
 
-See [CONTRIBUTING.md](https://github.com/KevinThomas0/noisedash/blob/main/README.md)
+See [CONTRIBUTING.md](https://github.com/KevinThomas0/noisedash/blob/main/CONTRIBUTING.md)
