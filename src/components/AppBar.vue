@@ -61,6 +61,15 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
+      <template v-slot:append>
+        <v-btn
+          block
+          href="https://github.com/KevinThomas0/noisedash"
+          target="_blank"
+        >
+          Source Code
+        </v-btn>
+      </template>
     </v-navigation-drawer>
   </v-container>
 </template>
