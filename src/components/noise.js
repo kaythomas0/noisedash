@@ -93,22 +93,20 @@ export default {
       } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
         this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
         this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
-      } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && this.isTremoloEnabled) {
+      } else if (this.isFilterEnabled && this.isTremoloEnabled) {
         this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
         this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
-        this.lfo.connect(this.filter.frequency).start()
       } else {
         this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
         this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       }
 
-      // if (this.isLFOFilterCutoffEnabled) {
-      //   this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
-      //   this.lfo.connect(this.filter.frequency).start()
-      // }
+      if (this.isLFOFilterCutoffEnabled) {
+        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo.connect(this.filter.frequency).start()
+      }
 
       if (this.isTimerEnabled) {
         this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
