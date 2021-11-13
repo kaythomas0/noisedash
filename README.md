@@ -1,12 +1,14 @@
 # Noisedash
 
-Self-hostable web tool for generating ambient noises.
+Self-hostable web tool for generating ambient noises
 
 ![Noisedash](./.github/noisedash-screenshot-1.jpg)
 
+(More screenshots on the [wiki](https://github.com/KevinThomas0/noisedash/wiki/Screenshots))
+
 # Features
 
-* Generate and customize ambient noises and user-uploadable samples
+* Generate and customize ambient noises and user-uploadable samples (leveraging [Tone.js](https://github.com/Tonejs/Tone.js/))
 * Save "noise profiles" so you can easily switch between your created soundscapes
 * Fine-tune your noises with audio processing tools like filters, LFOs, and effects
 * Upload audio samples (e.g rain, wind, thunder) to combine with your generated noises
@@ -27,6 +29,8 @@ Requires docker and docker-compose
 ``` bash
 docker-compose up -d
 ```
+
+* Proceed to the URL where it's deployed and register your first user
 
 ## From Source
 
@@ -53,6 +57,8 @@ NODE_ENV=production npm run build
 ``` bash
 npm run server-prod
 ```
+
+* Proceed to the URL where it's deployed and register your first user
 
 # Contributing
 
