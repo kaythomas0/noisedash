@@ -70,7 +70,7 @@ router.beforeEach((to, from, next) => {
   } else if (to.name === 'Register') {
     instance.get('/setup')
       .then(response => {
-        if (!response.data.setup) {
+        if (response.status !== 200 || !response.data.setup) {
           next('/login')
         } else {
           next()

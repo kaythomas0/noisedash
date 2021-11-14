@@ -4,9 +4,9 @@
     "sessionFileStorePath": "sessions",
     "sampleUploadPath": "samples",
     "maxSampleSize": 10737418240, // In bytes, 10GB by default
-    "sessionSecret": "cats",
+    "sessionSecret": "CHANGE_THIS",
     "logFile": "log/noisedash.log",
-    "tls": false,
+    "tls": false, // Keep this as false if using an external web server like nginx
     "tlsKey": "certs/key.pem",
     "tlsCert": "certs/cert.pem"
   }

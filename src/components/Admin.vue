@@ -16,12 +16,13 @@
         <v-btn
           v-bind="attrs"
           v-on="on"
-          @click="registerUserDialog = true"
+          @click="$refs.registerUserForm.reset()"
         >
           Register User
         </v-btn>
       </template>
       <v-form
+        ref="registerUserForm"
         v-model="isUserValid"
       >
         <v-card>

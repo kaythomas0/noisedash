@@ -186,7 +186,7 @@ router.post('/profiles/default', (req, res) => {
       tremolo_frequency,
       tremolo_depth)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-      'Default', req.user.id, 0, 30, -10, 'pink', 0, 'lowpass', 20000,
+      'Default', req.user.id, 0, 30, -10, 'pink', 0, 'lowpass', 1000,
       0, 0.5, 100, 5000, 0, 0.5, 0.5
     ],
     function (err) {

@@ -78,12 +78,13 @@
               class="mx-3 my-3"
               :disabled="playDisabled"
               v-on="on"
-              @click="profileName = ''"
+              @click="$refs.profileForm.reset()"
             >
               Save Profile As...
             </v-btn>
           </template>
           <v-form
+            ref="profileForm"
             v-model="isProfileValid"
           >
             <v-card>
@@ -195,7 +196,7 @@
             max="0"
             min="-30"
             class="mx-3"
-            @change="updateVolume"
+            @input="updateVolume"
           />
           <div
             class="mx-3"
@@ -238,7 +239,7 @@
             max="20000"
             min="0"
             class="mx-3"
-            @change="updateFilterCutoff"
+            @input="updateFilterCutoff"
           />
           <div
             class="mx-3"
@@ -280,7 +281,7 @@
             min="0.01"
             step="0.01"
             class="mx-3"
-            @change="updateLFOFilterCutoffFrequency"
+            @input="updateLFOFilterCutoffFrequency"
           />
           <div
             class="mx-3"
@@ -298,7 +299,7 @@
             :min="lfoFilterCutoffMin"
             :max="lfoFilterCutoffMax"
             class="mx-3"
-            @change="updateLFOFilterCutoffRange"
+            @input="updateLFOFilterCutoffRange"
           />
           <div
             class="mx-3"
@@ -334,7 +335,7 @@
             ticks
             tick-size="4"
             class="mx-3"
-            @change="updateTremoloFrequency"
+            @input="updateTremoloFrequency"
           />
           <div
             class="mx-3"
@@ -355,7 +356,7 @@
             ticks
             tick-size="4"
             class="mx-3"
-            @change="updateTremoloDepth"
+            @input="updateTremoloDepth"
           />
           <div
             class="mx-3"
@@ -400,7 +401,7 @@
                 max="0"
                 min="-30"
                 class="mx-3"
-                @change="updateSampleVolume(sample.id, index)"
+                @input="updateSampleVolume(sample.id, index)"
               />
               <div
                 class="mx-3"
@@ -480,11 +481,13 @@
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
               v-on="on"
+              @click="$refs.uploadSampleForm.reset()"
             >
               Upload Sample
             </v-btn>
           </template>
           <v-form
+            ref="uploadSampleForm"
             v-model="isSampleUploadValid"
           >
             <v-card>
