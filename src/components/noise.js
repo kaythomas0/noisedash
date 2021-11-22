@@ -80,6 +80,9 @@ export default {
     this.getSamples()
     this.getCurrentUser()
   },
+  beforeDestroy () {
+    this.stop()
+  },
   methods: {
     play () {
       this.playDisabled = true
