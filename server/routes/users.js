@@ -232,6 +232,33 @@ router.patch('/users/dark-mode', (req, res) => {
   })
 })
 
+router.patch('/users/password', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  const salt = crypto.randomBytes(16)
+  crypto.pbkdf2(req.body.password, salt, 10000, 32, 'sha256', (err, hashedPassword) => {
+    if (err) {
+      logger.error(err)
+      return res.sendStatus(500)
+    }
+
+    db.run('UPDATE users SET hashed_password = ?, salt = ? WHERE id = ?', [
+      hashedPassword,
+      salt,
+      req.user.id
+    ], (err) => {
+      if (err) {
+        logger.error(err)
+        return res.sendStatus(500)
+      }
+
+      return res.sendStatus(200)
+    })
+  })
+})
+
 router.delete('/users/:userId', (req, res) => {
   if (!req.user) {
     return res.sendStatus(401)

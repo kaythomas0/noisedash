@@ -10,6 +10,9 @@ export default {
     home () {
       this.$router.push('/')
     },
+    account () {
+      this.$router.push('/account')
+    },
     admin () {
       this.$router.push('/admin')
     },

@@ -16,7 +16,7 @@
         <v-btn
           v-bind="attrs"
           v-on="on"
-          @click="$refs.registerUserForm.reset()"
+          @click="resetRegisterUserForm"
         >
           Register User
         </v-btn>
@@ -137,7 +137,7 @@
         v-model="snackbar"
         timeout="3000"
       >
-        {{ updateText }}
+        {{ snackbarText }}
 
         <template v-slot:action="{ attrs }">
           <v-btn

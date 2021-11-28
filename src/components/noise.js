@@ -393,6 +393,16 @@ export default {
             this.$vuetify.theme.dark = response.data.user.darkMode
           }
         })
+    },
+    resetProfileForm () {
+      if (this.$refs.profileForm) {
+        this.$refs.profileForm.reset()
+      }
+    },
+    resetUploadSampleForm () {
+      if (this.$refs.uploadSampleForm) {
+        this.$refs.uploadSampleForm.reset()
+      }
     }
   }
 }

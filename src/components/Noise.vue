@@ -78,7 +78,7 @@
               class="mx-3 my-3"
               :disabled="playDisabled"
               v-on="on"
-              @click="$refs.profileForm.reset()"
+              @click="resetProfileForm"
             >
               Save Profile As...
             </v-btn>
@@ -481,7 +481,7 @@
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
               v-on="on"
-              @click="$refs.uploadSampleForm.reset()"
+              @click="resetUploadSampleForm"
             >
               Upload Sample
             </v-btn>

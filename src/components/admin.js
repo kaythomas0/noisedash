@@ -5,7 +5,7 @@ export default {
     currentUser: {},
     users: [],
     snackbar: false,
-    updateText: '',
+    snackbarText: '',
     registerUserDialog: false,
     isUserValid: false,
     name: '',
@@ -44,11 +44,11 @@ export default {
       })
         .then(response => {
           if (response.status === 200) {
-            this.updateText = 'User updated'
+            this.snackbarText = 'User updated'
           }
         })
         .catch(() => {
-          this.updateText = 'Error updating user'
+          this.snackbarText = 'Error updating user'
         })
     },
     updateUserUpload (id, canUpload) {
@@ -57,11 +57,11 @@ export default {
       })
         .then(response => {
           if (response.status === 200) {
-            this.updateText = 'User updated'
+            this.snackbarText = 'User updated'
           }
         })
         .catch(() => {
-          this.updateText = 'Error updating user'
+          this.snackbarText = 'Error updating user'
         })
     },
     deleteUser (id) {
@@ -84,11 +84,16 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.registerUserDialog = false
-            this.updateText = 'User Registered'
+            this.snackbarText = 'User Registered'
             this.snackbar = true
             this.getUsers()
           }
         })
+    },
+    resetRegisterUserForm () {
+      if (this.$refs.registerUserForm) {
+        this.$refs.registerUserForm.reset()
+      }
     }
   }
 }

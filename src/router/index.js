@@ -14,23 +14,22 @@ const routes = [
   {
     path: '/login',
     name: 'Login',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/LoginView.vue')
+    component: () => import('../views/LoginView.vue')
   },
   {
     path: '/register',
     name: 'Register',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/RegisterView.vue')
+    component: () => import('../views/RegisterView.vue')
   },
   {
     path: '/admin',
     name: 'Admin',
-    component: () => import(/* webpackChunkName: "about" */ '../views/AdminView.vue')
+    component: () => import('../views/AdminView.vue')
+  },
+  {
+    path: '/account',
+    name: 'Account',
+    component: () => import('../views/AccountView.vue')
   }
 ]
 
@@ -50,8 +49,7 @@ router.beforeEach((to, from, next) => {
           next('/register')
         }
       })
-      .catch((error) => {
-        console.error(error.response)
+      .catch(() => {
         next('/register')
       })
   } else if (to.name === 'Admin') {
@@ -63,8 +61,7 @@ router.beforeEach((to, from, next) => {
           next('/')
         }
       })
-      .catch((error) => {
-        console.error(error.response)
+      .catch(() => {
         next('/')
       })
   } else if (to.name === 'Register') {
@@ -76,9 +73,20 @@ router.beforeEach((to, from, next) => {
           next()
         }
       })
-      .catch((error) => {
-        console.error(error.response)
+      .catch(() => {
         next('/login')
+      })
+  } else if (to.name === 'Account') {
+    instance.get('/auth')
+      .then(response => {
+        if (response.status === 200) {
+          next()
+        } else {
+          next('/register')
+        }
+      })
+      .catch(() => {
+        next('/register')
       })
   } else {
     next()
