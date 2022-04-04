@@ -1,4 +1,4 @@
-const sqlite3 = require('sqlite3')
+const sqlite3 = require('@vscode/sqlite3')
 const fs = require('fs')
 const path = require('path')
 
