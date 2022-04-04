@@ -1,4 +1,4 @@
-FROM node
+FROM node:14
 LABEL maintainer="me@kevinthomas.dev"
 WORKDIR /var/noisedash
 COPY package*.json ./
