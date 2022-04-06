@@ -6,6 +6,7 @@ const path = require('path')
 const cookieParser = require('cookie-parser')
 const config = require('config')
 const history = require('connect-history-api-fallback')
+const crypto = require('crypto')
 const authRouter = require('./routes/auth')
 const usersRouter = require('./routes/users')
 const profilesRouter = require('./routes/profiles')
@@ -30,9 +31,10 @@ app.use('/samples', express.static(path.join(__dirname, '../', config.get('Serve
 app.use(history())
 app.use('/samples', express.static(path.join(__dirname, '../', config.get('Server.sampleUploadPath'))))
 
+const sessionSecret = crypto.randomBytes(64).toString('hex')
 app.use(session({
   store: new FileStore(fileStoreOptions),
-  secret: config.get('Server.sessionSecret'),
+  secret: sessionSecret,
   resave: true,
   saveUninitialized: true
 }))
