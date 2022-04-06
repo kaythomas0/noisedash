@@ -278,7 +278,7 @@
             thumb-label
             label="Rate"
             max="10"
-            min="0.01"
+            min="0"
             step="0.01"
             class="mx-3"
             @input="updateLFOFilterCutoffFrequency"
@@ -331,9 +331,7 @@
             thumb-label
             max="1"
             min="0"
-            step="0.1"
-            ticks
-            tick-size="4"
+            step="0.01"
             class="mx-3"
             @input="updateTremoloFrequency"
           />
