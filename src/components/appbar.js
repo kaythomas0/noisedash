@@ -38,11 +38,6 @@ export default {
         .catch(() => {
           this.isAdmin = false
         })
-    },
-    toggleDarkMode () {
-      this.$http.patch('/users/dark-mode', {
-        darkMode: this.$vuetify.theme.dark
-      })
     }
   }
 }

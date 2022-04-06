@@ -40,6 +40,11 @@ export default {
       if (this.$refs.changePasswordForm) {
         this.$refs.changePasswordForm.reset()
       }
+    },
+    toggleDarkMode () {
+      this.$http.patch('/users/dark-mode', {
+        darkMode: this.$vuetify.theme.dark
+      })
     }
   }
 }

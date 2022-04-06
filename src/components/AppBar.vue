@@ -61,14 +61,6 @@
               Logout
             </v-list-item-title>
           </v-list-item>
-          <v-list-item>
-            <v-switch
-              v-model="$vuetify.theme.dark"
-              label="Dark Mode"
-              :disabled="!loggedIn"
-              @change="toggleDarkMode"
-            />
-          </v-list-item>
         </v-list-item-group>
       </v-list>
       <template v-slot:append>
