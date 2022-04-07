@@ -123,6 +123,149 @@
             </v-card>
           </v-form>
         </v-dialog>
+
+        <v-dialog
+          v-model="profileMoreDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              class="mx-3 my-3"
+              :disabled="playDisabled"
+              v-on="on"
+            >
+              More...
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">More Profile Options</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-list-item-group>
+                      <v-list-item
+                        @click="openImportDialog"
+                      >
+                        <v-list-item-icon>
+                          <v-icon>mdi-file-import</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>
+                          Import Profile
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="openExportDialog"
+                      >
+                        <v-list-item-icon>
+                          <v-icon>mdi-file-export</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>
+                          Export Profile
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="profileMoreDialog = false"
+              >
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog
+          v-model="importDialog"
+          max-width="600px"
+        >
+          <v-form
+            ref="importForm"
+            v-model="isImportValid"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Import Profile</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-file-input
+                      v-model="importedProfile"
+                      accept=".json"
+                      label="Upload a profile file!"
+                      :rules="[rules.required()]"
+                    />
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="importDialog = false"
+                >
+                  Close
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isImportValid"
+                  @click="importProfile"
+                >
+                  Import
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </v-dialog>
+
+        <v-dialog
+          v-model="exportDialog"
+          max-width="600px"
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Export Profile</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-select
+                    v-model="exportedProfile"
+                    :items="profileItems"
+                    return-object
+                    label="Profiles"
+                    class="mx-3 mb-5"
+                  />
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="exportDialog = false"
+              >
+                Close
+              </v-btn>
+              <v-btn
+                text
+                @click="exportProfile"
+              >
+                Export
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-col>
 
       <v-col cols="12">

@@ -10,6 +10,12 @@ export default {
     profileDialog: false,
     profileName: '',
     isProfileValid: false,
+    profileMoreDialog: false,
+    importDialog: false,
+    isImportValid: false,
+    exportDialog: false,
+    importedProfile: null,
+    exportedProfile: {},
     infoSnackbar: false,
     infoSnackbarText: '',
     playDisabled: false,
@@ -213,6 +219,7 @@ export default {
               } else {
                 this.selectedProfile = this.profileItems.find(p => p.id === profileId)
               }
+              this.exportedProfile = this.profileItems[0]
               this.loadProfile()
             }
           }
@@ -311,6 +318,10 @@ export default {
             this.loadedSamples = profile.samples
           }
         })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Loading Profile'
+          this.errorSnackbar = true
+        })
     },
     deleteProfile () {
       this.$http.delete('/profiles/'.concat(this.selectedProfile.id))
@@ -403,6 +414,102 @@ export default {
       if (this.$refs.uploadSampleForm) {
         this.$refs.uploadSampleForm.reset()
       }
+    },
+    openImportDialog () {
+      this.profileMoreDialog = false
+      this.importDialog = true
+    },
+    openExportDialog () {
+      this.profileMoreDialog = false
+      this.exportDialog = true
+    },
+    async importProfile () {
+      const fileContents = await this.readFile(this.importedProfile)
+      const profileJSON = JSON.parse(fileContents)
+
+      this.$http.post('/profiles/import', {
+        name: profileJSON.name,
+        isTimerEnabled: profileJSON.isTimerEnabled,
+        duration: profileJSON.duration,
+        volume: profileJSON.volume,
+        noiseColor: profileJSON.noiseColor,
+        isFilterEnabled: profileJSON.isFilterEnabled,
+        filterType: profileJSON.filterType,
+        filterCutoff: profileJSON.filterCutoff,
+        isLFOFilterCutoffEnabled: profileJSON.isLFOFilterCutoffEnabled,
+        lfoFilterCutoffFrequency: profileJSON.lfoFilterCutoffFrequency,
+        lfoFilterCutoffLow: profileJSON.lfoFilterCutoffLow,
+        lfoFilterCutoffHigh: profileJSON.lfoFilterCutoffHigh,
+        isTremoloEnabled: profileJSON.isTremoloEnabled,
+        tremoloFrequency: profileJSON.tremoloFrequency,
+        tremoloDepth: profileJSON.tremoloDepth
+      }).then(response => {
+        if (response.status === 200) {
+          this.importDialog = false
+          this.populateProfileItems(response.data.id)
+          this.infoSnackbarText = 'Profile Imported and Saved'
+          this.infoSnackbar = true
+        }
+      })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Saving Profile'
+          this.errorSnackbar = true
+        })
+
+      if (this.$refs.importForm) {
+        this.$refs.importForm.reset()
+      }
+    },
+    readFile (file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+
+        reader.onload = res => {
+          resolve(res.target.result)
+        }
+        reader.onerror = err => reject(err)
+
+        reader.readAsText(file)
+      })
+    },
+    exportProfile () {
+      this.$http.get('/profiles/'.concat(this.exportedProfile.id))
+        .then(response => {
+          if (response.status === 200) {
+            const profile = response.data.profile
+
+            const profileJSON = {}
+            profileJSON.name = this.exportedProfile.text
+            profileJSON.isTimerEnabled = profile.isTimerEnabled
+            profileJSON.duration = profile.duration
+            profileJSON.volume = profile.volume
+            profileJSON.noiseColor = profile.noiseColor
+            profileJSON.isFilterEnabled = profile.isFilterEnabled
+            profileJSON.filterType = profile.filterType
+            profileJSON.filterCutoff = profile.filterCutoff
+            profileJSON.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled
+            profileJSON.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
+            profileJSON.lfoFilterCutoffLow = profile.lfoFilterCutoffLow
+            profileJSON.lfoFilterCutoffHigh = profile.lfoFilterCutoffHigh
+            profileJSON.isTremoloEnabled = profile.isTremoloEnabled
+            profileJSON.tremoloFrequency = profile.tremoloFrequency
+            profileJSON.tremoloDepth = profile.tremoloDepth
+
+            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(profileJSON))
+            const downloadAnchorNode = document.createElement('a')
+            downloadAnchorNode.setAttribute('href', dataStr)
+            downloadAnchorNode.setAttribute('download', profileJSON.name + '.json')
+            document.body.appendChild(downloadAnchorNode) // required for firefox
+            downloadAnchorNode.click()
+            downloadAnchorNode.remove()
+          }
+        })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Loading Profile'
+          this.errorSnackbar = true
+        })
+
+      this.exportDialog = false
     }
   }
 }
