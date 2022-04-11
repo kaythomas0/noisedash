@@ -1,4 +1,4 @@
-import { Filter, LFO, Noise, Players, Transport, Tremolo } from 'tone'
+import { Filter, LFO, Noise, Player, Players, Transport, Tremolo } from 'tone'
 
 export default {
   name: 'Noise',
@@ -46,6 +46,14 @@ export default {
     selectedSample: null,
     uploadSampleDialog: false,
     addSampleDialog: false,
+    editSampleDialog: false,
+    useLoopPoints: false,
+    loopStart: 0,
+    loopEnd: 0,
+    samplePreviewPlaying: false,
+    selectedEditSample: {},
+    sampleItems: [],
+    isEditSampleValid: false,
     checkedSamples: [],
     sampleName: '',
     isSampleUploadValid: false,
@@ -81,8 +89,10 @@ export default {
     this.filter = new Filter()
     this.tremolo = new Tremolo()
     this.lfo = new LFO()
+    this.samplePreviewPlayer = new Player()
     this.players = new Players()
     this.populateProfileItems(0)
+    this.populateSampleItems()
     this.getSamples()
     this.getCurrentUser()
   },
@@ -117,6 +127,15 @@ export default {
         this.lfo.connect(this.filter.frequency).start()
       }
 
+      this.loadedSamples.forEach(s => {
+        this.players.player(s.id).loop = true
+        this.players.player(s.id).fadeIn = s.fadeIn
+        this.players.player(s.id).fadeOut = s.fadeOut
+        if (s.loopPointEnabled) {
+          this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
+        }
+      })
+
       if (this.isTimerEnabled) {
         this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
         this.noise.sync().start(0).stop(this.duration)
@@ -126,14 +145,12 @@ export default {
         this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
 
         this.loadedSamples.forEach(s => {
-          this.players.player(s.id).loop = true
           this.players.player(s.id).unsync().sync().start(0).stop(this.duration)
         })
       } else {
         this.noise.sync().start(0)
 
         this.loadedSamples.forEach(s => {
-          this.players.player(s.id).loop = true
           this.players.player(s.id).unsync().sync().start(0)
         })
       }
@@ -221,6 +238,17 @@ export default {
               }
               this.exportedProfile = this.profileItems[0]
               this.loadProfile()
+            }
+          }
+        })
+    },
+    populateSampleItems () {
+      this.$http.get('/samples')
+        .then(response => {
+          if (response.status === 200) {
+            this.sampleItems = response.data.samples
+            if (this.sampleItems.length > 0) {
+              this.selectedEditSample = this.sampleItems[0]
             }
           }
         })
@@ -364,6 +392,7 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.getSamples()
+            this.populateSampleItems()
             this.infoSnackbarText = 'Sample Uploaded'
             this.infoSnackbar = true
           }
@@ -413,6 +442,11 @@ export default {
     resetUploadSampleForm () {
       if (this.$refs.uploadSampleForm) {
         this.$refs.uploadSampleForm.reset()
+      }
+    },
+    resetEditSampleForm () {
+      if (this.$refs.editSampleForm) {
+        this.$refs.editSampleForm.reset()
       }
     },
     openImportDialog () {
@@ -510,6 +544,29 @@ export default {
         })
 
       this.exportDialog = false
+    },
+    previewSample () {
+      this.samplePreviewPlayer.toDestination()
+
+      if (this.samplePreviewPlaying) {
+        this.samplePreviewPlayer.stop()
+        this.samplePreviewPlaying = false
+      } else {
+        this.$http.get('/samples/'.concat(this.selectedEditSample.id))
+          .then(async response => {
+            if (response.status === 200) {
+              const sample = response.data.sample
+
+              await this.samplePreviewPlayer.load('/samples/' + sample.user + '_' + sample.name)
+              this.samplePreviewPlayer.loop = true
+              this.samplePreviewPlayer.start()
+
+              this.samplePreviewPlaying = true
+            }
+          })
+      }
+    },
+    editSample () {
     }
   }
 }

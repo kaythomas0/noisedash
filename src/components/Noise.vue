@@ -680,6 +680,101 @@
             </v-card>
           </v-form>
         </v-dialog>
+
+        <v-dialog
+          v-model="editSampleDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              class="mx-3 my-3 mb-5"
+              :disabled="playDisabled || allSamples.length === 0"
+              v-on="on"
+              @click="resetEditSampleForm"
+            >
+              Edit Samples
+            </v-btn>
+          </template>
+          <v-form
+            ref="editSampleForm"
+            v-model="isEditSampleValid"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Edit Sample</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row justify="center">
+                    <v-select
+                      v-model="selectedEditSample"
+                      :items="sampleItems"
+                      item-text="name"
+                      return-object
+                      label="Samples"
+                      class="mx-3"
+                    />
+                  </v-row>
+
+                  <v-row>
+                    <v-checkbox
+                      v-model="useLoopPoints"
+                      :disabled="playDisabled"
+                      label="Use Loop Points"
+                      class="mx-3"
+                    />
+                  </v-row>
+
+                  <v-row>
+                    <v-text-field
+                      v-model="loopStart"
+                      type="number"
+                      label="Loop Start"
+                      class="mx-3"
+                      :disabled="!useLoopPoints"
+                      :rules="[rules.gt(-1)]"
+                    />
+
+                    <v-text-field
+                      v-model="loopEnd"
+                      type="number"
+                      label="Loop End"
+                      class="mx-3"
+                      :disabled="!useLoopPoints"
+                      :rules="[rules.gt(-1)]"
+                    />
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-btn
+                      class="mx-3 mt-3"
+                      @click="previewSample"
+                    >
+                      Preview Sample
+                    </v-btn>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="editSampleDialog = false"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isEditSampleValid"
+                  @click="editSample"
+                >
+                  Edit
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </v-dialog>
       </v-col>
 
       <v-snackbar

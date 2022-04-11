@@ -1,4 +1,5 @@
 const db = require('../db')
+const logger = require('../logger')
 
 module.exports = function () {
   db.serialize(() => {
@@ -51,5 +52,23 @@ module.exports = function () {
       FOREIGN KEY(profile) REFERENCES profiles(id),
       FOREIGN KEY(sample) REFERENCES samples(id))`
     )
+
+    db.get('PRAGMA user_version', (err, row) => {
+      if (err) {
+        logger.error(err)
+      } else {
+        const userVersion = row.user_version
+
+        if (userVersion === 0) {
+          db.run('ALTER TABLE samples ADD COLUMN fade_in REAL DEFAULT 0')
+          db.run('ALTER TABLE samples ADD COLUMN fade_out REAL DEFAULT 0')
+          db.run('ALTER TABLE samples ADD COLUMN loop_points_enabled INTEGER DEFAULT 0')
+          db.run('ALTER TABLE samples ADD COLUMN loop_start REAL DEFAULT 0')
+          db.run('ALTER TABLE samples ADD COLUMN loop_end REAL DEFAULT 0')
+
+          db.run('PRAGMA user_version = 1')
+        }
+      }
+    })
   })
 }

@@ -77,7 +77,15 @@ router.get('/samples', (req, res) => {
 
   const samples = []
 
-  db.all('SELECT id, name FROM samples WHERE user = ?', [req.user.id], (err, rows) => {
+  db.all(`SELECT
+    id,
+    name,
+    fade_in as fadeIn,
+    fade_out as fadeOut,
+    loop_points_enabled as loopPointsEnabled,
+    loop_start as loopStart,
+    loop_end as loopEnd
+    FROM samples WHERE user = ?`, [req.user.id], (err, rows) => {
     if (err) {
       logger.error(err)
       return res.sendStatus(500)
@@ -88,12 +96,51 @@ router.get('/samples', (req, res) => {
 
       sample.id = row.id
       sample.name = row.name
+      sample.fadeIn = row.fadeIn
+      sample.fadeOut = row.fadeOut
+      sample.loopPointsEnabled = row.loopPointsEnabled === 1
+      sample.loopStart = row.loopStart
+      sample.loopEnd = row.loopEnd
       sample.user = req.user.id
 
       samples.push(sample)
     })
 
     res.json({ samples: samples })
+  })
+})
+
+router.get('/samples/:sampleId', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.get(`SELECT
+    id,
+    name,
+    fade_in as fadeIn,
+    fade_out as fadeOut,
+    loop_points_enabled as loopPointsEnabled,
+    loop_start as loopStart,
+    loop_end as loopEnd
+    FROM samples WHERE user = ? AND id = ?`, [req.user.id, req.params.sampleId], (err, row) => {
+    if (err) {
+      logger.error(err)
+      return res.sendStatus(500)
+    }
+
+    const sample = {}
+
+    sample.id = row.id
+    sample.name = row.name
+    sample.fadeIn = row.fadeIn
+    sample.fadeOut = row.fadeOut
+    sample.loopPointsEnabled = row.loopPointsEnabled === 1
+    sample.loopStart = row.loopStart
+    sample.loopEnd = row.loopEnd
+    sample.user = req.user.id
+
+    res.json({ sample: sample })
   })
 })
 
