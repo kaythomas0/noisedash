@@ -47,13 +47,18 @@ export default {
     uploadSampleDialog: false,
     addSampleDialog: false,
     editSampleDialog: false,
+    editSampleName: '',
     useLoopPoints: false,
     loopStart: 0,
     loopEnd: 0,
+    fadeIn: 0,
     samplePreviewPlaying: false,
     selectedEditSample: {},
     sampleItems: [],
     isEditSampleValid: false,
+    previewSampleButtonText: 'Preview Sample',
+    previewSampleLoading: true,
+    previewSampleLength: 0,
     checkedSamples: [],
     sampleName: '',
     isSampleUploadValid: false,
@@ -89,7 +94,8 @@ export default {
     this.filter = new Filter()
     this.tremolo = new Tremolo()
     this.lfo = new LFO()
-    this.samplePreviewPlayer = new Player()
+    this.samplePreviewPlayer = new Player().toDestination()
+    this.samplePreviewPlayer.loop = true
     this.players = new Players()
     this.populateProfileItems(0)
     this.populateSampleItems()
@@ -130,7 +136,6 @@ export default {
       this.loadedSamples.forEach(s => {
         this.players.player(s.id).loop = true
         this.players.player(s.id).fadeIn = s.fadeIn
-        this.players.player(s.id).fadeOut = s.fadeOut
         if (s.loopPointEnabled) {
           this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
         }
@@ -444,10 +449,16 @@ export default {
         this.$refs.uploadSampleForm.reset()
       }
     },
-    resetEditSampleForm () {
-      if (this.$refs.editSampleForm) {
-        this.$refs.editSampleForm.reset()
+    openEditSampleForm () {
+      if (this.sampleItems.length > 0) {
+        this.selectedEditSample = this.sampleItems[0]
       }
+
+      this.loadEditSample()
+    },
+    closeEditSampleForm () {
+      this.editSampleDialog = false
+      this.previewSampleLoading = true
     },
     openImportDialog () {
       this.profileMoreDialog = false
@@ -545,28 +556,67 @@ export default {
 
       this.exportDialog = false
     },
-    previewSample () {
-      this.samplePreviewPlayer.toDestination()
+    updatePreviewSamplePlayerFadeIn () {
+      this.samplePreviewPlayer.fadeIn = this.fadeIn
+    },
+    updatePreviewSamplePlayerLoopPoints () {
+      if (this.loopStart >= 0 && this.loopEnd <= this.previewSampleLength) {
+        this.samplePreviewPlayer.setLoopPoints(this.loopStart, this.loopEnd)
+      }
+    },
+    loadEditSample () {
+      this.previewSampleLoading = true
+      this.$http.get('/samples/'.concat(this.selectedEditSample.id))
+        .then(async response => {
+          if (response.status === 200) {
+            const sample = response.data.sample
 
-      if (this.samplePreviewPlaying) {
-        this.samplePreviewPlayer.stop()
-        this.samplePreviewPlaying = false
-      } else {
-        this.$http.get('/samples/'.concat(this.selectedEditSample.id))
-          .then(async response => {
-            if (response.status === 200) {
-              const sample = response.data.sample
+            this.fadeIn = sample.fadeIn
+            if (sample.loopPointsEnabled) {
+              this.loopStart = sample.loopStart
+              this.loopEnd = sample.loopEnd
 
-              await this.samplePreviewPlayer.load('/samples/' + sample.user + '_' + sample.name)
-              this.samplePreviewPlayer.loop = true
-              this.samplePreviewPlayer.start()
-
-              this.samplePreviewPlaying = true
+              this.samplePreviewPlayer.setLoopPoints(this.loopStart, this.loopEnd)
             }
-          })
+
+            this.samplePreviewPlayer.fadeIn = this.fadeIn
+
+            await this.samplePreviewPlayer.load('/samples/' + sample.user + '_' + sample.name)
+
+            this.previewSampleLength = this.samplePreviewPlayer.buffer.duration
+
+            this.previewSampleLoading = false
+          }
+        })
+    },
+    previewSample () {
+      if (this.samplePreviewPlaying) {
+        this.samplePreviewPlaying = false
+        this.previewSampleButtonText = 'Preview Sample'
+        this.samplePreviewPlayer.stop()
+      } else {
+        this.samplePreviewPlaying = true
+        this.previewSampleButtonText = 'Stop'
+        this.samplePreviewPlayer.start()
       }
     },
     editSample () {
+      this.$http.put('/samples/'.concat(this.selectedEditSample.id), {
+        name: this.editSampleName,
+        fadeIn: this.fadeIn,
+        loopPointsEnabled: this.loopPointEnabled,
+        loopStart: this.loopStart,
+        loopEnd: this.loopEnd
+      }).then(response => {
+        if (response.status === 200) {
+          this.infoSnackbarText = 'Sample Saved'
+          this.infoSnackbar = true
+        }
+      })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Saving Sample'
+          this.errorSnackbar = true
+        })
     }
   }
 }

@@ -81,7 +81,6 @@ router.get('/samples', (req, res) => {
     id,
     name,
     fade_in as fadeIn,
-    fade_out as fadeOut,
     loop_points_enabled as loopPointsEnabled,
     loop_start as loopStart,
     loop_end as loopEnd
@@ -97,7 +96,6 @@ router.get('/samples', (req, res) => {
       sample.id = row.id
       sample.name = row.name
       sample.fadeIn = row.fadeIn
-      sample.fadeOut = row.fadeOut
       sample.loopPointsEnabled = row.loopPointsEnabled === 1
       sample.loopStart = row.loopStart
       sample.loopEnd = row.loopEnd
@@ -119,7 +117,6 @@ router.get('/samples/:sampleId', (req, res) => {
     id,
     name,
     fade_in as fadeIn,
-    fade_out as fadeOut,
     loop_points_enabled as loopPointsEnabled,
     loop_start as loopStart,
     loop_end as loopEnd
@@ -134,13 +131,55 @@ router.get('/samples/:sampleId', (req, res) => {
     sample.id = row.id
     sample.name = row.name
     sample.fadeIn = row.fadeIn
-    sample.fadeOut = row.fadeOut
     sample.loopPointsEnabled = row.loopPointsEnabled === 1
     sample.loopStart = row.loopStart
     sample.loopEnd = row.loopEnd
     sample.user = req.user.id
 
     res.json({ sample: sample })
+  })
+})
+
+router.put('/samples/:sampleId', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  db.serialize(() => {
+    db.get('SELECT user FROM samples WHERE id = ?', [req.params.sampleId], (err, row) => {
+      if (err) {
+        logger.error(err)
+        return res.sendStatus(500)
+      }
+
+      if (row.user.toString() !== req.user.id) {
+        return res.sendStatus(401)
+      }
+    })
+
+    db.run(`UPDATE samples SET
+      name = ?,
+      fade_in = ?,
+      fade_out = ?,
+      loop_points_enabled = ?,
+      loop_start = ?,
+      loop_end = ?,
+      WHERE id = ?`, [
+      req.body.name,
+      req.body.fadeIn,
+      req.body.loopPointsEnabled,
+      req.body.loopStart,
+      req.body.loopEnd,
+      req.params.sampleId
+    ],
+    (err) => {
+      if (err) {
+        logger.error(err)
+        return res.sendStatus(500)
+      }
+
+      return res.sendStatus(200)
+    })
   })
 })
 

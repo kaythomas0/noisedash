@@ -691,7 +691,7 @@
               class="mx-3 my-3 mb-5"
               :disabled="playDisabled || allSamples.length === 0"
               v-on="on"
-              @click="resetEditSampleForm"
+              @click="openEditSampleForm"
             >
               Edit Samples
             </v-btn>
@@ -714,13 +714,18 @@
                       return-object
                       label="Samples"
                       class="mx-3"
+                      @change="loadEditSample"
                     />
+                  </v-row>
+
+                  <v-row>
+                    <p>Sample Length (Seconds): {{ previewSampleLength }} </p>
                   </v-row>
 
                   <v-row>
                     <v-checkbox
                       v-model="useLoopPoints"
-                      :disabled="playDisabled"
+                      :disabled="samplePreviewPlaying"
                       label="Use Loop Points"
                       class="mx-3"
                     />
@@ -730,28 +735,43 @@
                     <v-text-field
                       v-model="loopStart"
                       type="number"
-                      label="Loop Start"
+                      label="Loop Start Time"
                       class="mx-3"
-                      :disabled="!useLoopPoints"
+                      :disabled="!useLoopPoints || samplePreviewPlaying"
                       :rules="[rules.gt(-1)]"
+                      @change="updatePreviewSamplePlayerLoopPoints"
                     />
 
                     <v-text-field
                       v-model="loopEnd"
                       type="number"
-                      label="Loop End"
+                      label="Loop End Time"
                       class="mx-3"
-                      :disabled="!useLoopPoints"
+                      :disabled="!useLoopPoints || samplePreviewPlaying"
+                      :rules="[rules.gt(-1), rules.lt(previewSampleLength)]"
+                      @change="updatePreviewSamplePlayerLoopPoints"
+                    />
+                  </v-row>
+
+                  <v-row>
+                    <v-text-field
+                      v-model="fadeIn"
+                      type="number"
+                      label="Fade In Time"
+                      class="mx-3"
+                      :disabled="samplePreviewPlaying"
                       :rules="[rules.gt(-1)]"
+                      @change="updatePreviewSamplePlayerFadeIn"
                     />
                   </v-row>
 
                   <v-row justify="center">
                     <v-btn
                       class="mx-3 mt-3"
+                      :loading="previewSampleLoading"
                       @click="previewSample"
                     >
-                      Preview Sample
+                      {{ previewSampleButtonText }}
                     </v-btn>
                   </v-row>
                 </v-container>
@@ -760,7 +780,7 @@
                 <v-spacer />
                 <v-btn
                   text
-                  @click="editSampleDialog = false"
+                  @click="closeEditSampleForm"
                 >
                   Cancel
                 </v-btn>
