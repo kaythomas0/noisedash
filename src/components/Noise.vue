@@ -710,13 +710,13 @@
                 <v-container>
                   <v-row justify="center">
                     <v-select
-                      v-model="selectedEditSample"
-                      :items="sampleItems"
+                      v-model="selectedPreviewSample"
+                      :items="previewSampleItems"
                       item-text="name"
                       return-object
                       label="Samples"
                       class="mx-3"
-                      @change="loadEditSample"
+                      @change="loadPreviewSample"
                     />
                   </v-row>
 
@@ -727,7 +727,7 @@
                   <v-row>
                     <v-checkbox
                       v-model="loopPointsEnabled"
-                      :disabled="samplePreviewPlaying"
+                      :disabled="previewSamplePlaying"
                       label="Use Loop Points"
                       class="mx-3"
                     />
@@ -735,21 +735,21 @@
 
                   <v-row>
                     <v-text-field
-                      v-model="loopStart"
+                      v-model="previewSampleLoopStart"
                       type="number"
                       label="Loop Start Time"
                       class="mx-3"
-                      :disabled="!loopPointsEnabled || samplePreviewPlaying"
+                      :disabled="!loopPointsEnabled || previewSamplePlaying"
                       :rules="[rules.gt(-1)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
                     />
 
                     <v-text-field
-                      v-model="loopEnd"
+                      v-model="previewSampleLoopEnd"
                       type="number"
                       label="Loop End Time"
                       class="mx-3"
-                      :disabled="!loopPointsEnabled || samplePreviewPlaying"
+                      :disabled="!loopPointsEnabled || previewSamplePlaying"
                       :rules="[rules.gt(-1), rules.lt(previewSampleLength)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
                     />
@@ -757,11 +757,11 @@
 
                   <v-row>
                     <v-text-field
-                      v-model="fadeIn"
+                      v-model="previewSampleFadeIn"
                       type="number"
                       label="Fade In Time"
                       class="mx-3"
-                      :disabled="samplePreviewPlaying"
+                      :disabled="previewSamplePlaying"
                       :rules="[rules.gt(-1)]"
                       @change="updatePreviewSamplePlayerFadeIn"
                     />

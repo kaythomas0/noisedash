@@ -351,9 +351,14 @@ router.get('/profiles/:profileId', (req, res) => {
           sampleQueryArgs.push(row.sample)
         })
 
-        db.all(`SELECT samples.id, name, profiles_samples.volume,
-          fade_in as fadeIn, loop_points_enabled as loopPointsEnabled,
-          loop_start as loopStart, loop_end as loopEnd
+        db.all(`SELECT
+          samples.id,
+          name,
+          profiles_samples.volume,
+          fade_in as fadeIn,
+          loop_points_enabled as loopPointsEnabled,
+          loop_start as loopStart,
+          loop_end as loopEnd
           FROM samples
           INNER JOIN profiles_samples
           ON profiles_samples.sample = samples.id
