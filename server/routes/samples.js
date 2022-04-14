@@ -158,16 +158,13 @@ router.put('/samples/:sampleId', (req, res) => {
     })
 
     db.run(`UPDATE samples SET
-      name = ?,
       fade_in = ?,
-      fade_out = ?,
       loop_points_enabled = ?,
       loop_start = ?,
-      loop_end = ?,
+      loop_end = ?
       WHERE id = ?`, [
-      req.body.name,
       req.body.fadeIn,
-      req.body.loopPointsEnabled,
+      req.body.loopPointsEnabled ? 1 : 0,
       req.body.loopStart,
       req.body.loopEnd,
       req.params.sampleId

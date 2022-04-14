@@ -61,7 +61,6 @@ module.exports = function () {
 
         if (userVersion === 0) {
           db.run('ALTER TABLE samples ADD COLUMN fade_in REAL DEFAULT 0')
-          db.run('ALTER TABLE samples ADD COLUMN fade_out REAL DEFAULT 0')
           db.run('ALTER TABLE samples ADD COLUMN loop_points_enabled INTEGER DEFAULT 0')
           db.run('ALTER TABLE samples ADD COLUMN loop_start REAL DEFAULT 0')
           db.run('ALTER TABLE samples ADD COLUMN loop_end REAL DEFAULT 0')

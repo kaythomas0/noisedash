@@ -351,7 +351,9 @@ router.get('/profiles/:profileId', (req, res) => {
           sampleQueryArgs.push(row.sample)
         })
 
-        db.all(`SELECT samples.id, name, profiles_samples.volume
+        db.all(`SELECT samples.id, name, profiles_samples.volume,
+          fade_in as fadeIn, loop_points_enabled as loopPointsEnabled,
+          loop_start as loopStart, loop_end as loopEnd
           FROM samples
           INNER JOIN profiles_samples
           ON profiles_samples.sample = samples.id
@@ -371,6 +373,10 @@ router.get('/profiles/:profileId', (req, res) => {
             sample.id = row.id
             sample.name = row.name
             sample.volume = row.volume
+            sample.fadeIn = row.fadeIn
+            sample.loopPointsEnabled = row.loopPointsEnabled === 1
+            sample.loopStart = row.loopStart
+            sample.loopEnd = row.loopEnd
 
             samples.push(sample)
           })

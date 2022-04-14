@@ -19,6 +19,7 @@
             fab
             large
             color="primary"
+            :loading="mainPlayLoading"
             @click="play"
           >
             <v-icon>mdi-play</v-icon>
@@ -699,6 +700,7 @@
           <v-form
             ref="editSampleForm"
             v-model="isEditSampleValid"
+            lazy-validation
           >
             <v-card>
               <v-card-title>
@@ -719,12 +721,12 @@
                   </v-row>
 
                   <v-row>
-                    <p>Sample Length (Seconds): {{ previewSampleLength }} </p>
+                    <p>Sample Length: {{ Math.round(previewSampleLength * 100) / 100 }} Seconds </p>
                   </v-row>
 
                   <v-row>
                     <v-checkbox
-                      v-model="useLoopPoints"
+                      v-model="loopPointsEnabled"
                       :disabled="samplePreviewPlaying"
                       label="Use Loop Points"
                       class="mx-3"
@@ -737,7 +739,7 @@
                       type="number"
                       label="Loop Start Time"
                       class="mx-3"
-                      :disabled="!useLoopPoints || samplePreviewPlaying"
+                      :disabled="!loopPointsEnabled || samplePreviewPlaying"
                       :rules="[rules.gt(-1)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
                     />
@@ -747,7 +749,7 @@
                       type="number"
                       label="Loop End Time"
                       class="mx-3"
-                      :disabled="!useLoopPoints || samplePreviewPlaying"
+                      :disabled="!loopPointsEnabled || samplePreviewPlaying"
                       :rules="[rules.gt(-1), rules.lt(previewSampleLength)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
                     />

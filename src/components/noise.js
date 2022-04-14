@@ -4,6 +4,7 @@ export default {
   name: 'Noise',
 
   data: () => ({
+    mainPlayLoading: true,
     isTimerValid: false,
     selectedProfile: {},
     profileItems: [],
@@ -47,8 +48,7 @@ export default {
     uploadSampleDialog: false,
     addSampleDialog: false,
     editSampleDialog: false,
-    editSampleName: '',
-    useLoopPoints: false,
+    loopPointsEnabled: false,
     loopStart: 0,
     loopEnd: 0,
     fadeIn: 0,
@@ -107,6 +107,10 @@ export default {
   },
   methods: {
     play () {
+      if (!this.players.loaded) {
+        return
+      }
+
       this.playDisabled = true
       Transport.cancel()
 
@@ -136,9 +140,10 @@ export default {
       this.loadedSamples.forEach(s => {
         this.players.player(s.id).loop = true
         this.players.player(s.id).fadeIn = s.fadeIn
-        if (s.loopPointEnabled) {
+        if (s.loopPointsEnabled) {
           this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
         }
+        this.players.player(s.id).volume.value = s.volume
       })
 
       if (this.isTimerEnabled) {
@@ -380,6 +385,7 @@ export default {
                 this.players.add(s.id, '/samples/' + s.user + '_' + s.name).toDestination()
               }
             })
+            this.mainPlayLoading = false
           }
         })
     },
@@ -459,6 +465,11 @@ export default {
     closeEditSampleForm () {
       this.editSampleDialog = false
       this.previewSampleLoading = true
+      if (this.samplePreviewPlaying) {
+        this.samplePreviewPlaying = false
+        this.previewSampleButtonText = 'Preview Sample'
+        this.samplePreviewPlayer.stop()
+      }
     },
     openImportDialog () {
       this.profileMoreDialog = false
@@ -571,17 +582,21 @@ export default {
           if (response.status === 200) {
             const sample = response.data.sample
 
+            await this.samplePreviewPlayer.load('/samples/' + sample.user + '_' + sample.name)
+
             this.fadeIn = sample.fadeIn
+            this.loopPointsEnabled = sample.loopPointsEnabled
             if (sample.loopPointsEnabled) {
               this.loopStart = sample.loopStart
               this.loopEnd = sample.loopEnd
 
               this.samplePreviewPlayer.setLoopPoints(this.loopStart, this.loopEnd)
+            } else {
+              this.loopStart = 0
+              this.loopEnd = 0
             }
 
             this.samplePreviewPlayer.fadeIn = this.fadeIn
-
-            await this.samplePreviewPlayer.load('/samples/' + sample.user + '_' + sample.name)
 
             this.previewSampleLength = this.samplePreviewPlayer.buffer.duration
 
@@ -602,15 +617,18 @@ export default {
     },
     editSample () {
       this.$http.put('/samples/'.concat(this.selectedEditSample.id), {
-        name: this.editSampleName,
         fadeIn: this.fadeIn,
-        loopPointsEnabled: this.loopPointEnabled,
+        loopPointsEnabled: this.loopPointsEnabled,
         loopStart: this.loopStart,
         loopEnd: this.loopEnd
       }).then(response => {
         if (response.status === 200) {
           this.infoSnackbarText = 'Sample Saved'
           this.infoSnackbar = true
+
+          this.getSamples()
+          this.loadProfile()
+          this.closeEditSampleForm()
         }
       })
         .catch(() => {
