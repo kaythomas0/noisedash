@@ -726,7 +726,7 @@
 
                   <v-row>
                     <v-checkbox
-                      v-model="loopPointsEnabled"
+                      v-model="previewSampleLoopPointsEnabled"
                       :disabled="previewSamplePlaying"
                       label="Use Loop Points"
                       class="mx-3"
@@ -739,7 +739,7 @@
                       type="number"
                       label="Loop Start Time"
                       class="mx-3"
-                      :disabled="!loopPointsEnabled || previewSamplePlaying"
+                      :disabled="!previewSampleLoopPointsEnabled || previewSamplePlaying"
                       :rules="[rules.gt(-1)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
                     />
@@ -749,7 +749,7 @@
                       type="number"
                       label="Loop End Time"
                       class="mx-3"
-                      :disabled="!loopPointsEnabled || previewSamplePlaying"
+                      :disabled="!previewSampleLoopPointsEnabled || previewSamplePlaying"
                       :rules="[rules.gt(-1), rules.lt(previewSampleLength)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
                     />

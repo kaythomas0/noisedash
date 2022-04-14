@@ -52,7 +52,7 @@ export default {
     isSampleUploadValid: false,
     canUpload: false,
     editSampleDialog: false,
-    loopPointsEnabled: false,
+    previewSampleLoopPointsEnabled: false,
     previewSampleLoopStart: 0,
     previewSampleLoopEnd: 0,
     previewSampleFadeIn: 0,
@@ -577,7 +577,7 @@ export default {
             await this.samplePreviewPlayer.load('/samples/' + sample.user + '_' + sample.name)
 
             this.previewSampleFadeIn = sample.fadeIn
-            this.loopPointsEnabled = sample.loopPointsEnabled
+            this.previewSampleLoopPointsEnabled = sample.loopPointsEnabled
             if (sample.loopPointsEnabled) {
               this.previewSampleLoopStart = sample.loopStart
               this.previewSampleLoopEnd = sample.loopEnd
@@ -606,7 +606,7 @@ export default {
     editSample () {
       this.$http.put('/samples/'.concat(this.selectedPreviewSample.id), {
         fadeIn: this.previewSampleFadeIn,
-        loopPointsEnabled: this.loopPointsEnabled,
+        loopPointsEnabled: this.previewSampleLoopPointsEnabled,
         loopStart: this.previewSampleLoopStart,
         loopEnd: this.previewSampleLoopEnd
       }).then(response => {
