@@ -1,4 +1,4 @@
-import { Filter, LFO, Noise, Player, Players, Transport, Tremolo } from 'tone'
+import * as Tone from 'tone'
 
 export default {
   name: 'Noise',
@@ -90,12 +90,12 @@ export default {
     }
   },
   created () {
-    this.noise = new Noise()
-    this.filter = new Filter()
-    this.tremolo = new Tremolo()
-    this.lfo = new LFO()
-    this.players = new Players()
-    this.samplePreviewPlayer = new Player().toDestination()
+    this.noise = new Tone.Noise()
+    this.filter = new Tone.Filter()
+    this.tremolo = new Tone.Tremolo()
+    this.lfo = new Tone.LFO()
+    this.players = new Tone.Players()
+    this.samplePreviewPlayer = new Tone.Player().toDestination()
     this.samplePreviewPlayer.loop = true
 
     this.populateProfileItems(0)
@@ -113,28 +113,28 @@ export default {
       }
 
       this.playDisabled = true
-      Transport.cancel()
+      Tone.Transport.cancel()
 
       if (!this.isFilterEnabled && !this.isTremoloEnabled) {
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).toDestination()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).toDestination()
       } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.tremolo)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.tremolo)
       } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
-        this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).toDestination()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       } else if (this.isFilterEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       } else {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       }
 
       if (this.isLFOFilterCutoffEnabled) {
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo = new Tone.LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
       }
 
@@ -150,7 +150,7 @@ export default {
       if (this.isTimerEnabled) {
         this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
         this.noise.sync().start(0).stop(this.duration)
-        Transport.loopEnd = this.duration
+        Tone.Transport.loopEnd = this.duration
         this.timeRemaining = this.duration
         this.transportInterval = setInterval(() => this.stop(), this.duration * 1000 + 100)
         this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
@@ -166,11 +166,11 @@ export default {
         })
       }
 
-      Transport.start()
+      Tone.Transport.start()
     },
     stop () {
       clearInterval(this.transportInterval)
-      Transport.stop()
+      Tone.Transport.stop()
       this.playDisabled = false
 
       clearInterval(this.timeRemainingInterval)
@@ -210,27 +210,27 @@ export default {
       if (!this.isFilterEnabled && !this.isTremoloEnabled) {
         this.noise.toDestination()
       } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.noise.connect(this.tremolo)
       } else if (this.isFilterEnabled && !this.isLFOFilterCutoffEnabled && !this.isTremoloEnabled) {
-        this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).toDestination()
         this.noise.connect(this.filter)
         this.lfo.disconnect()
         this.lfo.stop()
       } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && !this.isTremoloEnabled) {
-        this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).toDestination()
         this.noise.connect(this.filter)
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo = new Tone.LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
       } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
         this.noise.connect(this.filter)
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo = new Tone.LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
       } else {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
         this.noise.connect(this.filter)
       }
     },
