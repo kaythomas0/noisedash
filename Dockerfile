@@ -1,5 +1,5 @@
 FROM node:14
-LABEL maintainer="me@kevinthomas.dev"
+LABEL maintainer="kaythomas@pm.me"
 WORKDIR /var/noisedash
 COPY package*.json ./
 RUN npm install

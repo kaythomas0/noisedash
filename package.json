@@ -1,11 +1,11 @@
 {
   "name": "noisedash",
   "descriptions": "Self-hostable web tool for generating ambient noises",
-  "homepage": "https://github.com/KevinThomas0/noisedash",
-  "bugs": "https://github.com/KevinThomas0/noisedash/issues",
+  "homepage": "https://github.com/kaythomas0/noisedash",
+  "bugs": "https://github.com/kaythomas0/noisedash/issues",
   "license": "AGPL-3.0-or-later",
-  "author": "Kevin Thomas <me@kevinthomas.dev> (https://kevinthomas.dev)",
-  "version": "0.1.0",
+  "author": "Kay Thomas <kaythomas@pm.me> (https://kaythomas.dev)",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",

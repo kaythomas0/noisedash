@@ -66,7 +66,7 @@
       <template v-slot:append>
         <v-btn
           block
-          href="https://github.com/KevinThomas0/noisedash"
+          href="https://github.com/kaythomas0/noisedash"
           target="_blank"
         >
           Source Code
