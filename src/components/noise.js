@@ -16,6 +16,7 @@ export default {
     isImportValid: false,
     exportDialog: false,
     importedProfile: null,
+    importedProfileName: '',
     exportedProfile: {},
     infoSnackbar: false,
     infoSnackbarText: '',
@@ -458,7 +459,7 @@ export default {
       const profileJSON = JSON.parse(fileContents)
 
       this.$http.post('/profiles/import', {
-        name: profileJSON.name,
+        name: this.importedProfileName,
         isTimerEnabled: profileJSON.isTimerEnabled,
         duration: profileJSON.duration,
         volume: profileJSON.volume,

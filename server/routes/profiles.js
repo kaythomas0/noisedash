@@ -49,7 +49,7 @@ router.post('/profiles', (req, res) => {
     function (err) {
       if (err) {
         logger.error(err)
-        if (err.code === 'SQLITE_CONSTRAINT') {
+        if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
           return res.sendStatus(409)
         } else {
           return res.sendStatus(500)
@@ -123,7 +123,7 @@ router.post('/profiles/import', (req, res) => {
     function (err) {
       if (err) {
         logger.error(err)
-        if (err.code === 'SQLITE_CONSTRAINT') {
+        if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
           return res.sendStatus(409)
         } else {
           return res.sendStatus(500)

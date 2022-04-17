@@ -49,7 +49,7 @@ router.post('/samples', upload.single('sample'), (req, res, next) => {
         if (err) {
           logger.error(err)
           deleteSample(req.user.id + '_' + req.body.name)
-          if (err.code === 'SQLITE_CONSTRAINT') {
+          if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
             return res.sendStatus(409)
           } else {
             return res.sendStatus(500)

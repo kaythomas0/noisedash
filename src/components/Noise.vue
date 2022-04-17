@@ -207,6 +207,13 @@
                       :rules="[rules.required()]"
                     />
                   </v-row>
+                  <v-row>
+                    <v-text-field
+                      v-model="importedProfileName"
+                      label="Profile Name"
+                      :rules="[rules.required()]"
+                    />
+                  </v-row>
                 </v-container>
               </v-card-text>
               <v-card-actions>
