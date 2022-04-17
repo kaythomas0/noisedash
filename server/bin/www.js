@@ -68,4 +68,5 @@ function onListening () {
     ? 'pipe ' + addr
     : 'port ' + addr.port
   logger.log('info', 'Listening on %s', bind)
+  logger.log('info', 'WARNING, IMPORTANT: It looks like you are using the kevinthomas0/noisedash docker image. Please update your image to noisedash/noisedash. The kevinthomas0/noisedash image will no longer receive updates.')
 }
