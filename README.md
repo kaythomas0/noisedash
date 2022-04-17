@@ -4,7 +4,7 @@ Self-hostable web tool for generating ambient noises
 
 ![Noisedash](./.github/noisedash-screenshot-1.jpg)
 
-(More screenshots on the [wiki](https://github.com/KevinThomas0/noisedash/wiki/Screenshots))
+(More screenshots on the [wiki](https://github.com/kaythomas0/noisedash/wiki/Screenshots))
 
 # Features
 
@@ -21,8 +21,8 @@ Self-hostable web tool for generating ambient noises
 
 Requires docker and docker-compose
 
-* Download the provided [docker-compose.yml file](https://github.com/KevinThomas0/noisedash/blob/main/docker-compose.yml)
-* In the same directory as the docker-compose file, created a folder called `config`, and inside it, put the provided [config file](https://github.com/KevinThomas0/noisedash/blob/main/config/default.json)
+* Download the provided [docker-compose.yml file](https://github.com/kaythomas0/noisedash/blob/main/docker-compose.yml)
+* In the same directory as the docker-compose file, created a folder called `config`, and inside it, put the provided [config file](https://github.com/kaythomas0/noisedash/blob/main/config/default.json)
 * Edit the config file to your preference
 * Bring the container up:
 
@@ -32,6 +32,8 @@ docker-compose up -d
 
 * Proceed to the URL where it's deployed and register your first user
 
+(Raspberry Pi compatible images are available, see armv7 images on [Docker Hub](https://hub.docker.com/repository/docker/noisedash/noisedash))
+
 ## From Source
 
 Requires node 14 and npm
@@ -39,7 +41,7 @@ Requires node 14 and npm
 * Clone the repo:
 
 ``` bash
-git clone https://github.com/KevinThomas0/noisedash.git
+git clone https://github.com/kaythomas0/noisedash.git
 cd noisedash
 ```
 
@@ -62,4 +64,4 @@ npm run server-prod
 
 # Contributing
 
-See [CONTRIBUTING.md](https://github.com/KevinThomas0/noisedash/blob/main/CONTRIBUTING.md)
+See [CONTRIBUTING.md](https://github.com/kaythomas0/noisedash/blob/main/CONTRIBUTING.md)

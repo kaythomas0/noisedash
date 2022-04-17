@@ -49,7 +49,7 @@ router.post('/profiles', (req, res) => {
     function (err) {
       if (err) {
         logger.error(err)
-        if (err.code === 'SQLITE_CONSTRAINT') {
+        if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
           return res.sendStatus(409)
         } else {
           return res.sendStatus(500)
@@ -71,6 +71,66 @@ router.post('/profiles', (req, res) => {
           }
         })
       })
+
+      return res.json({ id: profileID })
+    })
+  })
+})
+
+router.post('/profiles/import', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  let profileID = 0
+
+  db.serialize(() => {
+    db.run(`INSERT INTO profiles (
+      name,
+      user,
+      timer_enabled,
+      duration,
+      volume,
+      noise_color,
+      filter_enabled,
+      filter_type,
+      filter_cutoff,
+      lfo_filter_cutoff_enabled,
+      lfo_filter_cutoff_frequency,
+      lfo_filter_cutoff_low,
+      lfo_filter_cutoff_high,
+      tremolo_enabled,
+      tremolo_frequency,
+      tremolo_depth)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
+      req.body.name,
+      req.user.id,
+      req.body.isTimerEnabled ? 1 : 0,
+      req.body.duration,
+      req.body.volume,
+      req.body.noiseColor,
+      req.body.isFilterEnabled ? 1 : 0,
+      req.body.filterType,
+      req.body.filterCutoff,
+      req.body.isLFOFilterCutoffEnabled ? 1 : 0,
+      req.body.lfoFilterCutoffFrequency,
+      req.body.lfoFilterCutoffLow,
+      req.body.lfoFilterCutoffHigh,
+      req.body.isTremoloEnabled ? 1 : 0,
+      req.body.tremoloFrequency,
+      req.body.tremoloDepth
+    ],
+    function (err) {
+      if (err) {
+        logger.error(err)
+        if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+          return res.sendStatus(409)
+        } else {
+          return res.sendStatus(500)
+        }
+      }
+
+      profileID = this.lastID
 
       return res.json({ id: profileID })
     })
@@ -291,7 +351,14 @@ router.get('/profiles/:profileId', (req, res) => {
           sampleQueryArgs.push(row.sample)
         })
 
-        db.all(`SELECT samples.id, name, profiles_samples.volume
+        db.all(`SELECT
+          samples.id,
+          name,
+          profiles_samples.volume,
+          fade_in as fadeIn,
+          loop_points_enabled as loopPointsEnabled,
+          loop_start as loopStart,
+          loop_end as loopEnd
           FROM samples
           INNER JOIN profiles_samples
           ON profiles_samples.sample = samples.id
@@ -311,6 +378,10 @@ router.get('/profiles/:profileId', (req, res) => {
             sample.id = row.id
             sample.name = row.name
             sample.volume = row.volume
+            sample.fadeIn = row.fadeIn
+            sample.loopPointsEnabled = row.loopPointsEnabled === 1
+            sample.loopStart = row.loopStart
+            sample.loopEnd = row.loopEnd
 
             samples.push(sample)
           })

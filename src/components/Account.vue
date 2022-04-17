@@ -77,6 +77,12 @@
       </v-form>
     </v-dialog>
 
+    <v-switch
+      v-model="$vuetify.theme.dark"
+      label="Dark Mode"
+      @change="toggleDarkMode"
+    />
+
     <v-snackbar
       v-model="snackbar"
       timeout="3000"

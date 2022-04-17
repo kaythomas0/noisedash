@@ -19,6 +19,7 @@
             fab
             large
             color="primary"
+            :loading="mainPlayLoading"
             @click="play"
           >
             <v-icon>mdi-play</v-icon>
@@ -122,6 +123,156 @@
               </v-card-actions>
             </v-card>
           </v-form>
+        </v-dialog>
+
+        <v-dialog
+          v-model="profileMoreDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              class="mx-3 my-3"
+              :disabled="playDisabled"
+              v-on="on"
+            >
+              More...
+            </v-btn>
+          </template>
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">More Profile Options</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-col cols="12">
+                    <v-list-item-group>
+                      <v-list-item
+                        @click="openImportDialog"
+                      >
+                        <v-list-item-icon>
+                          <v-icon>mdi-file-import</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>
+                          Import Profile
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="openExportDialog"
+                      >
+                        <v-list-item-icon>
+                          <v-icon>mdi-file-export</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>
+                          Export Profile
+                        </v-list-item-title>
+                      </v-list-item>
+                    </v-list-item-group>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="profileMoreDialog = false"
+              >
+                Close
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog
+          v-model="importDialog"
+          max-width="600px"
+        >
+          <v-form
+            ref="importForm"
+            v-model="isImportValid"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Import Profile</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <v-file-input
+                      v-model="importedProfile"
+                      accept=".json"
+                      label="Upload a profile file!"
+                      :rules="[rules.required()]"
+                    />
+                  </v-row>
+                  <v-row>
+                    <v-text-field
+                      v-model="importedProfileName"
+                      label="Profile Name"
+                      :rules="[rules.required()]"
+                    />
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="importDialog = false"
+                >
+                  Close
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isImportValid"
+                  @click="importProfile"
+                >
+                  Import
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </v-dialog>
+
+        <v-dialog
+          v-model="exportDialog"
+          max-width="600px"
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Export Profile</span>
+            </v-card-title>
+            <v-card-text>
+              <v-container>
+                <v-row>
+                  <v-select
+                    v-model="exportedProfile"
+                    :items="profileItems"
+                    return-object
+                    label="Profiles"
+                    class="mx-3 mb-5"
+                  />
+                </v-row>
+              </v-container>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="exportDialog = false"
+              >
+                Close
+              </v-btn>
+              <v-btn
+                text
+                @click="exportProfile"
+              >
+                Export
+              </v-btn>
+            </v-card-actions>
+          </v-card>
         </v-dialog>
       </v-col>
 
@@ -278,7 +429,7 @@
             thumb-label
             label="Rate"
             max="10"
-            min="0.01"
+            min="0"
             step="0.01"
             class="mx-3"
             @input="updateLFOFilterCutoffFrequency"
@@ -331,9 +482,7 @@
             thumb-label
             max="1"
             min="0"
-            step="0.1"
-            ticks
-            tick-size="4"
+            step="0.01"
             class="mx-3"
             @input="updateTremoloFrequency"
           />
@@ -534,6 +683,122 @@
                   @click="uploadSample"
                 >
                   Upload
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
+        </v-dialog>
+
+        <v-dialog
+          v-model="editSampleDialog"
+          max-width="600px"
+        >
+          <template v-slot:activator="{ on, attrs }">
+            <v-btn
+              v-bind="attrs"
+              class="mx-3 my-3 mb-5"
+              :disabled="playDisabled || allSamples.length === 0"
+              v-on="on"
+              @click="openEditSampleForm"
+            >
+              Edit Samples
+            </v-btn>
+          </template>
+          <v-form
+            ref="editSampleForm"
+            v-model="isEditSampleValid"
+            lazy-validation
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Edit Sample</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row justify="center">
+                    <v-select
+                      v-model="selectedPreviewSample"
+                      :items="previewSampleItems"
+                      item-text="name"
+                      return-object
+                      label="Samples"
+                      class="mx-3"
+                      @change="loadPreviewSample"
+                    />
+                  </v-row>
+
+                  <v-row>
+                    <p>Sample Length: {{ Math.round(previewSampleLength * 100) / 100 }} Seconds </p>
+                  </v-row>
+
+                  <v-row>
+                    <v-checkbox
+                      v-model="previewSampleLoopPointsEnabled"
+                      :disabled="previewSamplePlaying"
+                      label="Use Loop Points"
+                      class="mx-3"
+                    />
+                  </v-row>
+
+                  <v-row>
+                    <v-text-field
+                      v-model="previewSampleLoopStart"
+                      type="number"
+                      label="Loop Start Time"
+                      class="mx-3"
+                      :disabled="!previewSampleLoopPointsEnabled || previewSamplePlaying"
+                      :rules="[rules.gt(-1)]"
+                      @change="updatePreviewSamplePlayerLoopPoints"
+                    />
+
+                    <v-text-field
+                      v-model="previewSampleLoopEnd"
+                      type="number"
+                      label="Loop End Time"
+                      class="mx-3"
+                      :disabled="!previewSampleLoopPointsEnabled || previewSamplePlaying"
+                      :rules="[rules.gt(-1), rules.lt(previewSampleLength)]"
+                      @change="updatePreviewSamplePlayerLoopPoints"
+                    />
+                  </v-row>
+
+                  <v-row>
+                    <v-text-field
+                      v-model="previewSampleFadeIn"
+                      type="number"
+                      label="Fade In Time"
+                      class="mx-3"
+                      :disabled="previewSamplePlaying"
+                      :rules="[rules.gt(-1)]"
+                      @change="updatePreviewSamplePlayerFadeIn"
+                    />
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-btn
+                      class="mx-3 mt-3"
+                      :loading="previewSampleLoading"
+                      @click="previewSample"
+                    >
+                      {{ previewSampleButtonText }}
+                    </v-btn>
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="closeEditSampleForm"
+                >
+                  Cancel
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isEditSampleValid"
+                  @click="editSample"
+                >
+                  Edit
                 </v-btn>
               </v-card-actions>
             </v-card>

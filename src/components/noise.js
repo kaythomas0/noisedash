@@ -1,15 +1,23 @@
-import { Filter, LFO, Noise, Players, Transport, Tremolo } from 'tone'
+import * as Tone from 'tone'
 
 export default {
   name: 'Noise',
 
   data: () => ({
+    mainPlayLoading: true,
     isTimerValid: false,
     selectedProfile: {},
     profileItems: [],
     profileDialog: false,
     profileName: '',
     isProfileValid: false,
+    profileMoreDialog: false,
+    importDialog: false,
+    isImportValid: false,
+    exportDialog: false,
+    importedProfile: null,
+    importedProfileName: '',
+    exportedProfile: {},
     infoSnackbar: false,
     infoSnackbarText: '',
     playDisabled: false,
@@ -44,6 +52,18 @@ export default {
     sampleName: '',
     isSampleUploadValid: false,
     canUpload: false,
+    editSampleDialog: false,
+    previewSampleLoopPointsEnabled: false,
+    previewSampleLoopStart: 0,
+    previewSampleLoopEnd: 0,
+    previewSampleFadeIn: 0,
+    previewSamplePlaying: false,
+    selectedPreviewSample: {},
+    previewSampleItems: [],
+    isEditSampleValid: false,
+    previewSampleButtonText: 'Preview Sample',
+    previewSampleLoading: true,
+    previewSampleLength: 0,
     errorSnackbar: false,
     errorSnackbarText: '',
     rules: {
@@ -71,12 +91,16 @@ export default {
     }
   },
   created () {
-    this.noise = new Noise()
-    this.filter = new Filter()
-    this.tremolo = new Tremolo()
-    this.lfo = new LFO()
-    this.players = new Players()
+    this.noise = new Tone.Noise()
+    this.filter = new Tone.Filter()
+    this.tremolo = new Tone.Tremolo()
+    this.lfo = new Tone.LFO()
+    this.players = new Tone.Players()
+    this.samplePreviewPlayer = new Tone.Player().toDestination()
+    this.samplePreviewPlayer.loop = true
+
     this.populateProfileItems(0)
+    this.populatePreviewSampleItems()
     this.getSamples()
     this.getCurrentUser()
   },
@@ -85,58 +109,69 @@ export default {
   },
   methods: {
     play () {
+      if (!this.players.loaded) {
+        return
+      }
+
       this.playDisabled = true
-      Transport.cancel()
+      Tone.Transport.cancel()
 
       if (!this.isFilterEnabled && !this.isTremoloEnabled) {
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).toDestination()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).toDestination()
       } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.tremolo)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.tremolo)
       } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
-        this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).toDestination()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       } else if (this.isFilterEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       } else {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
-        this.noise = new Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
       }
 
       if (this.isLFOFilterCutoffEnabled) {
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo = new Tone.LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
       }
+
+      this.loadedSamples.forEach(s => {
+        this.players.player(s.id).loop = true
+        this.players.player(s.id).fadeIn = s.fadeIn
+        if (s.loopPointsEnabled) {
+          this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
+        }
+        this.players.player(s.id).volume.value = s.volume
+      })
 
       if (this.isTimerEnabled) {
         this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
         this.noise.sync().start(0).stop(this.duration)
-        Transport.loopEnd = this.duration
+        Tone.Transport.loopEnd = this.duration
         this.timeRemaining = this.duration
         this.transportInterval = setInterval(() => this.stop(), this.duration * 1000 + 100)
         this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
 
         this.loadedSamples.forEach(s => {
-          this.players.player(s.id).loop = true
           this.players.player(s.id).unsync().sync().start(0).stop(this.duration)
         })
       } else {
         this.noise.sync().start(0)
 
         this.loadedSamples.forEach(s => {
-          this.players.player(s.id).loop = true
           this.players.player(s.id).unsync().sync().start(0)
         })
       }
 
-      Transport.start()
+      Tone.Transport.start()
     },
     stop () {
       clearInterval(this.transportInterval)
-      Transport.stop()
+      Tone.Transport.stop()
       this.playDisabled = false
 
       clearInterval(this.timeRemainingInterval)
@@ -176,27 +211,27 @@ export default {
       if (!this.isFilterEnabled && !this.isTremoloEnabled) {
         this.noise.toDestination()
       } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
         this.noise.connect(this.tremolo)
       } else if (this.isFilterEnabled && !this.isLFOFilterCutoffEnabled && !this.isTremoloEnabled) {
-        this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).toDestination()
         this.noise.connect(this.filter)
         this.lfo.disconnect()
         this.lfo.stop()
       } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && !this.isTremoloEnabled) {
-        this.filter = new Filter(this.filterCutoff, this.filterType).toDestination()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).toDestination()
         this.noise.connect(this.filter)
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo = new Tone.LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
       } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && this.isTremoloEnabled) {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
         this.noise.connect(this.filter)
-        this.lfo = new LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo = new Tone.LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
         this.lfo.connect(this.filter.frequency).start()
       } else {
-        this.tremolo = new Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
-        this.filter = new Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
         this.noise.connect(this.filter)
       }
     },
@@ -213,6 +248,7 @@ export default {
               } else {
                 this.selectedProfile = this.profileItems.find(p => p.id === profileId)
               }
+              this.exportedProfile = this.profileItems[0]
               this.loadProfile()
             }
           }
@@ -311,6 +347,10 @@ export default {
             this.loadedSamples = profile.samples
           }
         })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Loading Profile'
+          this.errorSnackbar = true
+        })
     },
     deleteProfile () {
       this.$http.delete('/profiles/'.concat(this.selectedProfile.id))
@@ -336,6 +376,7 @@ export default {
                 this.players.add(s.id, '/samples/' + s.user + '_' + s.name).toDestination()
               }
             })
+            this.mainPlayLoading = false
           }
         })
     },
@@ -353,6 +394,7 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.getSamples()
+            this.populatePreviewSampleItems()
             this.infoSnackbarText = 'Sample Uploaded'
             this.infoSnackbar = true
           }
@@ -402,6 +444,192 @@ export default {
     resetUploadSampleForm () {
       if (this.$refs.uploadSampleForm) {
         this.$refs.uploadSampleForm.reset()
+      }
+    },
+    openImportDialog () {
+      this.profileMoreDialog = false
+      this.importDialog = true
+    },
+    openExportDialog () {
+      this.profileMoreDialog = false
+      this.exportDialog = true
+    },
+    async importProfile () {
+      const fileContents = await this.readFile(this.importedProfile)
+      const profileJSON = JSON.parse(fileContents)
+
+      this.$http.post('/profiles/import', {
+        name: this.importedProfileName,
+        isTimerEnabled: profileJSON.isTimerEnabled,
+        duration: profileJSON.duration,
+        volume: profileJSON.volume,
+        noiseColor: profileJSON.noiseColor,
+        isFilterEnabled: profileJSON.isFilterEnabled,
+        filterType: profileJSON.filterType,
+        filterCutoff: profileJSON.filterCutoff,
+        isLFOFilterCutoffEnabled: profileJSON.isLFOFilterCutoffEnabled,
+        lfoFilterCutoffFrequency: profileJSON.lfoFilterCutoffFrequency,
+        lfoFilterCutoffLow: profileJSON.lfoFilterCutoffLow,
+        lfoFilterCutoffHigh: profileJSON.lfoFilterCutoffHigh,
+        isTremoloEnabled: profileJSON.isTremoloEnabled,
+        tremoloFrequency: profileJSON.tremoloFrequency,
+        tremoloDepth: profileJSON.tremoloDepth
+      }).then(response => {
+        if (response.status === 200) {
+          this.importDialog = false
+          this.populateProfileItems(response.data.id)
+          this.infoSnackbarText = 'Profile Imported and Saved'
+          this.infoSnackbar = true
+        }
+      })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Saving Profile'
+          this.errorSnackbar = true
+        })
+
+      if (this.$refs.importForm) {
+        this.$refs.importForm.reset()
+      }
+    },
+    readFile (file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+
+        reader.onload = res => {
+          resolve(res.target.result)
+        }
+        reader.onerror = err => reject(err)
+
+        reader.readAsText(file)
+      })
+    },
+    exportProfile () {
+      this.$http.get('/profiles/'.concat(this.exportedProfile.id))
+        .then(response => {
+          if (response.status === 200) {
+            const profile = response.data.profile
+
+            const profileJSON = {}
+            profileJSON.name = this.exportedProfile.text
+            profileJSON.isTimerEnabled = profile.isTimerEnabled
+            profileJSON.duration = profile.duration
+            profileJSON.volume = profile.volume
+            profileJSON.noiseColor = profile.noiseColor
+            profileJSON.isFilterEnabled = profile.isFilterEnabled
+            profileJSON.filterType = profile.filterType
+            profileJSON.filterCutoff = profile.filterCutoff
+            profileJSON.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled
+            profileJSON.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
+            profileJSON.lfoFilterCutoffLow = profile.lfoFilterCutoffLow
+            profileJSON.lfoFilterCutoffHigh = profile.lfoFilterCutoffHigh
+            profileJSON.isTremoloEnabled = profile.isTremoloEnabled
+            profileJSON.tremoloFrequency = profile.tremoloFrequency
+            profileJSON.tremoloDepth = profile.tremoloDepth
+
+            const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(profileJSON))
+            const downloadAnchorNode = document.createElement('a')
+            downloadAnchorNode.setAttribute('href', dataStr)
+            downloadAnchorNode.setAttribute('download', profileJSON.name + '.json')
+            document.body.appendChild(downloadAnchorNode) // required for firefox
+            downloadAnchorNode.click()
+            downloadAnchorNode.remove()
+          }
+        })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Loading Profile'
+          this.errorSnackbar = true
+        })
+
+      this.exportDialog = false
+    },
+    populatePreviewSampleItems () {
+      this.$http.get('/samples')
+        .then(response => {
+          if (response.status === 200) {
+            this.previewSampleItems = response.data.samples
+            if (this.previewSampleItems.length > 0) {
+              this.selectedPreviewSample = this.previewSampleItems[0]
+            }
+          }
+        })
+    },
+    openEditSampleForm () {
+      if (this.previewSampleItems.length > 0) {
+        this.selectedPreviewSample = this.previewSampleItems[0]
+      }
+      this.loadPreviewSample()
+    },
+    closeEditSampleForm () {
+      this.editSampleDialog = false
+      this.previewSampleLoading = true
+      if (this.previewSamplePlaying) {
+        this.previewSamplePlaying = false
+        this.previewSampleButtonText = 'Preview Sample'
+        this.samplePreviewPlayer.stop()
+      }
+    },
+    loadPreviewSample () {
+      this.previewSampleLoading = true
+      this.$http.get('/samples/'.concat(this.selectedPreviewSample.id))
+        .then(async response => {
+          if (response.status === 200) {
+            const sample = response.data.sample
+
+            await this.samplePreviewPlayer.load('/samples/' + sample.user + '_' + sample.name)
+
+            this.previewSampleFadeIn = sample.fadeIn
+            this.previewSampleLoopPointsEnabled = sample.loopPointsEnabled
+            if (sample.loopPointsEnabled) {
+              this.previewSampleLoopStart = sample.loopStart
+              this.previewSampleLoopEnd = sample.loopEnd
+              this.samplePreviewPlayer.setLoopPoints(this.previewSampleLoopStart, this.previewSampleLoopEnd)
+            } else {
+              this.previewSampleLoopStart = 0
+              this.previewSampleLoopEnd = 0
+            }
+            this.samplePreviewPlayer.fadeIn = this.previewSampleFadeIn
+            this.previewSampleLength = this.samplePreviewPlayer.buffer.duration
+            this.previewSampleLoading = false
+          }
+        })
+    },
+    previewSample () {
+      if (this.previewSamplePlaying) {
+        this.previewSamplePlaying = false
+        this.previewSampleButtonText = 'Preview Sample'
+        this.samplePreviewPlayer.stop()
+      } else {
+        this.previewSamplePlaying = true
+        this.previewSampleButtonText = 'Stop'
+        this.samplePreviewPlayer.start()
+      }
+    },
+    editSample () {
+      this.$http.put('/samples/'.concat(this.selectedPreviewSample.id), {
+        fadeIn: this.previewSampleFadeIn,
+        loopPointsEnabled: this.previewSampleLoopPointsEnabled,
+        loopStart: this.previewSampleLoopStart,
+        loopEnd: this.previewSampleLoopEnd
+      }).then(response => {
+        if (response.status === 200) {
+          this.getSamples()
+          this.loadProfile()
+          this.closeEditSampleForm()
+          this.infoSnackbarText = 'Sample Saved'
+          this.infoSnackbar = true
+        }
+      })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Saving Sample'
+          this.errorSnackbar = true
+        })
+    },
+    updatePreviewSamplePlayerFadeIn () {
+      this.samplePreviewPlayer.fadeIn = this.previewSampleFadeIn
+    },
+    updatePreviewSamplePlayerLoopPoints () {
+      if (this.previewSampleLoopStart >= 0 && this.previewSampleLoopEnd <= this.previewSampleLength) {
+        this.samplePreviewPlayer.setLoopPoints(this.previewSampleLoopStart, this.previewSampleLoopEnd)
       }
     }
   }
