@@ -64,6 +64,9 @@ export default {
     previewSampleButtonText: 'Preview Sample',
     previewSampleLoading: true,
     previewSampleLength: 0,
+    startRecordingDialog: false,
+    recordingDialog: false,
+    recordingTimeElapsed: 0,
     errorSnackbar: false,
     errorSnackbarText: '',
     rules: {
@@ -98,6 +101,7 @@ export default {
     this.players = new Tone.Players()
     this.samplePreviewPlayer = new Tone.Player().toDestination()
     this.samplePreviewPlayer.loop = true
+    this.recorder = new Tone.Recorder()
 
     this.populateProfileItems(0)
     this.populatePreviewSampleItems()
@@ -631,6 +635,44 @@ export default {
       if (this.previewSampleLoopStart >= 0 && this.previewSampleLoopEnd <= this.previewSampleLength) {
         this.samplePreviewPlayer.setLoopPoints(this.previewSampleLoopStart, this.previewSampleLoopEnd)
       }
+    },
+    async startRecording () {
+      this.startRecordingDialog = false
+      this.recordingDialog = true
+      this.recordingTimeElapsed = 0
+
+      if (!this.isFilterEnabled && !this.isTremoloEnabled) {
+        this.noise.connect(this.recorder)
+      } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).connect(this.recorder)
+      } else if (this.isFilterEnabled && !this.isLFOFilterCutoffEnabled && !this.isTremoloEnabled) {
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.recorder)
+      } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && !this.isTremoloEnabled) {
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.recorder)
+      } else if (this.isFilterEnabled && this.isLFOFilterCutoffEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).connect(this.recorder)
+      } else {
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).connect(this.recorder)
+      }
+
+      this.loadedSamples.forEach(s => {
+        this.players.player(s.id).connect(this.recorder)
+      })
+
+      await this.recorder.start()
+      this.recordingInterval = setInterval(() => this.recordingTimeElapsed++, 1000)
+    },
+    async stopRecording () {
+      const recording = await this.recorder.stop()
+
+      const url = URL.createObjectURL(recording)
+      const anchor = document.createElement('a')
+      anchor.download = this.selectedProfile.text + '.webm'
+      anchor.href = url
+      anchor.click()
+
+      clearInterval(this.recordingInterval)
+      this.recordingDialog = false
     }
   }
 }

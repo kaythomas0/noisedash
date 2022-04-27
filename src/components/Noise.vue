@@ -90,7 +90,7 @@
           >
             <v-card>
               <v-card-title>
-                <span class="text-h5">Profile Name</span>
+                <span class="text-h5">Save Profile As...</span>
               </v-card-title>
               <v-card-text>
                 <v-container>
@@ -166,6 +166,16 @@
                         </v-list-item-icon>
                         <v-list-item-title>
                           Export Profile
+                        </v-list-item-title>
+                      </v-list-item>
+                      <v-list-item
+                        @click="startRecordingDialog = true"
+                      >
+                        <v-list-item-icon>
+                          <v-icon>mdi-record</v-icon>
+                        </v-list-item-icon>
+                        <v-list-item-title>
+                          Record Profile Audio
                         </v-list-item-title>
                       </v-list-item>
                     </v-list-item-group>
@@ -274,6 +284,58 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+
+        <v-dialog
+          v-model="startRecordingDialog"
+          max-width="600px"
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Start Recording</span>
+            </v-card-title>
+            <v-card-text>
+              Start recording the currently playing audio? This is only supported on Chrome and Firefox.
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="startRecordingDialog = false"
+              >
+                Close
+              </v-btn>
+              <v-btn
+                text
+                @click="startRecording"
+              >
+                Record
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog
+          v-model="recordingDialog"
+          max-width="600px"
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Recording</span>
+            </v-card-title>
+            <v-card-text>
+              Time Elapsed: {{ recordingTimeElapsed }}
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="stopRecording"
+              >
+                Stop
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </v-col>
 
       <v-col cols="12">
@@ -345,7 +407,7 @@
             label="Volume"
             thumb-label
             max="0"
-            min="-30"
+            min="-60"
             class="mx-3"
             @input="updateVolume"
           />
@@ -548,7 +610,7 @@
                 label="Volume"
                 thumb-label
                 max="0"
-                min="-30"
+                min="-60"
                 class="mx-3"
                 @input="updateSampleVolume(sample.id, index)"
               />
@@ -647,7 +709,7 @@
                 <v-container>
                   <v-row>
                     <v-col cols="12">
-                      <p><strong>WARNING:</strong> Uploaded samples are publicly accessible.</p>
+                      <strong>WARNING:</strong> Uploaded samples are publicly accessible.
                     </v-col>
                   </v-row>
                   <v-row>
@@ -711,7 +773,7 @@
           >
             <v-card>
               <v-card-title>
-                <span class="text-h5">Edit Sample</span>
+                <span class="text-h5">Edit Samples</span>
               </v-card-title>
               <v-card-text>
                 <v-container>
