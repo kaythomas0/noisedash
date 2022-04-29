@@ -95,13 +95,11 @@
               <v-card-text>
                 <v-container>
                   <v-row>
-                    <v-col cols="12">
-                      <v-text-field
-                        v-model="profileName"
-                        label="Profile Name"
-                        :rules="[rules.required()]"
-                      />
-                    </v-col>
+                    <v-text-field
+                      v-model="profileName"
+                      label="Profile Name"
+                      :rules="[rules.required()]"
+                    />
                   </v-row>
                 </v-container>
               </v-card-text>
@@ -169,7 +167,7 @@
                         </v-list-item-title>
                       </v-list-item>
                       <v-list-item
-                        @click="startRecordingDialog = true"
+                        @click="openStartRecordingDialog"
                       >
                         <v-list-item-icon>
                           <v-icon>mdi-record</v-icon>
@@ -262,7 +260,6 @@
                     :items="profileItems"
                     return-object
                     label="Profiles"
-                    class="mx-3 mb-5"
                   />
                 </v-row>
               </v-container>
@@ -289,29 +286,54 @@
           v-model="startRecordingDialog"
           max-width="600px"
         >
-          <v-card>
-            <v-card-title>
-              <span class="text-h5">Start Recording</span>
-            </v-card-title>
-            <v-card-text>
-              Start recording the currently playing audio? This is only supported on Chrome and Firefox.
-            </v-card-text>
-            <v-card-actions>
-              <v-spacer />
-              <v-btn
-                text
-                @click="startRecordingDialog = false"
-              >
-                Close
-              </v-btn>
-              <v-btn
-                text
-                @click="startRecording"
-              >
-                Record
-              </v-btn>
-            </v-card-actions>
-          </v-card>
+          <v-form
+            ref="startRecordingForm"
+            v-model="isRecordingValid"
+          >
+            <v-card>
+              <v-card-title>
+                <span class="text-h5">Start Recording</span>
+              </v-card-title>
+              <v-card-text>
+                <v-container>
+                  <v-row>
+                    <p>Select profile to record audio for. This is only supported on Chrome and Firefox.</p>
+                  </v-row>
+                  <v-row>
+                    <v-select
+                      v-model="recordedProfile"
+                      :items="profileItems"
+                      return-object
+                      label="Profiles"
+                    />
+                  </v-row>
+                  <v-row>
+                    <v-text-field
+                      v-model="recordingFileName"
+                      label="File Name"
+                      :rules="[rules.required()]"
+                    />
+                  </v-row>
+                </v-container>
+              </v-card-text>
+              <v-card-actions>
+                <v-spacer />
+                <v-btn
+                  text
+                  @click="startRecordingDialog = false"
+                >
+                  Close
+                </v-btn>
+                <v-btn
+                  text
+                  :disabled="!isRecordingValid"
+                  @click="startRecording"
+                >
+                  Record
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-form>
         </v-dialog>
 
         <v-dialog
@@ -323,7 +345,7 @@
               <span class="text-h5">Recording</span>
             </v-card-title>
             <v-card-text>
-              Time Elapsed: {{ recordingTimeElapsed }}
+              Time Elapsed: {{ recordingTimeElapsed }} Seconds
             </v-card-text>
             <v-card-actions>
               <v-spacer />
@@ -708,9 +730,7 @@
               <v-card-text>
                 <v-container>
                   <v-row>
-                    <v-col cols="12">
-                      <strong>WARNING:</strong> Uploaded samples are publicly accessible.
-                    </v-col>
+                    <p><strong>WARNING:</strong> Uploaded samples are publicly accessible.</p>
                   </v-row>
                   <v-row>
                     <v-file-input
@@ -721,13 +741,11 @@
                     />
                   </v-row>
                   <v-row>
-                    <v-col cols="12">
-                      <v-text-field
-                        v-model="sampleName"
-                        label="Sample Name"
-                        :rules="[rules.required()]"
-                      />
-                    </v-col>
+                    <v-text-field
+                      v-model="sampleName"
+                      label="Sample Name"
+                      :rules="[rules.required()]"
+                    />
                   </v-row>
                 </v-container>
               </v-card-text>
@@ -784,7 +802,6 @@
                       item-text="name"
                       return-object
                       label="Samples"
-                      class="mx-3"
                       @change="loadPreviewSample"
                     />
                   </v-row>
@@ -798,7 +815,6 @@
                       v-model="previewSampleLoopPointsEnabled"
                       :disabled="previewSamplePlaying"
                       label="Use Loop Points"
-                      class="mx-3"
                     />
                   </v-row>
 
@@ -807,7 +823,7 @@
                       v-model="previewSampleLoopStart"
                       type="number"
                       label="Loop Start Time"
-                      class="mx-3"
+                      class="mr-3"
                       :disabled="!previewSampleLoopPointsEnabled || previewSamplePlaying"
                       :rules="[rules.gt(-1)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
@@ -817,7 +833,7 @@
                       v-model="previewSampleLoopEnd"
                       type="number"
                       label="Loop End Time"
-                      class="mx-3"
+                      class="ml-3"
                       :disabled="!previewSampleLoopPointsEnabled || previewSamplePlaying"
                       :rules="[rules.gt(-1), rules.lt(previewSampleLength)]"
                       @change="updatePreviewSamplePlayerLoopPoints"
@@ -829,7 +845,6 @@
                       v-model="previewSampleFadeIn"
                       type="number"
                       label="Fade In Time"
-                      class="mx-3"
                       :disabled="previewSamplePlaying"
                       :rules="[rules.gt(-1)]"
                       @change="updatePreviewSamplePlayerFadeIn"
