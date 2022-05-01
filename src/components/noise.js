@@ -727,6 +727,7 @@ export default {
     async stopRecording () {
       const recording = await this.recorder.stop()
 
+      // Set active profile back to the selected one
       this.loadProfile()
 
       const url = URL.createObjectURL(recording)
@@ -734,6 +735,16 @@ export default {
       anchor.download = this.recordingFileName + '.webm'
       anchor.href = url
       anchor.click()
+
+      clearInterval(this.recordingInterval)
+      this.recordingDialog = false
+      this.stop()
+    },
+    async cancelRecording () {
+      await this.recorder.stop()
+
+      // Set active profile back to the selected one
+      this.loadProfile()
 
       clearInterval(this.recordingInterval)
       this.recordingDialog = false

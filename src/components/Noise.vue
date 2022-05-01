@@ -339,6 +339,7 @@
         <v-dialog
           v-model="recordingDialog"
           max-width="600px"
+          persistent="true"
         >
           <v-card>
             <v-card-title>
@@ -351,9 +352,15 @@
               <v-spacer />
               <v-btn
                 text
+                @click="cancelRecording"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                text
                 @click="stopRecording"
               >
-                Stop
+                Stop and Save
               </v-btn>
             </v-card-actions>
           </v-card>
