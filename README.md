@@ -9,7 +9,7 @@ Self-hostable web tool for generating ambient noises
 # Features
 
 * Generate and customize ambient noises and user-uploadable samples (leveraging [Tone.js](https://github.com/Tonejs/Tone.js/))
-* Save "noise profiles" so you can easily switch between your created soundscapes, import and export them for easy sharing
+* Save "noise profiles" so you can easily switch between your created soundscapes. Import and export them for easy sharing, record them for use elsewhere
 * Fine-tune your noises with audio processing tools like filters, LFOs, and effects
 * Upload and edit audio samples (e.g rain, wind, thunder) to combine with your generated noises
 * Use admin tools to manage multiple users
