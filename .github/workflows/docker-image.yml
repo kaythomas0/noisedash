@@ -31,7 +31,7 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
-          tags: noisedash/noisedash:latest-github
+          tags: noisedash/noisedash:latest
       -
         name: Build and push linux/arm/v7
         uses: docker/build-push-action@v2
@@ -39,4 +39,4 @@ jobs:
           context: .
           platforms: linux/arm/v7
           push: true
-          tags: noisedash/noisedash:latest-armv7-github
+          tags: noisedash/noisedash:latest-armv7
