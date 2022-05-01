@@ -1,6 +1,8 @@
 name: Docker Image CI
 
-on: [push]
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   buildx:
@@ -29,7 +31,7 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
-          tags: noisedash/noisedash:github-test
+          tags: noisedash/noisedash:latest-github
       -
         name: Build and push linux/arm/v7
         uses: docker/build-push-action@v2
@@ -37,4 +39,4 @@ jobs:
           context: .
           platforms: linux/arm/v7
           push: true
-          tags: noisedash/noisedash:github-test-armv7
+          tags: noisedash/noisedash:latest-armv7-github
