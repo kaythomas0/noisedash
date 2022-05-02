@@ -64,6 +64,12 @@ export default {
     previewSampleButtonText: 'Preview Sample',
     previewSampleLoading: true,
     previewSampleLength: 0,
+    startRecordingDialog: false,
+    recordingDialog: false,
+    recordingTimeElapsed: 0,
+    recordedProfile: {},
+    recordingFileName: '',
+    isRecordingValid: false,
     errorSnackbar: false,
     errorSnackbarText: '',
     rules: {
@@ -98,6 +104,7 @@ export default {
     this.players = new Tone.Players()
     this.samplePreviewPlayer = new Tone.Player().toDestination()
     this.samplePreviewPlayer.loop = true
+    this.recorder = new Tone.Recorder()
 
     this.populateProfileItems(0)
     this.populatePreviewSampleItems()
@@ -249,6 +256,7 @@ export default {
                 this.selectedProfile = this.profileItems.find(p => p.id === profileId)
               }
               this.exportedProfile = this.profileItems[0]
+              this.recordedProfile = this.profileItems[0]
               this.loadProfile()
             }
           }
@@ -483,7 +491,7 @@ export default {
         }
       })
         .catch(() => {
-          this.errorSnackbarText = 'Error Saving Profile'
+          this.errorSnackbarText = 'Error Importing Profile'
           this.errorSnackbar = true
         })
 
@@ -536,7 +544,7 @@ export default {
           }
         })
         .catch(() => {
-          this.errorSnackbarText = 'Error Loading Profile'
+          this.errorSnackbarText = 'Error Exporting Profile'
           this.errorSnackbar = true
         })
 
@@ -631,6 +639,116 @@ export default {
       if (this.previewSampleLoopStart >= 0 && this.previewSampleLoopEnd <= this.previewSampleLength) {
         this.samplePreviewPlayer.setLoopPoints(this.previewSampleLoopStart, this.previewSampleLoopEnd)
       }
+    },
+    openStartRecordingDialog () {
+      this.startRecordingDialog = true
+      this.profileMoreDialog = false
+    },
+    startRecording () {
+      this.$http.get('/profiles/'.concat(this.recordedProfile.id))
+        .then(async response => {
+          if (response.status === 200) {
+            const profile = response.data.profile
+
+            this.isTimerEnabled = profile.isTimerEnabled
+            this.duration = profile.duration
+            this.volume = profile.volume
+            this.noiseColor = profile.noiseColor
+            this.isFilterEnabled = profile.isFilterEnabled
+            this.filterType = profile.filterType
+            this.filterCutoff = profile.filterCutoff
+            this.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled
+            this.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
+            this.lfoFilterCutoffRange[0] = profile.lfoFilterCutoffLow
+            this.lfoFilterCutoffRange[1] = profile.lfoFilterCutoffHigh
+            this.isTremoloEnabled = profile.isTremoloEnabled
+            this.tremoloFrequency = profile.tremoloFrequency
+            this.tremoloDepth = profile.tremoloDepth
+
+            this.loadedSamples = profile.samples
+
+            this.startRecordingDialog = false
+            this.recordingDialog = true
+            this.recordingTimeElapsed = 0
+
+            await this.recorder.start()
+            this.recordingInterval = setInterval(() => this.recordingTimeElapsed++, 1000)
+            this.playProfileForRecording()
+          }
+        })
+        .catch(() => {
+          this.errorSnackbarText = 'Error Recording Profile'
+          this.errorSnackbar = true
+        })
+    },
+    playProfileForRecording () {
+      this.playDisabled = true
+      Tone.Transport.cancel()
+
+      if (!this.isFilterEnabled && !this.isTremoloEnabled) {
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.recorder).toDestination()
+      } else if (!this.isFilterEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).connect(this.recorder).toDestination().start()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.tremolo)
+      } else if (this.isFilterEnabled && !this.isTremoloEnabled) {
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.recorder).toDestination()
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+      } else if (this.isFilterEnabled && this.isTremoloEnabled) {
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).connect(this.recorder).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+      } else {
+        this.tremolo = new Tone.Tremolo({ frequency: this.tremoloFrequency, depth: this.tremoloDepth }).connect(this.recorder).toDestination().start()
+        this.filter = new Tone.Filter(this.filterCutoff, this.filterType).connect(this.tremolo)
+        this.noise = new Tone.Noise({ volume: this.volume, type: this.noiseColor }).connect(this.filter)
+      }
+
+      if (this.isLFOFilterCutoffEnabled) {
+        this.lfo = new Tone.LFO({ frequency: this.lfoFilterCutoffFrequency, min: this.lfoFilterCutoffRange[0], max: this.lfoFilterCutoffRange[1] })
+        this.lfo.connect(this.filter.frequency).start()
+      }
+
+      this.loadedSamples.forEach(s => {
+        this.players.player(s.id).loop = true
+        this.players.player(s.id).fadeIn = s.fadeIn
+        if (s.loopPointsEnabled) {
+          this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
+        }
+        this.players.player(s.id).volume.value = s.volume
+
+        this.players.player(s.id).connect(this.recorder)
+        this.players.player(s.id).unsync().sync().start(0)
+      })
+
+      this.noise.sync().start(0)
+
+      Tone.Transport.start()
+    },
+    async stopRecording () {
+      const recording = await this.recorder.stop()
+
+      // Set active profile back to the selected one
+      this.loadProfile()
+
+      const url = URL.createObjectURL(recording)
+      const anchor = document.createElement('a')
+      anchor.download = this.recordingFileName + '.webm'
+      anchor.href = url
+      anchor.click()
+
+      clearInterval(this.recordingInterval)
+      this.recordingDialog = false
+      this.stop()
+    },
+    async cancelRecording () {
+      await this.recorder.stop()
+
+      // Set active profile back to the selected one
+      this.loadProfile()
+
+      clearInterval(this.recordingInterval)
+      this.recordingDialog = false
+      this.stop()
     }
   }
 }
