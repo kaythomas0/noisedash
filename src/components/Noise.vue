@@ -66,7 +66,7 @@
           class="mx-3 my-3"
           @click="updateProfile"
         >
-          Save Profile
+          {{ unsavedWork ? 'Save Profile*' : 'Save Profile' }}
         </v-btn>
 
         <v-dialog
@@ -339,7 +339,7 @@
         <v-dialog
           v-model="recordingDialog"
           max-width="600px"
-          persistent="true"
+          persistent
         >
           <v-card>
             <v-card-title>
@@ -361,6 +361,36 @@
                 @click="stopRecording"
               >
                 Stop and Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog
+          v-model="confirmSwitchProfileDialog"
+          max-width="600px"
+          persistent
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Save Profile?</span>
+            </v-card-title>
+            <v-card-text>
+              You have unsaved work on your current profile. Would you like to save it before switching?
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="discardChanges"
+              >
+                Discard Changes
+              </v-btn>
+              <v-btn
+                text
+                @click="saveChanges"
+              >
+                Save Profile
               </v-btn>
             </v-card-actions>
           </v-card>

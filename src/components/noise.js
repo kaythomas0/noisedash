@@ -70,6 +70,11 @@ export default {
     recordedProfile: {},
     recordingFileName: '',
     isRecordingValid: false,
+    unsavedWork: false,
+    saveProfileText: 'Save Profile',
+    unwatch: null,
+    confirmSwitchProfileDialog: false,
+    activeProfile: {},
     errorSnackbar: false,
     errorSnackbarText: '',
     rules: {
@@ -94,6 +99,26 @@ export default {
         }
       })
       return samples
+    },
+    changeableSettings: function () {
+      return [
+        this.isTimerEnabled,
+        this.hours,
+        this.minutes,
+        this.seconds,
+        this.volume,
+        this.noiseColor,
+        this.isFilterEnabled,
+        this.filterType,
+        this.filterCutoff,
+        this.isLFOFilterCutoffEnabled,
+        this.lfoFilterCutoffFrequency,
+        this.lfoFilterCutoffRange,
+        this.isTremoloEnabled,
+        this.tremoloDepth,
+        this.isTimerEnabled,
+        this.loadedSamples
+      ]
     }
   },
   created () {
@@ -294,6 +319,7 @@ export default {
         if (response.status === 200) {
           this.profileDialog = false
           this.populateProfileItems(response.data.id)
+          this.unsavedWork = false
           this.infoSnackbarText = 'Profile Saved'
           this.infoSnackbar = true
         }
@@ -322,6 +348,7 @@ export default {
         samples: this.loadedSamples
       }).then(response => {
         if (response.status === 200) {
+          this.unsavedWork = false
           this.infoSnackbarText = 'Profile Saved'
           this.infoSnackbar = true
         }
@@ -332,33 +359,47 @@ export default {
         })
     },
     loadProfile () {
-      this.$http.get('/profiles/'.concat(this.selectedProfile.id))
-        .then(response => {
-          if (response.status === 200) {
-            const profile = response.data.profile
+      if (this.unsavedWork) {
+        this.confirmSwitchProfileDialog = true
+      } else {
+        this.$http.get('/profiles/'.concat(this.selectedProfile.id))
+          .then(response => {
+            if (response.status === 200) {
+              const profile = response.data.profile
 
-            this.isTimerEnabled = profile.isTimerEnabled
-            this.duration = profile.duration
-            this.volume = profile.volume
-            this.noiseColor = profile.noiseColor
-            this.isFilterEnabled = profile.isFilterEnabled
-            this.filterType = profile.filterType
-            this.filterCutoff = profile.filterCutoff
-            this.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled
-            this.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
-            this.lfoFilterCutoffRange[0] = profile.lfoFilterCutoffLow
-            this.lfoFilterCutoffRange[1] = profile.lfoFilterCutoffHigh
-            this.isTremoloEnabled = profile.isTremoloEnabled
-            this.tremoloFrequency = profile.tremoloFrequency
-            this.tremoloDepth = profile.tremoloDepth
+              this.isTimerEnabled = profile.isTimerEnabled
+              this.duration = profile.duration
+              this.volume = profile.volume
+              this.noiseColor = profile.noiseColor
+              this.isFilterEnabled = profile.isFilterEnabled
+              this.filterType = profile.filterType
+              this.filterCutoff = profile.filterCutoff
+              this.isLFOFilterCutoffEnabled = profile.isLFOFilterCutoffEnabled
+              this.lfoFilterCutoffFrequency = profile.lfoFilterCutoffFrequency
+              this.lfoFilterCutoffRange[0] = profile.lfoFilterCutoffLow
+              this.lfoFilterCutoffRange[1] = profile.lfoFilterCutoffHigh
+              this.isTremoloEnabled = profile.isTremoloEnabled
+              this.tremoloFrequency = profile.tremoloFrequency
+              this.tremoloDepth = profile.tremoloDepth
 
-            this.loadedSamples = profile.samples
-          }
-        })
-        .catch(() => {
-          this.errorSnackbarText = 'Error Loading Profile'
-          this.errorSnackbar = true
-        })
+              this.loadedSamples = profile.samples
+
+              this.activeProfile = profile
+
+              if (this.unwatch) {
+                this.unwatch()
+              }
+
+              this.unwatch = this.$watch('changeableSettings', function () {
+                this.unsavedWork = true
+              })
+            }
+          })
+          .catch(() => {
+            this.errorSnackbarText = 'Error Loading Profile'
+            this.errorSnackbar = true
+          })
+      }
     },
     deleteProfile () {
       this.$http.delete('/profiles/'.concat(this.selectedProfile.id))
@@ -749,6 +790,17 @@ export default {
       clearInterval(this.recordingInterval)
       this.recordingDialog = false
       this.stop()
+    },
+    discardChanges () {
+      this.unsavedWork = false
+      this.loadProfile()
+      this.confirmSwitchProfileDialog = false
+    },
+    saveChanges () {
+      // Set active profile back to previously selected one before saving
+      this.selectedProfile = this.profileItems.find(p => p.text === this.activeProfile.name)
+      this.updateProfile()
+      this.confirmSwitchProfileDialog = false
     }
   }
 }

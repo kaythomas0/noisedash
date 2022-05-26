@@ -5,7 +5,7 @@
   "bugs": "https://github.com/kaythomas0/noisedash/issues",
   "license": "AGPL-3.0-or-later",
   "author": "Kay Thomas <kaythomas@pm.me> (https://kaythomas.dev)",
-  "version": "0.2.0",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
