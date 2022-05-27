@@ -101,7 +101,7 @@ export default {
       return samples
     },
     changeableSettings: function () {
-      return [
+      const settings = [
         this.isTimerEnabled,
         this.hours,
         this.minutes,
@@ -116,9 +116,16 @@ export default {
         this.lfoFilterCutoffRange,
         this.isTremoloEnabled,
         this.tremoloDepth,
+        this.tremoloFrequency,
         this.isTimerEnabled,
         this.loadedSamples
       ]
+
+      this.loadedSamples.forEach(s => {
+        settings.push(s.volume)
+      })
+
+      return settings
     }
   },
   created () {
