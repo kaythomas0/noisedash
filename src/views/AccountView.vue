@@ -1,15 +1,15 @@
 <template>
-  <Account />
+  <AccountPage />
 </template>
 
 <script>
-import Account from '../components/Account'
+import AccountPage from '../components/AccountPage'
 
 export default {
   name: 'AccountView',
 
   components: {
-    Account
+    AccountPage
   }
 }
 </script>

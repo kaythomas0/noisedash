@@ -1,15 +1,15 @@
 <template>
-  <Login />
+  <LoginPage />
 </template>
 
 <script>
-import Login from '../components/Login'
+import LoginPage from '../components/LoginPage'
 
 export default {
   name: 'LoginView',
 
   components: {
-    Login
+    LoginPage
   }
 }
 </script>

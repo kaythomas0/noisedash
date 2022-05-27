@@ -73,7 +73,7 @@
           v-model="profileDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3"
@@ -127,7 +127,7 @@
           v-model="profileMoreDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3"
@@ -686,7 +686,7 @@
           v-model="addSampleDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
@@ -746,7 +746,7 @@
           v-model="uploadSampleDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
@@ -810,7 +810,7 @@
           v-model="editSampleDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
@@ -926,7 +926,7 @@
       >
         {{ infoSnackbarText }}
 
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn
             text
             v-bind="attrs"
@@ -944,7 +944,7 @@
       >
         {{ errorSnackbarText }}
 
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn
             text
             v-bind="attrs"

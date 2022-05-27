@@ -1,4 +1,6 @@
 export default {
+  name: 'Login',
+
   data: () => ({
     valid: false,
     username: '',

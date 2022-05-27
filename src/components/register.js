@@ -1,4 +1,6 @@
 export default {
+  name: 'Register',
+
   data: () => ({
     valid: false,
     name: '',

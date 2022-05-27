@@ -1,15 +1,15 @@
 <template>
-  <Register />
+  <RegisterPage />
 </template>
 
 <script>
-import Register from '../components/Register'
+import RegisterPage from '../components/RegisterPage'
 
 export default {
   name: 'RegisterView',
 
   components: {
-    Register
+    RegisterPage
   }
 }
 </script>

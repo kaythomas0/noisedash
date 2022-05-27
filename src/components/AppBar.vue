@@ -63,7 +63,7 @@
           </v-list-item>
         </v-list-item-group>
       </v-list>
-      <template v-slot:append>
+      <template #append>
         <v-btn
           block
           href="https://github.com/kaythomas0/noisedash"

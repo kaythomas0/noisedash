@@ -12,7 +12,7 @@
       v-model="registerUserDialog"
       max-width="600px"
     >
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           v-bind="attrs"
           v-on="on"
@@ -139,7 +139,7 @@
       >
         {{ snackbarText }}
 
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn
             text
             v-bind="attrs"
