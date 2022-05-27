@@ -1,15 +1,15 @@
 <template>
-  <Noise />
+  <NoisePage />
 </template>
 
 <script>
-import Noise from '../components/Noise'
+import NoisePage from '../components/NoisePage'
 
 export default {
   name: 'HomeView',
 
   components: {
-    Noise
+    NoisePage
   }
 }
 </script>

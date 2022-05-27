@@ -1,5 +1,5 @@
 export default {
-  name: 'Admin',
+  name: 'Account',
 
   data: () => ({
     currentUser: {},

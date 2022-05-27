@@ -24,7 +24,7 @@
       v-model="changePasswordDialog"
       max-width="600px"
     >
-      <template v-slot:activator="{ on, attrs }">
+      <template #activator="{ on, attrs }">
         <v-btn
           class="my-3"
           v-bind="attrs"
@@ -89,7 +89,7 @@
     >
       {{ snackbarText }}
 
-      <template v-slot:action="{ attrs }">
+      <template #action="{ attrs }">
         <v-btn
           text
           v-bind="attrs"

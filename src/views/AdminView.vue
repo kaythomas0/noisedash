@@ -1,15 +1,15 @@
 <template>
-  <Admin />
+  <AdminPage />
 </template>
 
 <script>
-import Admin from '../components/Admin'
+import AdminPage from '../components/AdminPage'
 
 export default {
   name: 'AdminView',
 
   components: {
-    Admin
+    AdminPage
   }
 }
 </script>

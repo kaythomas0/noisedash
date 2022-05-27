@@ -66,14 +66,14 @@
           class="mx-3 my-3"
           @click="updateProfile"
         >
-          Save Profile
+          {{ unsavedWork ? 'Save Profile*' : 'Save Profile' }}
         </v-btn>
 
         <v-dialog
           v-model="profileDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3"
@@ -127,7 +127,7 @@
           v-model="profileMoreDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3"
@@ -339,7 +339,7 @@
         <v-dialog
           v-model="recordingDialog"
           max-width="600px"
-          persistent="true"
+          persistent
         >
           <v-card>
             <v-card-title>
@@ -361,6 +361,36 @@
                 @click="stopRecording"
               >
                 Stop and Save
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+
+        <v-dialog
+          v-model="confirmSwitchProfileDialog"
+          max-width="600px"
+          persistent
+        >
+          <v-card>
+            <v-card-title>
+              <span class="text-h5">Save Profile?</span>
+            </v-card-title>
+            <v-card-text>
+              You have unsaved work on your current profile. Would you like to save it before switching?
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer />
+              <v-btn
+                text
+                @click="discardChanges"
+              >
+                Discard Changes
+              </v-btn>
+              <v-btn
+                text
+                @click="saveChanges"
+              >
+                Save Profile
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -656,7 +686,7 @@
           v-model="addSampleDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
@@ -716,7 +746,7 @@
           v-model="uploadSampleDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
@@ -780,7 +810,7 @@
           v-model="editSampleDialog"
           max-width="600px"
         >
-          <template v-slot:activator="{ on, attrs }">
+          <template #activator="{ on, attrs }">
             <v-btn
               v-bind="attrs"
               class="mx-3 my-3 mb-5"
@@ -896,7 +926,7 @@
       >
         {{ infoSnackbarText }}
 
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn
             text
             v-bind="attrs"
@@ -914,7 +944,7 @@
       >
         {{ errorSnackbarText }}
 
-        <template v-slot:action="{ attrs }">
+        <template #action="{ attrs }">
           <v-btn
             text
             v-bind="attrs"
