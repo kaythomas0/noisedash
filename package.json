@@ -1,18 +1,14 @@
 {
   "name": "noisedash",
-  "descriptions": "Self-hostable web tool for generating ambient noises",
-  "homepage": "https://github.com/kaythomas0/noisedash",
-  "bugs": "https://github.com/kaythomas0/noisedash/issues",
-  "license": "AGPL-3.0-or-later",
-  "author": "Kay Thomas <kaythomas@pm.me> (https://kaythomas.dev)",
   "version": "0.4.0",
   "private": true,
+  "author": "Kay Thomas <kaythomas@pm.me> (https://kaythomas.dev)",
   "scripts": {
     "serve": "vue-cli-service serve",
-    "server": "node server/bin/www.js",
-    "server-prod": "NODE_ENV=production node server/bin/www.js",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "server": "node server/bin/www.js",
+    "server-prod": "NODE_ENV=production node server/bin/www.js"
   },
   "dependencies": {
     "@vscode/sqlite3": "^5.0.8",
@@ -35,23 +31,28 @@
     "winston": "^3.3.3"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.5.15",
-    "@vue/cli-plugin-eslint": "^4.5.15",
-    "@vue/cli-plugin-router": "^4.5.15",
-    "@vue/cli-service": "^4.5.15",
-    "@vue/eslint-config-standard": "^5.1.2",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^6.7.2",
+    "@babel/core": "^7.12.16",
+    "@babel/eslint-parser": "^7.12.16",
+    "@vue/cli-plugin-babel": "^5.0.4",
+    "@vue/cli-plugin-eslint": "^5.0.4",
+    "@vue/cli-plugin-router": "^5.0.4",
+    "@vue/cli-service": "^5.0.4",
+    "@vue/eslint-config-standard": "^6.1.0",
+    "eslint": "^7.32.0",
     "eslint-plugin-html": "^6.2.0",
-    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-vue": "^6.2.2",
+    "eslint-plugin-vue": "^8.0.3",
     "sass": "~1.32.0",
     "sass-loader": "^10.0.0",
-    "vue-cli-plugin-vuetify": "^2.4.3",
+    "vue-cli-plugin-vuetify": "^2.5.0",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.7.3"
-  }
+  },
+  "bugs": "https://github.com/kaythomas0/noisedash/issues",
+  "descriptions": "Self-hostable web tool for generating ambient noises",
+  "homepage": "https://github.com/kaythomas0/noisedash",
+  "license": "AGPL-3.0-or-later"
 }
