@@ -1,5 +1,5 @@
 ## Project setup
-Requires [Node](https://nodejs.org/en/download/) and [Vue 2 CLI](https://cli.vuejs.org/guide/installation.html)
+Requires [Node](https://nodejs.org/en/download/) and [Vue CLI](https://cli.vuejs.org/guide/installation.html)
 
 ```
 npm install
