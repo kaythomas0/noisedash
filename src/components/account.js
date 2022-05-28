@@ -6,6 +6,7 @@ export default {
     changePasswordDialog: false,
     isPasswordValid: false,
     password: '',
+    accentColor: '#607d8b',
     snackbar: false,
     snackbarText: '',
     rules: {
@@ -21,6 +22,7 @@ export default {
         .then(response => {
           if (response.status === 200) {
             this.currentUser = response.data.user
+            this.accentColor = this.currentUser.preferences.accentColor
           }
         })
     },
@@ -45,6 +47,14 @@ export default {
       this.$http.patch('/users/dark-mode', {
         darkMode: this.$vuetify.theme.dark
       })
+    },
+    updateAccentColor () {
+      const preferences = { accentColor: this.accentColor }
+      this.$http.patch('/users/preferences', {
+        preferences: preferences
+      })
+      this.$vuetify.theme.themes.dark.primary = this.accentColor
+      this.$vuetify.theme.themes.light.primary = this.accentColor
     }
   }
 }

@@ -7,7 +7,7 @@
       dense
     >
       <v-app-bar-nav-icon
-        @click="getCurrentUser"
+        @click="checkForAdmin"
       />
     </v-app-bar>
     <v-navigation-drawer

@@ -489,6 +489,9 @@ export default {
           if (response.status === 200) {
             this.canUpload = response.data.user.canUpload
             this.$vuetify.theme.dark = response.data.user.darkMode
+            const preferences = response.data.user.preferences
+            this.$vuetify.theme.themes.dark.primary = preferences.accentColor
+            this.$vuetify.theme.themes.light.primary = preferences.accentColor
           }
         })
     },
