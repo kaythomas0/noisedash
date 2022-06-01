@@ -2,7 +2,7 @@
 
 Self-hostable web tool for generating ambient noises
 
-![Noisedash](./.github/noisedash-screenshot-1.jpg)
+![Noisedash](https://raw.githubusercontent.com/kaythomas0/noisedash/dev/.github/noisedash-screenshot-1.jpg)
 
 (More screenshots on the [wiki](https://github.com/kaythomas0/noisedash/wiki/Screenshots))
 
