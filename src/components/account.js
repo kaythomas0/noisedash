@@ -6,7 +6,7 @@ export default {
     changePasswordDialog: false,
     isPasswordValid: false,
     password: '',
-    accentColor: '#607d8b',
+    accentColor: {},
     snackbar: false,
     snackbarText: '',
     rules: {
@@ -53,8 +53,8 @@ export default {
       this.$http.patch('/users/preferences', {
         preferences: preferences
       })
-      this.$vuetify.theme.themes.dark.primary = this.accentColor
-      this.$vuetify.theme.themes.light.primary = this.accentColor
+      this.$vuetify.theme.themes.dark.primary = this.accentColor.hex
+      this.$vuetify.theme.themes.light.primary = this.accentColor.hex
     }
   }
 }
