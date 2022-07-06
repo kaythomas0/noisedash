@@ -9,7 +9,11 @@ router.get('/users/current', (req, res) => {
     return res.sendStatus(401)
   }
 
-  db.get('SELECT is_admin as isAdmin, dark_mode as darkMode, can_upload as canUpload, * FROM users WHERE id = ?', [req.user.id], (err, row) => {
+  db.get(`SELECT
+    is_admin as isAdmin,
+    dark_mode as darkMode,
+    can_upload as canUpload,
+    * FROM users WHERE id = ?`, [req.user.id], (err, row) => {
     if (err) {
       logger.error(err)
       return res.sendStatus(500)
@@ -24,6 +28,7 @@ router.get('/users/current', (req, res) => {
       user.isAdmin = row.isAdmin === 1
       user.darkMode = row.darkMode === 1
       user.canUpload = row.canUpload === 1
+      user.preferences = JSON.parse(row.preferences)
     }
 
     res.json({ user: user })
@@ -277,6 +282,25 @@ router.delete('/users/:userId', (req, res) => {
     })
 
     db.run('DELETE FROM users WHERE id = ?', [req.params.userId], (err) => {
+      if (err) {
+        logger.error(err)
+        return res.sendStatus(500)
+      } else {
+        return res.sendStatus(200)
+      }
+    })
+  })
+})
+
+router.patch('/users/preferences', (req, res) => {
+  if (!req.user) {
+    return res.sendStatus(401)
+  }
+
+  const preferences = JSON.stringify(req.body.preferences)
+
+  db.serialize(() => {
+    db.run('UPDATE users SET preferences = ? WHERE id = ?', [preferences, req.user.id], (err) => {
       if (err) {
         logger.error(err)
         return res.sendStatus(500)

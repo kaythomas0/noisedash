@@ -8,6 +8,10 @@
       </v-col>
     </v-row>
 
+    <h2 class="headline font-weight-bold mb-3">
+      User Management
+    </h2>
+
     <v-col cols="12">
       <v-row>
         ID: {{ currentUser.id }}
@@ -26,7 +30,7 @@
     >
       <template #activator="{ on, attrs }">
         <v-btn
-          class="my-3"
+          class="mt-5 mb-10"
           v-bind="attrs"
           v-on="on"
           @click="resetChangePasswordForm"
@@ -77,11 +81,34 @@
       </v-form>
     </v-dialog>
 
+    <h2 class="headline font-weight-bold mb-3">
+      Preferences
+    </h2>
+
+    <h3 class="font-weight-bold">
+      Dark Mode
+    </h3>
+
     <v-switch
       v-model="$vuetify.theme.dark"
-      label="Dark Mode"
+      :label="`${$vuetify.theme.dark ? 'On' : 'Off'}`"
       @change="toggleDarkMode"
     />
+
+    <h3 class="mb-5 font-weight-bold">
+      Accent Color
+    </h3>
+
+    <v-color-picker
+      v-model="accentColor"
+    />
+
+    <v-btn
+      class="mt-5"
+      @click="updateAccentColor"
+    >
+      Apply
+    </v-btn>
 
     <v-snackbar
       v-model="snackbar"

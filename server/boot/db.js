@@ -59,13 +59,19 @@ module.exports = function () {
       } else {
         const userVersion = row.user_version
 
-        if (userVersion === 0) {
+        if (userVersion < 1) {
           db.run('ALTER TABLE samples ADD COLUMN fade_in REAL DEFAULT 0')
           db.run('ALTER TABLE samples ADD COLUMN loop_points_enabled INTEGER DEFAULT 0')
           db.run('ALTER TABLE samples ADD COLUMN loop_start REAL DEFAULT 0')
           db.run('ALTER TABLE samples ADD COLUMN loop_end REAL DEFAULT 0')
 
           db.run('PRAGMA user_version = 1')
+        }
+
+        if (userVersion < 2) {
+          db.run('ALTER TABLE users ADD COLUMN preferences TEXT DEFAULT "{}"')
+
+          db.run('PRAGMA user_version = 2')
         }
       }
     })
