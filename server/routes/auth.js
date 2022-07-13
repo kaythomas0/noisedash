@@ -36,8 +36,14 @@ router.get('/admin', (req, res) => {
 })
 
 router.get('/logout', (req, res) => {
-  req.logout()
-  res.sendStatus(200)
+  req.logout((err) => {
+    if (err) {
+      logger.error(err)
+      res.sendStatus(500)
+    } else {
+      res.sendStatus(200)
+    }
+  })
 })
 
 router.get('/setup', (req, res) => {
