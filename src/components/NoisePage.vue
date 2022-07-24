@@ -852,6 +852,7 @@
                       v-model="previewSampleLoopPointsEnabled"
                       :disabled="previewSamplePlaying"
                       label="Use Loop Points"
+                      @change="updatePreviewSampleLoopPoints"
                     />
                   </v-row>
 

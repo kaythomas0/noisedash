@@ -652,6 +652,13 @@ export default {
           }
         })
     },
+    updatePreviewSampleLoopPoints () {
+      if (this.previewSampleLoopPointsEnabled) {
+        this.samplePreviewPlayer.setLoopPoints(this.previewSampleLoopStart, this.previewSampleLoopEnd)
+      } else {
+        this.samplePreviewPlayer.setLoopPoints(0, this.samplePreviewPlayer.buffer.duration)
+      }
+    },
     previewSample () {
       if (this.previewSamplePlaying) {
         this.previewSamplePlaying = false
