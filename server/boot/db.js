@@ -73,6 +73,15 @@ module.exports = function () {
 
           db.run('PRAGMA user_version = 2')
         }
+
+        if (userVersion < 3) {
+          db.run('ALTER TABLE profiles_samples ADD COLUMN reverb_enabled INTEGER DEFAULT 0')
+          db.run('ALTER TABLE profiles_samples ADD COLUMN reverb_pre_delay REAL DEFAULT 0')
+          db.run('ALTER TABLE profiles_samples ADD COLUMN reverb_decay REAL DEFAULT 0')
+          db.run('ALTER TABLE profiles_samples ADD COLUMN reverb_wet INTEGER DEFAULT 0')
+
+          db.run('PRAGMA user_version = 3')
+        }
       }
     })
   })

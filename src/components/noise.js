@@ -185,6 +185,12 @@ export default {
           this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
         }
         this.players.player(s.id).volume.value = s.volume
+
+        if (s.reverbEnabled) {
+          const reverb = new Tone.Reverb(s.reverbDecay).toDestination()
+          reverb.set({ preDelay: s.reverbPreDelay, wet: s.reverbWet })
+          this.players.player(s.id).connect(reverb)
+        }
       })
 
       if (this.isTimerEnabled) {

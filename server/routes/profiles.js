@@ -59,10 +59,22 @@ router.post('/profiles', (req, res) => {
       profileID = this.lastID
 
       req.body.samples.forEach(s => {
-        db.run('INSERT INTO profiles_samples (profile, sample, volume) VALUES (?, ?, ?)', [
+        db.run(`INSERT INTO profiles_samples(
+          profile,
+          sample,
+          volume,
+          reverb_enabled,
+          reverb_pre_delay,
+          reverb_decay,
+          reverb_wet)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`, [
           profileID,
           s.id,
-          s.volume
+          s.volume,
+          s.reverbEnabled,
+          s.reverbPreDelay,
+          s.reverbDecay,
+          s.reverbWet
         ],
         (err) => {
           if (err) {
@@ -204,10 +216,22 @@ router.put('/profiles/:profileId', (req, res) => {
         })
 
         req.body.samples.forEach(s => {
-          db.run('INSERT INTO profiles_samples (profile, sample, volume) VALUES (?, ?, ?)', [
+          db.run(`INSERT INTO profiles_samples(
+            profile,
+            sample,
+            volume,
+            reverb_enabled,
+            reverb_pre_delay,
+            reverb_decay,
+            reverb_wet)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`, [
             req.params.profileId,
             s.id,
-            s.volume
+            s.volume,
+            s.reverbEnabled,
+            s.reverbPreDelay,
+            s.reverbDecay,
+            s.reverbWet
           ],
           (err) => {
             if (err) {
@@ -355,6 +379,10 @@ router.get('/profiles/:profileId', (req, res) => {
           samples.id,
           name,
           profiles_samples.volume,
+          profiles_samples.reverb_enabled as reverbEnabled,
+          profiles_samples.reverb_pre_delay as reverbPreDelay,
+          profiles_samples.reverb_decay as reverbDecay,
+          profiles_samples.reverb_wet as reverbWet,
           fade_in as fadeIn,
           loop_points_enabled as loopPointsEnabled,
           loop_start as loopStart,
@@ -382,6 +410,10 @@ router.get('/profiles/:profileId', (req, res) => {
             sample.loopPointsEnabled = row.loopPointsEnabled === 1
             sample.loopStart = row.loopStart
             sample.loopEnd = row.loopEnd
+            sample.reverbEnabled = row.reverbEnabled === 1
+            sample.reverbPreDelay = row.reverbPreDelay
+            sample.reverbDecay = row.reverbDecay
+            sample.reverbWet = row.reverbWet
 
             samples.push(sample)
           })

@@ -652,7 +652,9 @@
             <v-row
               justify="center"
             >
-              {{ sample.name }}
+              <h2 class="headline font-weight-bold mb-5">
+                {{ sample.name }}
+              </h2>
             </v-row>
 
             <v-row>
@@ -678,6 +680,84 @@
               >
                 <p>{{ loadedSamples[index].volume }}</p>
               </div>
+            </v-row>
+
+            <v-row
+              justify="center"
+            >
+              <h2 class="headline mb-5">
+                Effects
+              </h2>
+            </v-row>
+
+            <v-row justify="center">
+              <v-checkbox
+                v-model="sample.reverbEnabled"
+                label="Reverb"
+              />
+            </v-row>
+
+            <v-row justify="center">
+              <v-slider
+                v-model="sample.reverbPreDelay"
+                :disabled="!sample.reverbEnabled"
+                label="Pre Delay"
+                thumb-label
+                max="16"
+                min="0"
+                step="0.5"
+                class="mx-3"
+                @input="updateReverbPreDelay(sample.id, index)"
+              />
+              <div
+                class="mx-3"
+              >
+                <p>{{ sample.reverbPreDelay }}</p>
+              </div>
+            </v-row>
+
+            <v-row justify="center">
+              <v-slider
+                v-model="sample.reverbDecay"
+                :disabled="!sample.reverbEnabled"
+                label="Decay"
+                thumb-label
+                max="16"
+                min="0"
+                step="0.5"
+                class="mx-3"
+                @input="updateVolume"
+              />
+              <div
+                class="mx-3"
+              >
+                <p> {{ sample.reverbDecay }}</p>
+              </div>
+            </v-row>
+
+            <v-row justify="center">
+              <v-slider
+                v-model="sample.reverbWet"
+                :disabled="!sample.reverbEnabled"
+                label="Wet"
+                thumb-label
+                max="1"
+                min="0"
+                step="0.01"
+                class="mx-3"
+                @input="updateVolume"
+              />
+              <div
+                class="mx-3"
+              >
+                <p>{{ sample.reverbWet }}%</p>
+              </div>
+            </v-row>
+
+            <v-row>
+              <v-divider
+                class="mb-7"
+              />
             </v-row>
           </v-container>
         </v-row>
