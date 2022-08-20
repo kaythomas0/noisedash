@@ -217,15 +217,29 @@ export default {
 
         this.loadedSamples.forEach(s => {
           if (s.playbackMode === 'sporadic') {
-            const playNextTime = Math.floor(Math.random() * (s.sporadicMax - s.sporadicMin + 1) + s.sporadicMin)
-            this.sporadicInterval = setInterval(() => console.log('Test'), playNextTime)
+            s.playNextTime = Math.floor(Math.random() * (s.sporadicMax - s.sporadicMin + 1) + s.sporadicMin)
+            console.log('PLAY NEXT TIME: ', s.playNextTime)
+            this.players.player(s.id).loop = false
+            s.sporadicInterval = setInterval(() => this.playSporadicSample(), s.playNextTime * 1000)
           } else {
+            this.players.player(s.id).loop = true
             this.players.player(s.id).unsync().sync().start(0)
           }
         })
       }
 
       Tone.Transport.start('+0.1')
+    },
+    playSporadicSample () {
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          this.players.player(s.id).unsync().sync().start()
+          clearInterval(s.sporadicInterval)
+          s.playNextTime = Math.floor(Math.random() * (s.sporadicMax - s.sporadicMin + 1) + s.sporadicMin)
+          s.sporadicInterval = setInterval(() => this.playSporadicSample(), s.playNextTime * 1000)
+          console.log('PLAY NEXT TIME: ', s.playNextTime)
+        }
+      })
     },
     stop () {
       clearInterval(this.transportInterval)
@@ -235,6 +249,12 @@ export default {
       clearInterval(this.timeRemainingInterval)
       this.timeRemaining = 0
       this.duration = 0
+
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          clearInterval(s.sporadicInterval)
+        }
+      })
     },
     startTimer () {
       this.timeRemaining -= 1
@@ -837,6 +857,23 @@ export default {
       this.selectedProfile = this.profileItems.find(p => p.text === this.activeProfile.name)
       this.updateProfile()
       this.confirmSwitchProfileDialog = false
+    },
+    updateSporadicPlayNext () {
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          clearInterval(s.sporadicInterval)
+          s.playNextTime = Math.floor(Math.random() * (s.sporadicMax - s.sporadicMin + 1) + s.sporadicMin)
+        }
+      })
+    },
+    validateSporadicRange (sample) {
+      const min = parseInt(sample.sporadicMin, 10)
+      const max = parseInt(sample.sporadicMax, 10)
+      if (isNaN(min) || isNaN(max) || max <= min || min <= 0 || max <= 0) {
+        return 'Invalid'
+      } else {
+        return true
+      }
     }
   }
 }

@@ -775,6 +775,7 @@
             >
               <v-radio-group
                 v-model="sample.playbackMode"
+                :disabled="playDisabled"
                 mandatory
               >
                 <v-radio
@@ -799,8 +800,9 @@
                   type="number"
                   label="Sporadic Min"
                   class="mx-3"
-                  :disabled="sample.playbackMode != 'sporadic'"
-                  :rules="[rules.gt(0)]"
+                  :disabled="sample.playbackMode != 'sporadic' || playDisabled"
+                  :rules="[validateSporadicRange(sample)]"
+                  @change="updateSporadicPlayNext"
                 />
 
                 <v-text-field
@@ -808,8 +810,9 @@
                   type="number"
                   label="Sporadic Max"
                   class="mx-3"
-                  :disabled="sample.playbackMode != 'sporadic'"
-                  :rules="[rules.gt(0)]"
+                  :disabled="sample.playbackMode != 'sporadic' || playDisabled"
+                  :rules="[validateSporadicRange(sample)]"
+                  @change="updateSporadicPlayNext"
                 />
               </v-row>
             </v-form>
