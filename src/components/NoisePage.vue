@@ -14,7 +14,7 @@
 
         <v-row justify="center">
           <v-btn
-            :disabled="playDisabled || !isTimerValid"
+            :disabled="playDisabled || !isTimerValid || !isSporadicValid"
             class="mx-3 mb-5"
             fab
             large
@@ -640,7 +640,7 @@
         v-if="canUpload"
         cols="12"
       >
-        <h2 class="display-1 font-weight-bold mb-5">
+        <h2 class="display-1 font-weight-bold mb-7">
           Samples
         </h2>
 
@@ -652,7 +652,7 @@
             <v-row
               justify="center"
             >
-              <h2 class="headline font-weight-bold mb-5">
+              <h2 class="mb-5">
                 {{ sample.name }}
               </h2>
             </v-row>
@@ -685,80 +685,155 @@
             <v-row
               justify="center"
             >
-              <h2 class="headline mb-5">
+              <h3 class="font-weight-regular mb-9">
                 Effects
-              </h2>
+              </h3>
             </v-row>
 
-            <v-row justify="center">
-              <v-checkbox
-                v-model="sample.reverbEnabled"
-                label="Reverb"
-              />
-            </v-row>
+            <v-expansion-panels class="mb-9">
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Reverb
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-row justify="center">
+                    <v-checkbox
+                      v-model="sample.reverbEnabled"
+                      :disabled="playDisabled"
+                      label="Enabled"
+                    />
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-slider
+                      v-model="sample.reverbPreDelay"
+                      :disabled="playDisabled || !sample.reverbEnabled"
+                      label="Pre Delay"
+                      thumb-label
+                      max="16"
+                      min="0"
+                      step="0.5"
+                      class="mx-3"
+                    />
+                    <div
+                      class="mx-3"
+                    >
+                      <p>{{ sample.reverbPreDelay }}</p>
+                    </div>
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-slider
+                      v-model="sample.reverbDecay"
+                      :disabled="playDisabled || !sample.reverbEnabled"
+                      label="Decay"
+                      thumb-label
+                      max="16"
+                      min="0"
+                      step="0.5"
+                      class="mx-3"
+                      @input="updateVolume"
+                    />
+                    <div
+                      class="mx-3"
+                    >
+                      <p> {{ sample.reverbDecay }}</p>
+                    </div>
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-slider
+                      v-model="sample.reverbWet"
+                      :disabled="playDisabled || !sample.reverbEnabled"
+                      label="Wet"
+                      thumb-label
+                      max="1"
+                      min="0"
+                      step="0.01"
+                      class="mx-3"
+                      @input="updateVolume"
+                    />
+                    <div
+                      class="mx-3"
+                    >
+                      <p>{{ sample.reverbWet }}%</p>
+                    </div>
+                  </v-row>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
 
             <v-row justify="center">
-              <v-slider
-                v-model="sample.reverbPreDelay"
-                :disabled="!sample.reverbEnabled"
-                label="Pre Delay"
-                thumb-label
-                max="16"
-                min="0"
-                step="0.5"
-                class="mx-3"
-                @input="updateReverbPreDelay(sample.id, index)"
-              />
-              <div
-                class="mx-3"
+              <h3 class="font-weight-regular">
+                Playback Mode
+              </h3>
+            </v-row>
+
+            <v-row
+              justify="center"
+              class="mb-5"
+            >
+              <v-radio-group
+                v-model="sample.playbackMode"
+                mandatory
               >
-                <p>{{ sample.reverbPreDelay }}</p>
-              </div>
+                <v-radio
+                  label="Continuous"
+                  value="continuous"
+                />
+                <v-radio
+                  label="Sporadic"
+                  value="sporadic"
+                />
+              </v-radio-group>
             </v-row>
 
-            <v-row justify="center">
-              <v-slider
-                v-model="sample.reverbDecay"
-                :disabled="!sample.reverbEnabled"
-                label="Decay"
-                thumb-label
-                max="16"
-                min="0"
-                step="0.5"
-                class="mx-3"
-                @input="updateVolume"
-              />
-              <div
-                class="mx-3"
+            <v-form
+              v-model="isSporadicValid"
+            >
+              <v-row
+                justify="center"
               >
-                <p> {{ sample.reverbDecay }}</p>
-              </div>
-            </v-row>
+                <v-text-field
+                  v-model="sample.sporadicMin"
+                  type="number"
+                  label="Sporadic Min"
+                  class="mx-3"
+                  :disabled="sample.playbackMode != 'sporadic'"
+                  :rules="[rules.gt(0)]"
+                />
 
-            <v-row justify="center">
-              <v-slider
-                v-model="sample.reverbWet"
-                :disabled="!sample.reverbEnabled"
-                label="Wet"
-                thumb-label
-                max="1"
-                min="0"
-                step="0.01"
-                class="mx-3"
-                @input="updateVolume"
-              />
-              <div
-                class="mx-3"
+                <v-text-field
+                  v-model="sample.sporadicMax"
+                  type="number"
+                  label="Sporadic Max"
+                  class="mx-3"
+                  :disabled="sample.playbackMode != 'sporadic'"
+                  :rules="[rules.gt(0)]"
+                />
+              </v-row>
+            </v-form>
+
+            <v-row
+              justify="center"
+              class="my-7"
+            >
+              <p
+                v-if="sample.playbackMode != 'sporadic'"
+                class="text--disabled"
               >
-                <p>{{ sample.reverbWet }}%</p>
-              </div>
+                (Sample will play randomly, every {{ sample.sporadicMin }} to {{ sample.sporadicMax }} seconds)
+              </p>
+              <p
+                v-else
+              >
+                (Sample will play randomly, every {{ sample.sporadicMin }} to {{ sample.sporadicMax }} seconds)
+              </p>
             </v-row>
 
-            <v-row>
-              <v-divider
-                class="mb-7"
-              />
-            </v-row>
+            <v-divider
+              class="mb-7"
+            />
           </v-container>
         </v-row>
 

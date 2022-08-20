@@ -75,6 +75,7 @@ export default {
     unwatch: null,
     confirmSwitchProfileDialog: false,
     activeProfile: {},
+    isSporadicValid: false,
     errorSnackbar: false,
     errorSnackbarText: '',
     rules: {
@@ -123,6 +124,10 @@ export default {
 
       this.loadedSamples.forEach(s => {
         settings.push(s.volume)
+        settings.push(s.reverbEnabled)
+        settings.push(s.reverbPreDelay)
+        settings.push(s.reverbDecay)
+        settings.push(s.reverbWet)
       })
 
       return settings
@@ -186,10 +191,13 @@ export default {
         }
         this.players.player(s.id).volume.value = s.volume
 
+        this.players.player(s.id).disconnect()
         if (s.reverbEnabled) {
           const reverb = new Tone.Reverb(s.reverbDecay).toDestination()
           reverb.set({ preDelay: s.reverbPreDelay, wet: s.reverbWet })
           this.players.player(s.id).connect(reverb)
+        } else {
+          this.players.player(s.id).toDestination()
         }
       })
 
@@ -208,11 +216,16 @@ export default {
         this.noise.sync().start(0)
 
         this.loadedSamples.forEach(s => {
-          this.players.player(s.id).unsync().sync().start(0)
+          if (s.playbackMode === 'sporadic') {
+            const playNextTime = Math.floor(Math.random() * (s.sporadicMax - s.sporadicMin + 1) + s.sporadicMin)
+            this.sporadicInterval = setInterval(() => console.log('Test'), playNextTime)
+          } else {
+            this.players.player(s.id).unsync().sync().start(0)
+          }
         })
       }
 
-      Tone.Transport.start()
+      Tone.Transport.start('+0.1')
     },
     stop () {
       clearInterval(this.transportInterval)

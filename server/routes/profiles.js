@@ -66,15 +66,21 @@ router.post('/profiles', (req, res) => {
           reverb_enabled,
           reverb_pre_delay,
           reverb_decay,
-          reverb_wet)
-          VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+          reverb_wet,
+          playback_mode,
+          sporadic_min,
+          sporadic_max)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
           profileID,
           s.id,
           s.volume,
           s.reverbEnabled,
           s.reverbPreDelay,
           s.reverbDecay,
-          s.reverbWet
+          s.reverbWet,
+          s.playbackMode,
+          s.sporadicMin,
+          s.sporadicMax
         ],
         (err) => {
           if (err) {
@@ -223,15 +229,21 @@ router.put('/profiles/:profileId', (req, res) => {
             reverb_enabled,
             reverb_pre_delay,
             reverb_decay,
-            reverb_wet)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+            reverb_wet,
+            playback_mode,
+            sporadic_min,
+            sporadic_max)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
             req.params.profileId,
             s.id,
             s.volume,
             s.reverbEnabled,
             s.reverbPreDelay,
             s.reverbDecay,
-            s.reverbWet
+            s.reverbWet,
+            s.playbackMode,
+            s.sporadicMin,
+            s.sporadicMax
           ],
           (err) => {
             if (err) {
@@ -383,6 +395,9 @@ router.get('/profiles/:profileId', (req, res) => {
           profiles_samples.reverb_pre_delay as reverbPreDelay,
           profiles_samples.reverb_decay as reverbDecay,
           profiles_samples.reverb_wet as reverbWet,
+          profiles_samples.playback_mode as playbackMode,
+          profiles_samples.sporadic_min as sporadicMin,
+          profiles_samples.sporadic_max as sporadicMax,
           fade_in as fadeIn,
           loop_points_enabled as loopPointsEnabled,
           loop_start as loopStart,
@@ -414,6 +429,9 @@ router.get('/profiles/:profileId', (req, res) => {
             sample.reverbPreDelay = row.reverbPreDelay
             sample.reverbDecay = row.reverbDecay
             sample.reverbWet = row.reverbWet
+            sample.playbackMode = row.playbackMode
+            sample.sporadicMin = row.sporadicMin
+            sample.sporadicMax = row.sporadicMax
 
             samples.push(sample)
           })

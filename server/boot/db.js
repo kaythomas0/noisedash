@@ -79,6 +79,9 @@ module.exports = function () {
           db.run('ALTER TABLE profiles_samples ADD COLUMN reverb_pre_delay REAL DEFAULT 0')
           db.run('ALTER TABLE profiles_samples ADD COLUMN reverb_decay REAL DEFAULT 0')
           db.run('ALTER TABLE profiles_samples ADD COLUMN reverb_wet INTEGER DEFAULT 0')
+          db.run('ALTER TABLE profiles_samples ADD COLUMN playback_mode TEXT DEFAULT "continuous"')
+          db.run('ALTER TABLE profiles_samples ADD COLUMN sporadic_min INTEGER DEFAULT 30')
+          db.run('ALTER TABLE profiles_samples ADD COLUMN sporadic_max INTEGER DEFAULT 300')
 
           db.run('PRAGMA user_version = 3')
         }
