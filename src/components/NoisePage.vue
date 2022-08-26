@@ -802,7 +802,6 @@
                   class="mx-3"
                   :disabled="sample.playbackMode != 'sporadic' || playDisabled"
                   :rules="[validateSporadicRange(sample)]"
-                  @change="updateSporadicPlayNext"
                 />
 
                 <v-text-field
@@ -812,7 +811,6 @@
                   class="mx-3"
                   :disabled="sample.playbackMode != 'sporadic' || playDisabled"
                   :rules="[validateSporadicRange(sample)]"
-                  @change="updateSporadicPlayNext"
                 />
               </v-row>
             </v-form>
@@ -1009,7 +1007,7 @@
                     <v-checkbox
                       v-model="previewSampleLoopPointsEnabled"
                       :disabled="previewSamplePlaying"
-                      label="Use Loop Points"
+                      label="Use Loop Points (Continuous Playback Mode Only)"
                       @change="updatePreviewSampleLoopPoints"
                     />
                   </v-row>
