@@ -14,7 +14,7 @@
 
         <v-row justify="center">
           <v-btn
-            :disabled="playDisabled || !isTimerValid"
+            :disabled="playDisabled || !isTimerValid || !isSporadicValid"
             class="mx-3 mb-5"
             fab
             large
@@ -640,7 +640,7 @@
         v-if="canUpload"
         cols="12"
       >
-        <h2 class="display-1 font-weight-bold mb-5">
+        <h2 class="display-1 font-weight-bold mb-7">
           Samples
         </h2>
 
@@ -652,7 +652,9 @@
             <v-row
               justify="center"
             >
-              {{ sample.name }}
+              <h2 class="mb-5">
+                {{ sample.name }}
+              </h2>
             </v-row>
 
             <v-row>
@@ -679,6 +681,160 @@
                 <p>{{ loadedSamples[index].volume }}</p>
               </div>
             </v-row>
+
+            <v-row
+              justify="center"
+            >
+              <h3 class="font-weight-regular mb-9">
+                Effects
+              </h3>
+            </v-row>
+
+            <v-expansion-panels class="mb-9">
+              <v-expansion-panel>
+                <v-expansion-panel-header>
+                  Reverb
+                </v-expansion-panel-header>
+                <v-expansion-panel-content>
+                  <v-row justify="center">
+                    <v-checkbox
+                      v-model="sample.reverbEnabled"
+                      :disabled="playDisabled"
+                      label="Enabled"
+                    />
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-slider
+                      v-model="sample.reverbPreDelay"
+                      :disabled="playDisabled || !sample.reverbEnabled"
+                      label="Pre Delay"
+                      thumb-label
+                      max="16"
+                      min="0"
+                      step="0.5"
+                      class="mx-3"
+                    />
+                    <div
+                      class="mx-3"
+                    >
+                      <p>{{ sample.reverbPreDelay }}</p>
+                    </div>
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-slider
+                      v-model="sample.reverbDecay"
+                      :disabled="playDisabled || !sample.reverbEnabled"
+                      label="Decay"
+                      thumb-label
+                      max="16"
+                      min="0"
+                      step="0.5"
+                      class="mx-3"
+                      @input="updateVolume"
+                    />
+                    <div
+                      class="mx-3"
+                    >
+                      <p> {{ sample.reverbDecay }}</p>
+                    </div>
+                  </v-row>
+
+                  <v-row justify="center">
+                    <v-slider
+                      v-model="sample.reverbWet"
+                      :disabled="playDisabled || !sample.reverbEnabled"
+                      label="Wet"
+                      thumb-label
+                      max="1"
+                      min="0"
+                      step="0.01"
+                      class="mx-3"
+                      @input="updateVolume"
+                    />
+                    <div
+                      class="mx-3"
+                    >
+                      <p>{{ sample.reverbWet }}%</p>
+                    </div>
+                  </v-row>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+
+            <v-row justify="center">
+              <h3 class="font-weight-regular">
+                Playback Mode
+              </h3>
+            </v-row>
+
+            <v-row
+              justify="center"
+              class="mb-5"
+            >
+              <v-radio-group
+                v-model="sample.playbackMode"
+                :disabled="playDisabled"
+                mandatory
+              >
+                <v-radio
+                  label="Continuous"
+                  value="continuous"
+                />
+                <v-radio
+                  label="Sporadic"
+                  value="sporadic"
+                />
+              </v-radio-group>
+            </v-row>
+
+            <v-form
+              v-model="isSporadicValid"
+            >
+              <v-row
+                justify="center"
+              >
+                <v-text-field
+                  v-model="sample.sporadicMin"
+                  type="number"
+                  label="Sporadic Min"
+                  class="mx-3"
+                  :disabled="sample.playbackMode != 'sporadic' || playDisabled"
+                  :rules="[validateSporadicRange(sample)]"
+                />
+
+                <v-text-field
+                  v-model="sample.sporadicMax"
+                  type="number"
+                  label="Sporadic Max"
+                  class="mx-3"
+                  :disabled="sample.playbackMode != 'sporadic' || playDisabled"
+                  :rules="[validateSporadicRange(sample)]"
+                />
+              </v-row>
+            </v-form>
+
+            <v-row
+              justify="center"
+              class="my-7"
+            >
+              <p
+                v-if="sample.playbackMode != 'sporadic'"
+                class="text--disabled"
+              >
+                (Sample will play randomly, every {{ sample.sporadicMin }} to {{ sample.sporadicMax }} seconds)
+              </p>
+              <p
+                v-else
+              >
+                (Sample will play randomly, every {{ sample.sporadicMin }} to {{ sample.sporadicMax }} seconds)
+              </p>
+            </v-row>
+
+            <v-divider
+              class="mb-7"
+            />
           </v-container>
         </v-row>
 
@@ -851,7 +1007,7 @@
                     <v-checkbox
                       v-model="previewSampleLoopPointsEnabled"
                       :disabled="previewSamplePlaying"
-                      label="Use Loop Points"
+                      label="Use Loop Points (Continuous Playback Mode Only)"
                       @change="updatePreviewSampleLoopPoints"
                     />
                   </v-row>
