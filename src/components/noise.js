@@ -825,16 +825,39 @@ export default {
         this.players.player(s.id).fadeIn = s.fadeIn
         if (s.loopPointsEnabled) {
           this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
+        } else {
+          this.players.player(s.id).setLoopPoints(0, this.players.player(s.id).buffer.duration)
         }
         this.players.player(s.id).volume.value = s.volume
 
-        this.players.player(s.id).connect(this.recorder)
-        this.players.player(s.id).unsync().sync().start(0)
+        this.players.player(s.id).disconnect()
+        if (s.reverbEnabled) {
+          const reverb = new Tone.Reverb(s.reverbDecay).toDestination()
+          reverb.set({ preDelay: s.reverbPreDelay, wet: s.reverbWet })
+          this.players.player(s.id).connect(reverb)
+        } else {
+          this.players.player(s.id).toDestination()
+        }
       })
 
       this.noise.sync().start(0)
 
-      Tone.Transport.start()
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          this.players.player(s.id).loop = false
+
+          const maxInt = parseInt(s.sporadicMax, 10)
+          const minInt = parseInt(s.sporadicMin, 10)
+          const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
+
+          this.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(), rand * 1000)
+        } else {
+          this.players.player(s.id).loop = true
+          this.players.player(s.id).unsync().sync().start(0)
+        }
+      })
+
+      Tone.Transport.start('+0.1')
     },
     async stopRecording () {
       const recording = await this.recorder.stop()
@@ -849,6 +872,14 @@ export default {
       anchor.click()
 
       clearInterval(this.recordingInterval)
+
+      clearInterval(this.initialSporadicPlayInterval)
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          clearInterval(s.sporadicInterval)
+        }
+      })
+
       this.recordingDialog = false
       this.stop()
     },
