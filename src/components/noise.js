@@ -228,7 +228,7 @@ export default {
             const minInt = parseInt(s.sporadicMin, 10)
             const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
 
-            this.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(), rand * 1000)
+            s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
           } else {
             this.players.player(s.id).loop = true
             this.players.player(s.id).unsync().sync().start(0)
@@ -238,22 +238,19 @@ export default {
 
       Tone.Transport.start('+0.1')
     },
-    playSporadicSample () {
-      clearInterval(this.initialSporadicPlayInterval)
+    playSporadicSample (id) {
+      const sample = this.loadedSamples.find(s => s.id === id)
 
-      this.loadedSamples.forEach(s => {
-        if (s.playbackMode === 'sporadic') {
-          clearInterval(s.sporadicInterval)
+      clearInterval(sample.initialSporadicPlayInterval)
+      clearInterval(sample.sporadicInterval)
 
-          this.players.player(s.id).unsync().sync().start()
+      this.players.player(id).unsync().sync().start()
 
-          const maxInt = parseInt(s.sporadicMax, 10)
-          const minInt = parseInt(s.sporadicMin, 10)
-          s.playNextTime = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
+      const maxInt = parseInt(sample.sporadicMax, 10)
+      const minInt = parseInt(sample.sporadicMin, 10)
+      sample.playNextTime = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
 
-          s.sporadicInterval = setInterval(() => this.playSporadicSample(), s.playNextTime * 1000)
-        }
-      })
+      sample.sporadicInterval = setInterval(() => this.playSporadicSample(id), sample.playNextTime * 1000)
     },
     stop () {
       clearInterval(this.transportInterval)
@@ -264,9 +261,9 @@ export default {
       this.timeRemaining = 0
       this.duration = 0
 
-      clearInterval(this.initialSporadicPlayInterval)
       this.loadedSamples.forEach(s => {
         if (s.playbackMode === 'sporadic') {
+          clearInterval(s.initialSporadicPlayInterval)
           clearInterval(s.sporadicInterval)
         }
       })
@@ -832,11 +829,11 @@ export default {
 
         this.players.player(s.id).disconnect()
         if (s.reverbEnabled) {
-          const reverb = new Tone.Reverb(s.reverbDecay).toDestination()
+          const reverb = new Tone.Reverb(s.reverbDecay).connect(this.recorder).toDestination()
           reverb.set({ preDelay: s.reverbPreDelay, wet: s.reverbWet })
           this.players.player(s.id).connect(reverb)
         } else {
-          this.players.player(s.id).toDestination()
+          this.players.player(s.id).connect(this.recorder).toDestination()
         }
       })
 
@@ -850,7 +847,7 @@ export default {
           const minInt = parseInt(s.sporadicMin, 10)
           const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
 
-          this.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(), rand * 1000)
+          s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
         } else {
           this.players.player(s.id).loop = true
           this.players.player(s.id).unsync().sync().start(0)
@@ -873,9 +870,9 @@ export default {
 
       clearInterval(this.recordingInterval)
 
-      clearInterval(this.initialSporadicPlayInterval)
       this.loadedSamples.forEach(s => {
         if (s.playbackMode === 'sporadic') {
+          clearInterval(s.initialSporadicPlayInterval)
           clearInterval(s.sporadicInterval)
         }
       })
