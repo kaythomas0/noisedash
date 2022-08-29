@@ -521,6 +521,8 @@ export default {
       this.checkedSamples.forEach(i => {
         const load = this.allSamples.find(e => e.id === i)
         load.volume = -10
+        load.sporadicMin = 30
+        load.sporadicMax = 300
         this.loadedSamples.push(load)
       })
 

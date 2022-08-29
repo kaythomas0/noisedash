@@ -652,20 +652,26 @@
             <v-row
               justify="center"
             >
-              <h2 class="mb-5">
-                {{ sample.name }}
-              </h2>
+              <v-col />
+
+              <v-col>
+                <h2 class="mb-5">
+                  {{ sample.name }}
+                </h2>
+              </v-col>
+
+              <v-col>
+                <v-btn
+                  icon
+                  :disabled="playDisabled"
+                  @click="removeSample(index)"
+                >
+                  <v-icon>mdi-delete</v-icon>
+                </v-btn>
+              </v-col>
             </v-row>
 
             <v-row>
-              <v-btn
-                icon
-                :disabled="playDisabled"
-                @click="removeSample(index)"
-              >
-                <v-icon>mdi-delete</v-icon>
-              </v-btn>
-
               <v-slider
                 v-model="sample.volume"
                 label="Volume"
