@@ -75,6 +75,7 @@ export default {
     unwatch: null,
     confirmSwitchProfileDialog: false,
     activeProfile: {},
+    isSporadicValid: false,
     errorSnackbar: false,
     errorSnackbarText: '',
     rules: {
@@ -123,6 +124,13 @@ export default {
 
       this.loadedSamples.forEach(s => {
         settings.push(s.volume)
+        settings.push(s.reverbEnabled)
+        settings.push(s.reverbPreDelay)
+        settings.push(s.reverbDecay)
+        settings.push(s.reverbWet)
+        settings.push(s.playbackMode)
+        settings.push(s.sporadicMin)
+        settings.push(s.sporadicMax)
       })
 
       return settings
@@ -183,8 +191,19 @@ export default {
         this.players.player(s.id).fadeIn = s.fadeIn
         if (s.loopPointsEnabled) {
           this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
+        } else {
+          this.players.player(s.id).setLoopPoints(0, this.players.player(s.id).buffer.duration)
         }
         this.players.player(s.id).volume.value = s.volume
+
+        this.players.player(s.id).disconnect()
+        if (s.reverbEnabled) {
+          const reverb = new Tone.Reverb(s.reverbDecay).toDestination()
+          reverb.set({ preDelay: s.reverbPreDelay, wet: s.reverbWet })
+          this.players.player(s.id).connect(reverb)
+        } else {
+          this.players.player(s.id).toDestination()
+        }
       })
 
       if (this.isTimerEnabled) {
@@ -202,11 +221,36 @@ export default {
         this.noise.sync().start(0)
 
         this.loadedSamples.forEach(s => {
-          this.players.player(s.id).unsync().sync().start(0)
+          if (s.playbackMode === 'sporadic') {
+            this.players.player(s.id).loop = false
+
+            const maxInt = parseInt(s.sporadicMax, 10)
+            const minInt = parseInt(s.sporadicMin, 10)
+            const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
+
+            s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
+          } else {
+            this.players.player(s.id).loop = true
+            this.players.player(s.id).unsync().sync().start(0)
+          }
         })
       }
 
-      Tone.Transport.start()
+      Tone.Transport.start('+0.1')
+    },
+    playSporadicSample (id) {
+      const sample = this.loadedSamples.find(s => s.id === id)
+
+      clearInterval(sample.initialSporadicPlayInterval)
+      clearInterval(sample.sporadicInterval)
+
+      this.players.player(id).unsync().sync().start()
+
+      const maxInt = parseInt(sample.sporadicMax, 10)
+      const minInt = parseInt(sample.sporadicMin, 10)
+      sample.playNextTime = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
+
+      sample.sporadicInterval = setInterval(() => this.playSporadicSample(id), sample.playNextTime * 1000)
     },
     stop () {
       clearInterval(this.transportInterval)
@@ -216,6 +260,13 @@ export default {
       clearInterval(this.timeRemainingInterval)
       this.timeRemaining = 0
       this.duration = 0
+
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          clearInterval(s.initialSporadicPlayInterval)
+          clearInterval(s.sporadicInterval)
+        }
+      })
     },
     startTimer () {
       this.timeRemaining -= 1
@@ -470,6 +521,8 @@ export default {
       this.checkedSamples.forEach(i => {
         const load = this.allSamples.find(e => e.id === i)
         load.volume = -10
+        load.sporadicMin = 30
+        load.sporadicMax = 300
         this.loadedSamples.push(load)
       })
 
@@ -771,16 +824,39 @@ export default {
         this.players.player(s.id).fadeIn = s.fadeIn
         if (s.loopPointsEnabled) {
           this.players.player(s.id).setLoopPoints(s.loopStart, s.loopEnd)
+        } else {
+          this.players.player(s.id).setLoopPoints(0, this.players.player(s.id).buffer.duration)
         }
         this.players.player(s.id).volume.value = s.volume
 
-        this.players.player(s.id).connect(this.recorder)
-        this.players.player(s.id).unsync().sync().start(0)
+        this.players.player(s.id).disconnect()
+        if (s.reverbEnabled) {
+          const reverb = new Tone.Reverb(s.reverbDecay).connect(this.recorder).toDestination()
+          reverb.set({ preDelay: s.reverbPreDelay, wet: s.reverbWet })
+          this.players.player(s.id).connect(reverb)
+        } else {
+          this.players.player(s.id).connect(this.recorder).toDestination()
+        }
       })
 
       this.noise.sync().start(0)
 
-      Tone.Transport.start()
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          this.players.player(s.id).loop = false
+
+          const maxInt = parseInt(s.sporadicMax, 10)
+          const minInt = parseInt(s.sporadicMin, 10)
+          const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
+
+          s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
+        } else {
+          this.players.player(s.id).loop = true
+          this.players.player(s.id).unsync().sync().start(0)
+        }
+      })
+
+      Tone.Transport.start('+0.1')
     },
     async stopRecording () {
       const recording = await this.recorder.stop()
@@ -795,6 +871,14 @@ export default {
       anchor.click()
 
       clearInterval(this.recordingInterval)
+
+      this.loadedSamples.forEach(s => {
+        if (s.playbackMode === 'sporadic') {
+          clearInterval(s.initialSporadicPlayInterval)
+          clearInterval(s.sporadicInterval)
+        }
+      })
+
       this.recordingDialog = false
       this.stop()
     },
@@ -818,6 +902,15 @@ export default {
       this.selectedProfile = this.profileItems.find(p => p.text === this.activeProfile.name)
       this.updateProfile()
       this.confirmSwitchProfileDialog = false
+    },
+    validateSporadicRange (sample) {
+      const min = parseInt(sample.sporadicMin, 10)
+      const max = parseInt(sample.sporadicMax, 10)
+      if (isNaN(min) || isNaN(max) || max <= min || min <= 0 || max <= 0) {
+        return 'Invalid'
+      } else {
+        return true
+      }
     }
   }
 }
