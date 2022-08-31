@@ -88,25 +88,15 @@ module.exports = function () {
           }
 
           if (userVersion < 4) {
-            db.all('SELECT preferences FROM users', (err, rows) => {
-              if (err) {
-                logger.error(err)
-              } else {
-                rows.forEach(row => {
-                  if (row.preferences === '{}') {
-                    db.run('UPDATE users SET preferences = ?',
-                      ['{"accentColor":{"alpha":1,"hex":"#607D8B","hexa":"#607D8BFF","hsla":{"h":200,"s":18,"l":46,"a":1},"hsva":{"h":200,"s":31,"v":55,"a":1},"hue":200,"rgba":{"r":96,"g":125,"b":139,"a":1}}}'],
-                      (err) => {
-                        if (err) {
-                          logger.error(err)
-                        }
-                      })
-                  }
-                })
-
-                db.run('PRAGMA user_version = 4')
-              }
-            })
+            db.run('UPDATE users SET preferences = ? WHERE preferences = ?',
+              ['{"accentColor":{"alpha":1,"hex":"#607D8B","hexa":"#607D8BFF","hsla":{"h":200,"s":18,"l":46,"a":1},"hsva":{"h":200,"s":31,"v":55,"a":1},"hue":200,"rgba":{"r":96,"g":125,"b":139,"a":1}}}', '{}'],
+              (err) => {
+                if (err) {
+                  logger.error(err)
+                } else {
+                  db.run('PRAGMA user_version = 4')
+                }
+              })
           }
         })
       }
