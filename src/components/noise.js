@@ -155,10 +155,12 @@ export default {
     this.stop()
   },
   methods: {
-    play () {
+    async play () {
       if (!this.players.loaded) {
         return
       }
+
+      await Tone.start()
 
       this.playDisabled = true
       Tone.Transport.cancel()
@@ -226,9 +228,11 @@ export default {
 
             const maxInt = parseInt(s.sporadicMax, 10)
             const minInt = parseInt(s.sporadicMin, 10)
-            const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
 
-            s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
+            if (minInt <= maxInt) {
+              const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
+              s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
+            }
           } else {
             this.players.player(s.id).loop = true
             this.players.player(s.id).unsync().sync().start(0)
@@ -902,15 +906,6 @@ export default {
       this.selectedProfile = this.profileItems.find(p => p.text === this.activeProfile.name)
       this.updateProfile()
       this.confirmSwitchProfileDialog = false
-    },
-    validateSporadicRange (sample) {
-      const min = parseInt(sample.sporadicMin, 10)
-      const max = parseInt(sample.sporadicMax, 10)
-      if (isNaN(min) || isNaN(max) || max <= min || min <= 0 || max <= 0) {
-        return 'Invalid'
-      } else {
-        return true
-      }
     }
   }
 }
