@@ -14,7 +14,7 @@
 
         <v-row justify="center">
           <v-btn
-            :disabled="playDisabled || !isTimerValid || !isSporadicValid"
+            :disabled="playDisabled || !isTimerValid || (loadedSamples.length != 0 && !isSporadicValid)"
             class="mx-3 mb-5"
             fab
             large
@@ -640,7 +640,7 @@
         v-if="canUpload"
         cols="12"
       >
-        <h2 class="display-1 font-weight-bold mb-7">
+        <h2 class="display-1 font-weight-bold mb-5">
           Samples
         </h2>
 
@@ -776,7 +776,6 @@
             </v-row>
 
             <v-row
-              justify="center"
               class="mb-5"
             >
               <v-radio-group
@@ -785,11 +784,11 @@
                 mandatory
               >
                 <v-radio
-                  label="Continuous"
+                  label="Continuous (Looped)"
                   value="continuous"
                 />
                 <v-radio
-                  label="Sporadic"
+                  label="Sporadic (Not Looped, Plays Randomly Within Interval"
                   value="sporadic"
                 />
               </v-radio-group>
@@ -807,7 +806,7 @@
                   label="Sporadic Min"
                   class="mx-3"
                   :disabled="sample.playbackMode != 'sporadic' || playDisabled"
-                  :rules="[validateSporadicRange(sample)]"
+                  :rules="[rules.gt(-1)]"
                 />
 
                 <v-text-field
@@ -816,30 +815,13 @@
                   label="Sporadic Max"
                   class="mx-3"
                   :disabled="sample.playbackMode != 'sporadic' || playDisabled"
-                  :rules="[validateSporadicRange(sample)]"
+                  :rules="[rules.gt(0)]"
                 />
               </v-row>
             </v-form>
 
-            <v-row
-              justify="center"
-              class="my-7"
-            >
-              <p
-                v-if="sample.playbackMode != 'sporadic'"
-                class="text--disabled"
-              >
-                (Sample will play randomly, every {{ sample.sporadicMin }} to {{ sample.sporadicMax }} seconds)
-              </p>
-              <p
-                v-else
-              >
-                (Sample will play randomly, every {{ sample.sporadicMin }} to {{ sample.sporadicMax }} seconds)
-              </p>
-            </v-row>
-
             <v-divider
-              class="mb-7"
+              class="mt-7"
             />
           </v-container>
         </v-row>

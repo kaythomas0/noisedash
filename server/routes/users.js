@@ -72,6 +72,8 @@ router.post('/users', (req, res) => {
         return res.sendStatus(500)
       }
 
+      const defaultPreferences = '{"accentColor":{"alpha":1,"hex":"#607D8B","hexa":"#607D8BFF","hsla":{"h":200,"s":18,"l":46,"a":1},"hsva":{"h":200,"s":31,"v":55,"a":1},"hue":200,"rgba":{"r":96,"g":125,"b":139,"a":1}}}'
+
       if (row.count !== 0) {
         if (!req.user) {
           return res.sendStatus(401)
@@ -94,15 +96,16 @@ router.post('/users', (req, res) => {
               return res.sendStatus(500)
             }
 
-            db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload)
-              VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+            db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload, preferences)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
               req.body.username,
               hashedPassword,
               salt,
               req.body.name,
               req.body.isAdmin,
               req.body.darkMode,
-              req.body.canUpload
+              req.body.canUpload,
+              defaultPreferences
             ], (err) => {
               if (err) {
                 logger.error(err)
@@ -125,15 +128,16 @@ router.post('/users', (req, res) => {
             return res.sendStatus(500)
           }
 
-          db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload)
-            VALUES (?, ?, ?, ?, ?, ?, ?)`, [
+          db.run(`INSERT INTO users (username, hashed_password, salt, name, is_admin, dark_mode, can_upload, preferences)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [
             req.body.username,
             hashedPassword,
             salt,
             req.body.name,
             req.body.isAdmin,
             req.body.darkMode,
-            req.body.canUpload
+            req.body.canUpload,
+            defaultPreferences
           ], function (err) {
             if (err) {
               logger.error(err)
