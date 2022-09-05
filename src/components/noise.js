@@ -188,6 +188,18 @@ export default {
         this.lfo.connect(this.filter.frequency).start()
       }
 
+      if (this.isTimerEnabled) {
+        this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
+        this.timeRemaining = this.duration
+        this.transportInterval = setInterval(() => this.stop(), this.duration * 1000 + 100)
+        this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
+        Tone.Transport.loopEnd = this.duration
+
+        this.noise.sync().start(0).stop(this.duration)
+      } else {
+        this.noise.sync().start(0)
+      }
+
       this.loadedSamples.forEach(s => {
         this.players.player(s.id).loop = true
         this.players.player(s.id).fadeIn = s.fadeIn
@@ -206,39 +218,27 @@ export default {
         } else {
           this.players.player(s.id).toDestination()
         }
-      })
 
-      if (this.isTimerEnabled) {
-        this.duration = parseInt((this.hours * 3600)) + parseInt((this.minutes * 60)) + parseInt(this.seconds)
-        this.noise.sync().start(0).stop(this.duration)
-        Tone.Transport.loopEnd = this.duration
-        this.timeRemaining = this.duration
-        this.transportInterval = setInterval(() => this.stop(), this.duration * 1000 + 100)
-        this.timeRemainingInterval = setInterval(() => this.startTimer(), 1000)
+        if (s.playbackMode === 'sporadic') {
+          this.players.player(s.id).loop = false
 
-        this.loadedSamples.forEach(s => {
-          this.players.player(s.id).unsync().sync().start(0).stop(this.duration)
-        })
-      } else {
-        this.noise.sync().start(0)
+          const maxInt = parseInt(s.sporadicMax, 10)
+          const minInt = parseInt(s.sporadicMin, 10)
 
-        this.loadedSamples.forEach(s => {
-          if (s.playbackMode === 'sporadic') {
-            this.players.player(s.id).loop = false
+          if (minInt <= maxInt) {
+            const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
+            s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
+          }
+        } else {
+          this.players.player(s.id).loop = true
 
-            const maxInt = parseInt(s.sporadicMax, 10)
-            const minInt = parseInt(s.sporadicMin, 10)
-
-            if (minInt <= maxInt) {
-              const rand = Math.floor(Math.random() * (maxInt - minInt + 1) + minInt)
-              s.initialSporadicPlayInterval = setInterval(() => this.playSporadicSample(s.id), rand * 1000)
-            }
+          if (this.isTimerEnabled) {
+            this.players.player(s.id).unsync().sync().start(0).stop(this.duration)
           } else {
-            this.players.player(s.id).loop = true
             this.players.player(s.id).unsync().sync().start(0)
           }
-        })
-      }
+        }
+      })
 
       Tone.Transport.start('+0.1')
     },
