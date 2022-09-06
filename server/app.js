@@ -36,7 +36,8 @@ app.use(session({
   store: new FileStore(fileStoreOptions),
   secret: sessionSecret,
   resave: true,
-  saveUninitialized: true
+  saveUninitialized: true,
+  cookie: { sameSite: 'strict' }
 }))
 app.use((req, res, next) => {
   const msgs = req.session.messages || []
