@@ -344,7 +344,7 @@ export default {
               }
               this.exportedProfile = this.profileItems[0]
               this.recordedProfile = this.profileItems[0]
-              this.loadProfile()
+              this.loadProfile(true)
             }
           }
         })
@@ -420,8 +420,8 @@ export default {
           this.errorSnackbar = true
         })
     },
-    loadProfile () {
-      if (this.unsavedWork) {
+    loadProfile (checkForUnsavedWork) {
+      if (checkForUnsavedWork && this.unsavedWork) {
         this.confirmSwitchProfileDialog = true
       } else {
         this.$http.get('/profiles/'.concat(this.selectedProfile.id))
@@ -736,7 +736,7 @@ export default {
       }).then(response => {
         if (response.status === 200) {
           this.getSamples()
-          this.loadProfile()
+          this.loadProfile(false)
           this.closeEditSampleForm()
           this.infoSnackbarText = 'Sample Saved'
           this.infoSnackbar = true
@@ -866,7 +866,7 @@ export default {
       const recording = await this.recorder.stop()
 
       // Set active profile back to the selected one
-      this.loadProfile()
+      this.loadProfile(false)
 
       const url = URL.createObjectURL(recording)
       const anchor = document.createElement('a')
@@ -890,7 +890,7 @@ export default {
       await this.recorder.stop()
 
       // Set active profile back to the selected one
-      this.loadProfile()
+      this.loadProfile(false)
 
       clearInterval(this.recordingInterval)
       this.recordingDialog = false
@@ -898,7 +898,7 @@ export default {
     },
     discardChanges () {
       this.unsavedWork = false
-      this.loadProfile()
+      this.loadProfile(true)
       this.confirmSwitchProfileDialog = false
     },
     saveChanges () {

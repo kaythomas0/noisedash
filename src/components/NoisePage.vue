@@ -50,7 +50,7 @@
             label="Profiles"
             class="mx-3 mb-5"
             :disabled="playDisabled"
-            @change="loadProfile"
+            @change="loadProfile(true)"
           />
         </v-row>
 
