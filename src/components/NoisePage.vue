@@ -788,7 +788,7 @@
                   value="continuous"
                 />
                 <v-radio
-                  label="Sporadic (Not Looped, Plays Randomly Within Interval"
+                  label="Sporadic (Not Looped, Plays Randomly Within Interval)"
                   value="sporadic"
                 />
               </v-radio-group>
