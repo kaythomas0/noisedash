@@ -50,7 +50,7 @@
             label="Profiles"
             class="mx-3 mb-5"
             :disabled="playDisabled"
-            @change="loadProfile"
+            @change="loadProfile(true)"
           />
         </v-row>
 
@@ -788,7 +788,7 @@
                   value="continuous"
                 />
                 <v-radio
-                  label="Sporadic (Not Looped, Plays Randomly Within Interval"
+                  label="Sporadic (Not Looped, Plays Randomly Within Interval)"
                   value="sporadic"
                 />
               </v-radio-group>
