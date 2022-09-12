@@ -736,7 +736,16 @@ export default {
       }).then(response => {
         if (response.status === 200) {
           this.getSamples()
-          this.loadProfile(false)
+
+          //  Update sample if it's already loaded in current profile
+          const sample = this.loadedSamples.find(s => s.id === this.selectedPreviewSample.id)
+          if (sample) {
+            sample.fadeIn = this.previewSampleFadeIn
+            sample.loopPointsEnabled = this.previewSampleLoopPointsEnabled
+            sample.loopStart = this.previewSampleLoopStart
+            sample.loopEnd = this.previewSampleLoopEnd
+          }
+
           this.closeEditSampleForm()
           this.infoSnackbarText = 'Sample Saved'
           this.infoSnackbar = true
@@ -760,6 +769,9 @@ export default {
       this.profileMoreDialog = false
     },
     startRecording () {
+      // Save current profile before recording
+      this.updateProfile()
+
       this.$http.get('/profiles/'.concat(this.recordedProfile.id))
         .then(async response => {
           if (response.status === 200) {
