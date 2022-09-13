@@ -297,7 +297,7 @@
               <v-card-text>
                 <v-container>
                   <v-row>
-                    <p>Select profile to record audio for. This is only supported on Chrome and Firefox.</p>
+                    <p>Select profile to record audio for. This is only supported on Chrome and Firefox. Current profile will be saved before recording.</p>
                   </v-row>
                   <v-row>
                     <v-select
@@ -1026,7 +1026,7 @@
                     <v-text-field
                       v-model="previewSampleFadeIn"
                       type="number"
-                      label="Fade In Time"
+                      label="Fade In Time (In continuous mode, this only effects first playback)"
                       :disabled="previewSamplePlaying"
                       :rules="[rules.gt(-1)]"
                       @change="updatePreviewSamplePlayerFadeIn"
