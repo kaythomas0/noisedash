@@ -26,7 +26,7 @@
     "session-file-store": "^1.5.0",
     "tone": "^14.7.77",
     "vue": "^2.6.11",
-    "vue-router": "^3.5.4",
+    "vue-router": "^3.6.5",
     "vuetify": "^2.6.10",
     "winston": "^3.3.3"
   },
