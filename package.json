@@ -28,7 +28,7 @@
     "vue": "^2.6.11",
     "vue-router": "^3.5.4",
     "vuetify": "^2.6.10",
-    "winston": "^3.3.3"
+    "winston": "^3.8.2"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
