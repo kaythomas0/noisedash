@@ -7,3 +7,5 @@ updates:
     target-branch: "dev"
     labels:
       - "dependencies"
+    # Disable version updates for npm dependencies
+    open-pull-requests-limit: 0
