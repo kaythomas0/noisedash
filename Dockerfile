@@ -1,8 +1,8 @@
-FROM node:14
+FROM node:16
 LABEL maintainer="kaythomas@pm.me"
 WORKDIR /var/noisedash
 COPY package*.json ./
-RUN npm install
+RUN npm install --force
 COPY . .
 ENV NODE_ENV production
 RUN npm run build
