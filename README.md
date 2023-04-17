@@ -36,7 +36,7 @@ docker-compose up -d
 
 ## From Source
 
-Requires node 14 and npm
+Requires node 16 and npm
 
 * Clone the repo:
 
