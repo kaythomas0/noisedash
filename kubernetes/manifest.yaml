@@ -1,0 +1,240 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: samples-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noisedash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: noisedash
+  template:
+    metadata:
+      labels:
+        app: noisedash
+    spec:
+      containers:
+      - name: noisedash
+        image: noisedash/noisedash:latest
+        ports:
+        - containerPort: 1432
+        volumeMounts:
+        - name: db
+          mountPath: /var/noisedash/db
+        - name: samples
+          mountPath: /var/noisedash/samples
+        - name: config
+          mountPath: /var/noisedash/config/default.json
+          subPath: config.json
+      volumes:
+      - name: db
+        persistentVolumeClaim:
+          claimName: db-pvc
+      - name: samples
+        persistentVolumeClaim:
+          claimName: samples-pvc
+      - name: config
+        configMap:
+          name: noisedashcfg
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: noisedash
+spec:
+  selector:
+    app: noisedash
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 1432
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: noisedashcfg
+data:
+  config.json: |
+    {
+      "Server": {
+        "listeningPort": 1432,
+        "sessionFileStorePath": "sessions",
+        "sampleUploadPath": "samples",
+        "maxSampleSize": 10737418240,
+        "logFile": "log/noisedash.log",
+        "tls": false,
+        "tlsKey": "certs/key.pem",
+        "tlsCert": "certs/cert.pem"
+      }
+    }
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+  labels:
+    app.kubernetes.io/instance: noisedash
+  name: noisedashingress
+spec:
+  rules:
+  - host: noisedash.freshbrewed.science
+    http:
+      paths:
+      - backend:
+          service:
+            name: noisedash
+            port:
+              number: 80
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - noisedash.freshbrewed.science
+    secretName: noisedash-tls
+builder@DESKTOP-QADGF36:~/Workspaces/pyplanereport$
+builder@DESKTOP-QADGF36:~/Workspaces/pyplanereport$ cat noiseall.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: db-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: samples-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: noisedash
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: noisedash
+  template:
+    metadata:
+      labels:
+        app: noisedash
+    spec:
+      containers:
+      - name: noisedash
+        image: noisedash/noisedash:latest
+        ports:
+        - containerPort: 1432
+        volumeMounts:
+        - name: db
+          mountPath: /var/noisedash/db
+        - name: samples
+          mountPath: /var/noisedash/samples
+        - name: config
+          mountPath: /var/noisedash/config/default.json
+          subPath: config.json
+      volumes:
+      - name: db
+        persistentVolumeClaim:
+          claimName: db-pvc
+      - name: samples
+        persistentVolumeClaim:
+          claimName: samples-pvc
+      - name: config
+        configMap:
+          name: noisedashcfg
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: noisedash
+spec:
+  selector:
+    app: noisedash
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 1432
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: noisedashcfg
+data:
+  config.json: |
+    {
+      "Server": {
+        "listeningPort": 1432,
+        "sessionFileStorePath": "sessions",
+        "sampleUploadPath": "samples",
+        "maxSampleSize": 10737418240,
+        "logFile": "log/noisedash.log",
+        "tls": false,
+        "tlsKey": "certs/key.pem",
+        "tlsCert": "certs/cert.pem"
+      }
+    }
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   annotations:
+#     cert-manager.io/cluster-issuer: letsencrypt-prod
+#     kubernetes.io/ingress.class: nginx
+#     kubernetes.io/tls-acme: "true"
+#     nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+#     nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+#   labels:
+#     app.kubernetes.io/instance: noisedash
+#   name: noisedashingress
+# spec:
+#   rules:
+#   - host: noisedash.freshbrewed.science
+#     http:
+#       paths:
+#       - backend:
+#           service:
+#             name: noisedash
+#             port:
+#               number: 80
+#         path: /
+#         pathType: ImplementationSpecific
+#   tls:
+#   - hosts:
+#     - noisedash.freshbrewed.science
+#     secretName: noisedash-tls
