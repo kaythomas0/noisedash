@@ -23,6 +23,9 @@ Requires docker and docker-compose
 
 * Download the provided [docker-compose.yml file](https://github.com/kaythomas0/noisedash/blob/main/docker-compose.yml)
 * In the same directory as the docker-compose file, created a folder called `config`, and inside it, put the provided [config file](https://github.com/kaythomas0/noisedash/blob/main/config/default.json)
+  * `maxSampleSize` is in bytes - 10GB by default
+  * Keep `tls` as `false` if using an external web server like nginx
+  * `production.json` exists in the source code and is left empty intentionally for the reason outlined here: https://github.com/node-config/node-config/wiki/Strict-Mode#node_env-value-of-node_env-did-not-match-any-deployment-config-file-names=
 * Edit the config file to your preference
 * Bring the container up:
 
@@ -53,7 +56,7 @@ ingress.networking.k8s.io/noisedashingress created
 
 ## From Source
 
-Requires node 16 and npm
+Requires node 20 and npm
 
 * Clone the repo:
 
