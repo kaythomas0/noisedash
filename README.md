@@ -23,6 +23,9 @@ Requires docker and docker-compose
 
 * Download the provided [docker-compose.yml file](https://github.com/kaythomas0/noisedash/blob/main/docker-compose.yml)
 * In the same directory as the docker-compose file, created a folder called `config`, and inside it, put the provided [config file](https://github.com/kaythomas0/noisedash/blob/main/config/default.json)
+  * `maxSampleSize` is in bytes - 10GB by default
+  * Keep `tls` as `false` if using an external web server like nginx
+  * `production.json` exists in the source code and is left empty intentionally for the reason outlined here: https://github.com/node-config/node-config/wiki/Strict-Mode#node_env-value-of-node_env-did-not-match-any-deployment-config-file-names=
 * Edit the config file to your preference
 * Bring the container up:
 
@@ -34,9 +37,26 @@ docker-compose up -d
 
 (Raspberry Pi compatible images are available, see armv7 images on [Docker Hub](https://hub.docker.com/repository/docker/noisedash/noisedash))
 
+## Kubernetes
+
+You can apply the manifest.yaml in the kubernetes folder to install Noisedash into your Kubernetes cluster.
+
+Optionally, uncomment the last lines in the file to also create an ingress.  The ingress, commented out by default, needs to have the clusterIssuser annotation set to your cluster issuer (default: letsencrypt-prod) and the ingress class set to your Ingress class (default: Nginx)
+
+
+``` bash
+$ kubectl apply -f ./kubernetes/manifest.yaml
+persistentvolumeclaim/db-pvc created
+persistentvolumeclaim/samples-pvc created
+deployment.apps/noisedash created
+service/noisedash created
+configmap/noisedashcfg created
+ingress.networking.k8s.io/noisedashingress created
+```
+
 ## From Source
 
-Requires node 16 and npm
+Requires node 20 and npm
 
 * Clone the repo:
 

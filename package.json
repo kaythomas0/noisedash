@@ -1,6 +1,6 @@
 {
   "name": "noisedash",
-  "version": "0.6.13",
+  "version": "0.7.0",
   "private": true,
   "author": "Kay Thomas <kaythomas@pm.me> (https://kaythomas.dev)",
   "scripts": {
@@ -25,7 +25,7 @@
     "path": "^0.12.7",
     "session-file-store": "^1.5.0",
     "tone": "^14.7.77",
-    "vue": "^2.6.11",
+    "vue": "^2.7.16",
     "vue-router": "^3.5.4",
     "vuetify": "^2.6.10",
     "winston": "^3.3.3"
@@ -44,11 +44,11 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-standard": "^4.0.0",
-    "eslint-plugin-vue": "^8.0.3",
+    "eslint-plugin-vue": "^7.20.0",
     "sass": "~1.32.0",
     "sass-loader": "^10.0.0",
     "vue-cli-plugin-vuetify": "^2.5.8",
-    "vue-template-compiler": "^2.6.11",
+    "vue-template-compiler": "^2.7.16",
     "vuetify-loader": "^1.7.3"
   },
   "bugs": "https://github.com/kaythomas0/noisedash/issues",
