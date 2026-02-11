@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@vscode/sqlite3": "^5.0.8",
-    "axios": "^1.6.0",
+    "axios": "^1.13.5",
     "config": "^3.3.6",
     "connect-history-api-fallback": "^1.6.0",
     "cookie-parser": "^1.4.5",
