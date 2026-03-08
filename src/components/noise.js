@@ -798,9 +798,20 @@ export default {
             this.recordingDialog = true
             this.recordingTimeElapsed = 0
 
+            this.playProfileForRecording()
+
+            // Wait until Transport is actually running before starting recorder
+            await new Promise(resolve => {
+              const check = setInterval(() => {
+                if (Tone.Transport.state === 'started') {
+                  clearInterval(check)
+                  resolve()
+                }
+              }, 10)
+            })
+
             await this.recorder.start()
             this.recordingInterval = setInterval(() => this.recordingTimeElapsed++, 1000)
-            this.playProfileForRecording()
           }
         })
         .catch(() => {
@@ -808,7 +819,9 @@ export default {
           this.errorSnackbar = true
         })
     },
-    playProfileForRecording () {
+    async playProfileForRecording () {
+      await Tone.start()
+
       this.playDisabled = true
       Tone.Transport.cancel()
 
