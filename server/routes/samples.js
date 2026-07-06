@@ -155,27 +155,27 @@ router.put('/samples/:sampleId', (req, res) => {
       if (row.user.toString() !== req.user.id) {
         return res.sendStatus(401)
       }
-    })
 
-    db.run(`UPDATE samples SET
+      db.run(`UPDATE samples SET
       fade_in = ?,
       loop_points_enabled = ?,
       loop_start = ?,
       loop_end = ?
       WHERE id = ?`, [
-      req.body.fadeIn,
-      req.body.loopPointsEnabled ? 1 : 0,
-      req.body.loopStart,
-      req.body.loopEnd,
-      req.params.sampleId
-    ],
-    (err) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      }
+        req.body.fadeIn,
+        req.body.loopPointsEnabled ? 1 : 0,
+        req.body.loopStart,
+        req.body.loopEnd,
+        req.params.sampleId
+      ],
+      (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        }
 
-      return res.sendStatus(200)
+        return res.sendStatus(200)
+      })
     })
   })
 })
