@@ -170,9 +170,8 @@ router.put('/profiles/:profileId', (req, res) => {
       if (row.user.toString() !== req.user.id) {
         return res.sendStatus(401)
       }
-    })
 
-    db.run(`UPDATE profiles SET
+      db.run(`UPDATE profiles SET
       timer_enabled = ?,
       duration = ?,
       volume = ?,
@@ -188,41 +187,41 @@ router.put('/profiles/:profileId', (req, res) => {
       tremolo_frequency = ?,
       tremolo_depth = ?
       WHERE id = ?`, [
-      req.body.isTimerEnabled ? 1 : 0,
-      req.body.duration,
-      req.body.volume,
-      req.body.noiseColor,
-      req.body.isFilterEnabled ? 1 : 0,
-      req.body.filterType,
-      req.body.filterCutoff,
-      req.body.isLFOFilterCutoffEnabled ? 1 : 0,
-      req.body.lfoFilterCutoffFrequency,
-      req.body.lfoFilterCutoffLow,
-      req.body.lfoFilterCutoffHigh,
-      req.body.isTremoloEnabled ? 1 : 0,
-      req.body.tremoloFrequency,
-      req.body.tremoloDepth,
-      req.params.profileId
-    ],
-    (err) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      }
+        req.body.isTimerEnabled ? 1 : 0,
+        req.body.duration,
+        req.body.volume,
+        req.body.noiseColor,
+        req.body.isFilterEnabled ? 1 : 0,
+        req.body.filterType,
+        req.body.filterCutoff,
+        req.body.isLFOFilterCutoffEnabled ? 1 : 0,
+        req.body.lfoFilterCutoffFrequency,
+        req.body.lfoFilterCutoffLow,
+        req.body.lfoFilterCutoffHigh,
+        req.body.isTremoloEnabled ? 1 : 0,
+        req.body.tremoloFrequency,
+        req.body.tremoloDepth,
+        req.params.profileId
+      ],
+      (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        }
 
-      db.serialize(() => {
-        db.run('DELETE FROM profiles_samples WHERE profile = ?', [
-          req.params.profileId
-        ],
-        (err) => {
-          if (err) {
-            logger.error(err)
-            return res.sendStatus(500)
-          }
-        })
+        db.serialize(() => {
+          db.run('DELETE FROM profiles_samples WHERE profile = ?', [
+            req.params.profileId
+          ],
+          (err) => {
+            if (err) {
+              logger.error(err)
+              return res.sendStatus(500)
+            }
+          })
 
-        req.body.samples.forEach(s => {
-          db.run(`INSERT INTO profiles_samples(
+          req.body.samples.forEach(s => {
+            db.run(`INSERT INTO profiles_samples(
             profile,
             sample,
             volume,
@@ -234,26 +233,27 @@ router.put('/profiles/:profileId', (req, res) => {
             sporadic_min,
             sporadic_max)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`, [
-            req.params.profileId,
-            s.id,
-            s.volume,
-            s.reverbEnabled,
-            s.reverbPreDelay,
-            s.reverbDecay,
-            s.reverbWet,
-            s.playbackMode,
-            s.sporadicMin,
-            s.sporadicMax
-          ],
-          (err) => {
-            if (err) {
-              logger.error(err)
-              return res.sendStatus(500)
-            }
+              req.params.profileId,
+              s.id,
+              s.volume,
+              s.reverbEnabled,
+              s.reverbPreDelay,
+              s.reverbDecay,
+              s.reverbWet,
+              s.playbackMode,
+              s.sporadicMin,
+              s.sporadicMax
+            ],
+            (err) => {
+              if (err) {
+                logger.error(err)
+                return res.sendStatus(500)
+              }
+            })
           })
         })
+        return res.sendStatus(200)
       })
-      return res.sendStatus(200)
     })
   })
 })
@@ -460,22 +460,22 @@ router.delete('/profiles/:profileId', (req, res) => {
       if (row.user.toString() !== req.user.id) {
         return res.sendStatus(401)
       }
-    })
 
-    db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      }
-    })
+      db.run('DELETE FROM profiles WHERE id = ?', [req.params.profileId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        }
+      })
 
-    db.run('DELETE FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err) => {
-      if (err) {
-        logger.error(err)
-        return res.sendStatus(500)
-      } else {
-        return res.sendStatus(200)
-      }
+      db.run('DELETE FROM profiles_samples WHERE profile = ?', [req.params.profileId], (err) => {
+        if (err) {
+          logger.error(err)
+          return res.sendStatus(500)
+        } else {
+          return res.sendStatus(200)
+        }
+      })
     })
   })
 })
