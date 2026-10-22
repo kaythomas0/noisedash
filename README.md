@@ -56,7 +56,7 @@ ingress.networking.k8s.io/noisedashingress created
 
 ## From Source
 
-Requires node 20 and npm
+Requires node 22 and npm
 
 * Clone the repo:
 
